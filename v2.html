@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Thorndon Ward ICA Log - v2.9</title>
+  <title>Thorndon Ward ICA Log - v2.10</title>
   <style>
     :root {
       --ward: #0b4d7a;
@@ -28,17 +28,14 @@
     .bed-btn.selected { background: var(--blue) !important; color: #fff !important; border-color: var(--blue) !important; }
     .card { background: #fff; border: 1px solid var(--border); border-radius: 6px; padding: 16px; margin-bottom: 16px; }
     .card h2 { font-size: 1.05rem; margin-bottom: 12px; color: var(--ward); display: flex; justify-content: space-between; align-items: center; }
-    .tracking-box { background: var(--light); border: 1px solid var(--border); border-radius: 6px; padding: 10px 12px; margin-bottom: 16px; }
-    .chips { display: flex; gap: 6px; overflow-x: auto; white-space: nowrap; padding-bottom: 4px; -webkit-overflow-scrolling: touch; margin-top: 6px; }
-    .chip { background: #fff; border: 1px solid var(--border); border-radius: 16px; padding: 6px 12px; font-size: 0.78rem; cursor: pointer; flex-shrink: 0; }
-    .chip.active { background: var(--ward); color: #fff; border-color: var(--ward); font-weight: 600; }
-    .field-row { margin-bottom: 12px; background: #fff; border: 1px solid var(--border); padding: 12px; border-radius: 6px; display: none; }
+    .field-row { margin-bottom: 14px; background: #fafafa; border: 1px solid var(--border); padding: 12px; border-radius: 6px; }
     label { display: block; font-size: 0.78rem; font-weight: 700; margin-bottom: 6px; color: var(--grey); text-transform: uppercase; }
     input, select, textarea { width: 100%; padding: 9px; border: 1px solid var(--border); border-radius: 4px; font-size: 0.9rem; background: #fff; }
     .area-grid { display: grid; grid-template-columns: 110px 1fr 1fr; gap: 6px; align-items: center; margin-bottom: 8px; }
     @media(max-width:600px) { .area-grid { grid-template-columns: 1fr; background: var(--light); padding: 8px; border-radius: 4px; } }
     .btn-row { display: flex; gap: 6px; flex-wrap: wrap; margin: 6px 0; }
-    .action-chip { background: var(--light); border: 1px solid var(--border); border-radius: 14px; padding: 5px 10px; font-size: 0.76rem; cursor: pointer; }
+    .action-chip { background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 6px 12px; font-size: 0.78rem; cursor: pointer; font-weight: 500; }
+    .action-chip:active { background: var(--ward); color: #fff; }
     .sec-btn { background: #fff; color: var(--ward); border: 1px solid var(--ward); padding: 6px 12px; border-radius: 4px; font-size: 0.8rem; cursor: pointer; font-weight: 600; }
     .btn-clear { background: #fce8e6; color: #c5221f; border: 1px solid #f5c2be; border-radius: 6px; padding: 9px 16px; font-size: 0.85rem; font-weight: 600; cursor: pointer; }
     .bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; border-top: 1px solid var(--border); padding: 10px 16px; display: flex; justify-content: space-between; align-items: center; z-index: 100; max-width: 760px; margin: 0 auto; box-shadow: 0 -2px 5px rgba(0,0,0,0.05); }
@@ -47,40 +44,26 @@
     .view.active { display: block; }
   </style>
   <script>
-    var CHARTS = [
-      { id: 'news', label: 'NEWS2' },
-      { id: 'bowels', label: 'Bowels' },
-      { id: 'amys', label: "Amy's Round" },
-      { id: 'turning', label: 'Turning' },
-      { id: 'lsbp', label: 'Lying/Standing BP' },
-      { id: 'weight', label: 'Weight' },
-      { id: 'fluids', label: 'Fluid Balance' },
-      { id: 'diet', label: 'Food & Diet' },
-      { id: 'bm', label: 'BM (Glucose)' },
-      { id: 'events', label: 'Notes' }
-    ];
-
-    var state = { allocated: [], activeBed: null, configs: {}, data: {} };
+    var state = { allocated: [], activeBed: null, data: {} };
 
     function saveState() {
-      try { localStorage.setItem("thorndon_v29", JSON.stringify(state)); } catch(e){}
+      try { localStorage.setItem("thorndon_v210", JSON.stringify(state)); } catch(e){}
       var s = document.getElementById("save-status");
       if (s) { s.textContent = "Saved"; setTimeout(function(){ s.textContent = "Auto-Saved"; }, 600); }
     }
 
     function loadState() {
       try {
-        var raw = localStorage.getItem("thorndon_v29");
+        var raw = localStorage.getItem("thorndon_v210");
         if (raw) {
           var parsed = JSON.parse(raw);
           if (parsed && typeof parsed === "object") {
             state.allocated = Array.isArray(parsed.allocated) ? parsed.allocated : [];
-            state.configs = parsed.configs || {};
             state.data = parsed.data || {};
           }
         }
       } catch(e){
-        state = { allocated: [], activeBed: null, configs: {}, data: {} };
+        state = { allocated: [], activeBed: null, data: {} };
       }
     }
 
@@ -152,47 +135,15 @@
 
     function openBed(bed) {
       state.activeBed = bed;
-      if (!state.configs[bed]) {
-        state.configs[bed] = { news: true, bowels: true, amys: false, turning: false, lsbp: false, weight: false, fluids: false, diet: false, bm: false, events: true };
-      }
       if (!state.data[bed]) {
         state.data[bed] = { amysSacrumStatus: 'Skin intact', amysLeftHeelStatus: 'Skin intact', amysRightHeelStatus: 'Skin intact', amysOtherStatus: 'Skin intact' };
       }
       var title = document.getElementById("bedTitle");
       if (title) title.textContent = bed + " Entry Log";
 
-      updateChipsUI();
       populateForm();
       showView("bed");
       renderNavBeds();
-    }
-
-    function updateChipsUI() {
-      if (!state.activeBed) return;
-      var cfg = state.configs[state.activeBed];
-      if (!cfg) return;
-
-      CHARTS.forEach(function(c) {
-        var chip = document.getElementById("chip-" + c.id);
-        var sec = document.getElementById("sec-" + c.id);
-        var isActive = !!cfg[c.id];
-        if (chip) {
-          chip.className = isActive ? "chip active" : "chip";
-          chip.textContent = (isActive ? "✓ " : "+ ") + c.label;
-        }
-        if (sec) {
-          sec.style.display = isActive ? "block" : "none";
-        }
-      });
-    }
-
-    function toggleChart(chartId) {
-      if (!state.activeBed) return;
-      var cfg = state.configs[state.activeBed];
-      if (!cfg) return;
-      cfg[chartId] = !cfg[chartId];
-      saveState();
-      updateChipsUI();
     }
 
     function populateForm() {
@@ -295,23 +246,21 @@
       }
       state.allocated.forEach(function(bed) {
         var d = state.data[bed] || {};
-        var cfg = state.configs[bed] || {};
         var t = "--- " + bed + " SHIFT SUMMARY ---\n";
         var has = false;
-        if (cfg.news && d.news) { t += "NEWS2: " + d.news + "\n"; has = true; }
-        if (cfg.bm && d.bm) { t += "Blood Glucose: " + d.bm + "\n"; has = true; }
-        if (cfg.lsbp && (d.lyingBP || d.standingBP)) { t += "Lying & Standing BP: Lying: " + (d.lyingBP||'N/R') + " | Standing: " + (d.standingBP||'N/R') + "\n"; has = true; }
-        if (cfg.weight && d.weight) { t += "Weight: " + d.weight + "\n"; has = true; }
-        if (cfg.bowels && d.bowels) { t += "Bowels: " + d.bowels + "\n"; has = true; }
-        if (cfg.fluids && (d.fluidIn || d.fluidOut)) { t += "Fluid Balance: In: " + (d.fluidIn||'Nil') + " | Out: " + (d.fluidOut||'Nil') + "\n"; has = true; }
-        if (cfg.diet && d.diet) { t += "Food & Diet: " + d.diet + "\n"; has = true; }
-        if (cfg.turning && d.turning) { t += "Turning Chart:\n" + d.turning + "\n"; has = true; }
-        if (cfg.amys) {
+        if (d.news) { t += "NEWS2: " + d.news + "\n"; has = true; }
+        if (d.bm) { t += "Blood Glucose: " + d.bm + "\n"; has = true; }
+        if (d.lyingBP || d.standingBP) { t += "Lying & Standing BP: Lying: " + (d.lyingBP||'N/R') + " | Standing: " + (d.standingBP||'N/R') + "\n"; has = true; }
+        if (d.weight) { t += "Weight: " + d.weight + "\n"; has = true; }
+        if (d.bowels) { t += "Bowels: " + d.bowels + "\n"; has = true; }
+        if (d.fluidIn || d.fluidOut) { t += "Fluid Balance: In: " + (d.fluidIn||'Nil') + " | Out: " + (d.fluidOut||'Nil') + "\n"; has = true; }
+        if (d.diet) { t += "Food & Diet: " + d.diet + "\n"; has = true; }
+        if (d.turning) { t += "Turning Chart:\n" + d.turning + "\n"; has = true; }
+        if (d.amysSacrumStatus && d.amysSacrumStatus !== 'Skin intact' || d.amysLeftHeelStatus && d.amysLeftHeelStatus !== 'Skin intact' || d.amysRightHeelStatus && d.amysRightHeelStatus !== 'Skin intact') {
           t += "Amy's Round:\n- Sacrum: " + (d.amysSacrumStatus||'Skin intact') + (d.amysSacrumNotes ? ' ('+d.amysSacrumNotes+')' : '') + "\n- Left Heel: " + (d.amysLeftHeelStatus||'Skin intact') + (d.amysLeftHeelNotes ? ' ('+d.amysLeftHeelNotes+')' : '') + "\n- Right Heel: " + (d.amysRightHeelStatus||'Skin intact') + (d.amysRightHeelNotes ? ' ('+d.amysRightHeelNotes+')' : '') + "\n";
-          if (d.amysOtherNotes || (d.amysOtherStatus && d.amysOtherStatus !== 'Skin intact')) t += "- Other: " + (d.amysOtherStatus||'Skin intact') + " (" + (d.amysOtherNotes||'') + ")\n";
           has = true;
         }
-        if (cfg.events && d.events) { t += "Notes:\n" + d.events + "\n"; has = true; }
+        if (d.events) { t += "Notes:\n" + d.events + "\n"; has = true; }
         if (!has) t += "No active entries recorded.\n";
 
         var card = document.createElement("div");
@@ -333,7 +282,7 @@
 
     function clearShift() {
       if (confirm("Clear all shift data?")) {
-        state = { allocated: [], activeBed: null, configs: {}, data: {} };
+        state = { allocated: [], activeBed: null, data: {} };
         saveState();
         refreshGridUI();
         renderNavBeds();
@@ -372,7 +321,7 @@
   <header>
     <div>
       <h1>Thorndon Ward ICA Log</h1>
-      <p>Offline Shift Notepad • SystmOne Staging (v2.9)</p>
+      <p>Offline Shift Notepad • SystmOne Staging (v2.10)</p>
     </div>
     <span class="badge" id="save-status">Auto-Saved</span>
   </header>
@@ -398,16 +347,61 @@
           <button type="button" class="sec-btn" onclick="showView('allocation')">Back to Beds</button>
         </h2>
 
-        <div class="tracking-box">
-          <small style="font-size:0.72rem;font-weight:700;color:var(--grey);text-transform:uppercase;">Active Charts for this Bed (Swipe/Scroll across chips)</small>
-          <div class="chips">
-            <button type="button" class="chip" id="chip-news" onclick="toggleChart('news')">✓ NEWS2</button>
-            <button type="button" class="chip" id="chip-bowels" onclick="toggleChart('bowels')">✓ Bowels</button>
-            <button type="button" class="chip" id="chip-amys" onclick="toggleChart('amys')">+ Amy's Round</button>
-            <button type="button" class="chip" id="chip-turning" onclick="toggleChart('turning')">+ Turning</button>
-            <button type="button" class="chip" id="chip-lsbp" onclick="toggleChart('lsbp')">+ Lying/Standing BP</button>
-            <button type="button" class="chip" id="chip-weight" onclick="toggleChart('weight')">+ Weight</button>
-            <button type="button" class="chip" id="chip-fluids" onclick="toggleChart('fluids')">+ Fluid Balance</button>
-            <button type="button" class="chip" id="chip-diet" onclick="toggleChart('diet')">+ Food & Diet</button>
-            <button type="button" class="chip" id="chip-bm" onclick="toggleChart('bm')">+ BM (Glucose)</button>
-            <button type="button" class="chip" id="chip-events" onclick="toggleChart('e
+        <div class="field-row">
+          <label>NEWS2 / Observations & Time</label>
+          <input type="text" id="f-news" placeholder="e.g. 08:30 NEWS: 1 (Pulse 96)" oninput="updateBedData('news', this.value)">
+        </div>
+
+        <div class="field-row">
+          <label>Bowel Movement & Bristol Stool Scale</label>
+          <div style="display:flex;gap:6px;margin-bottom:6px;">
+            <select id="sel-bristol" onchange="addBristol(this.value); this.value='';">
+              <option value="">+ Add Bristol Type...</option>
+              <option value="Type 1">Type 1 (Hard lumps)</option>
+              <option value="Type 2">Type 2 (Lumpy sausage)</option>
+              <option value="Type 3">Type 3 (Cracked sausage)</option>
+              <option value="Type 4">Type 4 (Smooth, soft)</option>
+              <option value="Type 5">Type 5 (Soft blobs)</option>
+              <option value="Type 6">Type 6 (Mushy)</option>
+              <option value="Type 7">Type 7 (Liquid)</option>
+            </select>
+            <button type="button" class="sec-btn" onclick="setBowel('Not opened this shift')">BO Not Opened</button>
+          </div>
+          <input type="text" id="f-bowels" placeholder="e.g. BO x1 Type 4" oninput="updateBedData('bowels', this.value)">
+        </div>
+
+        <div class="field-row">
+          <label>Amy's Round (Pressure Areas)</label>
+          <div class="area-grid">
+            <strong>Sacrum</strong>
+            <select id="f-amysSacrumStatus" onchange="updateBedData('amysSacrumStatus', this.value)">
+              <option>Skin intact</option><option>Blanching redness</option><option>Non-blanching redness</option><option>Moisture lesion</option><option>Dressing intact</option><option>Broken skin</option>
+            </select>
+            <input type="text" id="f-amysSacrumNotes" placeholder="Sacrum notes" oninput="updateBedData('amysSacrumNotes', this.value)">
+          </div>
+          <div class="area-grid">
+            <strong>Left Heel</strong>
+            <select id="f-amysLeftHeelStatus" onchange="updateBedData('amysLeftHeelStatus', this.value)">
+              <option>Skin intact</option><option>Blanching redness</option><option>Offloaded on pillow</option><option>Dressing intact</option><option>Broken skin</option>
+            </select>
+            <input type="text" id="f-amysLeftHeelNotes" placeholder="Left heel notes" oninput="updateBedData('amysLeftHeelNotes', this.value)">
+          </div>
+          <div class="area-grid">
+            <strong>Right Heel</strong>
+            <select id="f-amysRightHeelStatus" onchange="updateBedData('amysRightHeelStatus', this.value)">
+              <option>Skin intact</option><option>Blanching redness</option><option>Offloaded on pillow</option><option>Dressing intact</option><option>Broken skin</option>
+            </select>
+            <input type="text" id="f-amysRightHeelNotes" placeholder="Right heel notes" oninput="updateBedData('amysRightHeelNotes', this.value)">
+          </div>
+          <div class="area-grid">
+            <strong>Other/Buttocks</strong>
+            <select id="f-amysOtherStatus" onchange="updateBedData('amysOtherStatus', this.value)">
+              <option>Skin intact</option><option>Blanching redness</option><option>Moisture lesion</option><option>Broken skin</option>
+            </select>
+            <input type="text" id="f-amysOtherNotes" placeholder="Details" oninput="updateBedData('amysOtherNotes', this.value)">
+          </div>
+        </div>
+
+        <div class="field-row">
+          <label>Turning & Repositioning Chart</label>
+          <div
