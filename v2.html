@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Thorndon Ward ICA Log - v2.2</title>
+  <title>Thorndon Ward ICA Log - v2.3</title>
   <style>
     :root {
       --ward: #0b4d7a;
@@ -63,22 +63,29 @@
     var state = { allocated: [], activeBed: null, configs: {}, data: {} };
 
     function saveState() {
-      try { localStorage.setItem("thorndon_v22", JSON.stringify(state)); } catch(e){}
+      try { localStorage.setItem("thorndon_v23", JSON.stringify(state)); } catch(e){}
       var s = document.getElementById("save-status");
       if (s) { s.textContent = "Saved"; setTimeout(function(){ s.textContent = "Auto-Saved"; }, 600); }
     }
 
     function loadState() {
       try {
-        var raw = localStorage.getItem("thorndon_v22");
-        if (raw) state = JSON.parse(raw);
-      } catch(e){}
-      if (!Array.isArray(state.allocated)) state.allocated = [];
-      if (!state.configs) state.configs = {};
-      if (!state.data) state.data = {};
+        var raw = localStorage.getItem("thorndon_v23");
+        if (raw) {
+          var parsed = JSON.parse(raw);
+          if (parsed && typeof parsed === "object") {
+            state.allocated = Array.isArray(parsed.allocated) ? parsed.allocated : [];
+            state.configs = parsed.configs || {};
+            state.data = parsed.data || {};
+          }
+        }
+      } catch(e){
+        state = { allocated: [], activeBed: null, configs: {}, data: {} };
+      }
     }
 
     function handleBedClick(btn, bedName) {
+      if (!Array.isArray(state.allocated)) state.allocated = [];
       var idx = state.allocated.indexOf(bedName);
       if (idx === -1) {
         state.allocated.push(bedName);
@@ -351,8 +358,8 @@
 
   <header>
     <div>
-      <h1>Thorndon Ward ICA Log</h1>
-      <p>Offline Shift Notepad • SystmOne Staging (v2.2)</p>
+      <h1>Thorndon Ward ICA Log (v2.3)</h1>
+      <p>Offline Shift Notepad • SystmOne Staging</p>
     </div>
     <span class="badge" id="save-status">Auto-Saved</span>
   </header>
@@ -386,6 +393,4 @@
         <button type="button" class="bed-btn" data-bed="Bay 5 Bed 1" onclick="handleBedClick(this, 'Bay 5 Bed 1')">Bay 5 Bed 1</button>
         <button type="button" class="bed-btn" data-bed="Bay 5 Bed 2" onclick="handleBedClick(this, 'Bay 5 Bed 2')">Bay 5 Bed 2</button>
         <button type="button" class="bed-btn" data-bed="Bay 5 Bed 3" onclick="handleBedClick(this, 'Bay 5 Bed 3')">Bay 5 Bed 3</button>
-        <button type="button" class="bed-btn" data-bed="Bay 5 Bed 4" onclick="handleBedClick(this, 'Bay 5 Bed 4')">Bay 5 Bed 4</button>
-        <button type="button" class="bed-btn" data-bed="Side Room 1" onclick="handleBedClick(this, 'Side Room 1')">Side Room 1</button>
-        <button type="button" class="bed-btn" data-bed="Sid
+        <button type="button" class="bed-btn" data-bed="Bay 5
