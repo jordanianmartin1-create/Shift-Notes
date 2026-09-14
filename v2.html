@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Thorndon Ward ICA Log - v2.5</title>
+  <title>Thorndon Ward ICA Log - v2.6</title>
   <style>
     :root {
       --ward: #0b4d7a;
@@ -48,16 +48,6 @@
     .view.active { display: block; }
   </style>
   <script>
-    var BEDS = [
-      "Bay 1 Bed 1", "Bay 1 Bed 2",
-      "Bay 2 Bed 1", "Bay 2 Bed 2", "Bay 2 Bed 3", "Bay 2 Bed 4",
-      "Bay 3 Bed 1", "Bay 3 Bed 2", "Bay 3 Bed 3", "Bay 3 Bed 4",
-      "Bay 4 Bed 1", "Bay 4 Bed 2", "Bay 4 Bed 3", "Bay 4 Bed 4",
-      "Bay 5 Bed 1", "Bay 5 Bed 2", "Bay 5 Bed 3", "Bay 5 Bed 4",
-      "Side Room 1", "Side Room 2", "Side Room 3", "Side Room 4",
-      "Side Room 5", "Side Room 6", "Side Room 7"
-    ];
-
     var CHARTS = [
       { id: 'news', label: 'NEWS2' },
       { id: 'bowels', label: 'Bowels' },
@@ -74,14 +64,14 @@
     var state = { allocated: [], activeBed: null, configs: {}, data: {} };
 
     function saveState() {
-      try { localStorage.setItem("thorndon_v25", JSON.stringify(state)); } catch(e){}
+      try { localStorage.setItem("thorndon_v26", JSON.stringify(state)); } catch(e){}
       var s = document.getElementById("save-status");
       if (s) { s.textContent = "Saved"; setTimeout(function(){ s.textContent = "Auto-Saved"; }, 600); }
     }
 
     function loadState() {
       try {
-        var raw = localStorage.getItem("thorndon_v25");
+        var raw = localStorage.getItem("thorndon_v26");
         if (raw) {
           var parsed = JSON.parse(raw);
           if (parsed && typeof parsed === "object") {
@@ -377,7 +367,7 @@
   <header>
     <div>
       <h1>Thorndon Ward ICA Log</h1>
-      <p>Offline Shift Notepad • SystmOne Staging (v2.5)</p>
+      <p>Offline Shift Notepad • SystmOne Staging (v2.6)</p>
     </div>
     <span class="badge" id="save-status">Auto-Saved</span>
   </header>
@@ -406,4 +396,7 @@
         <button type="button" class="bed-btn" data-bed="Bay 3 Bed 4" onclick="toggleBed(this, 'Bay 3 Bed 4')">Bay 3 Bed 4</button>
         <button type="button" class="bed-btn" data-bed="Bay 4 Bed 1" onclick="toggleBed(this, 'Bay 4 Bed 1')">Bay 4 Bed 1</button>
         <button type="button" class="bed-btn" data-bed="Bay 4 Bed 2" onclick="toggleBed(this, 'Bay 4 Bed 2')">Bay 4 Bed 2</button>
-        <button type="button" class
+        <button type="button" class="bed-btn" data-bed="Bay 4 Bed 3" onclick="toggleBed(this, 'Bay 4 Bed 3')">Bay 4 Bed 3</button>
+        <button type="button" class="bed-btn" data-bed="Bay 4 Bed 4" onclick="toggleBed(this, 'Bay 4 Bed 4')">Bay 4 Bed 4</button>
+        <button type="button" class="bed-btn" data-bed="Bay 5 Bed 1" onclick="toggleBed(this, 'Bay 5 Bed 1')">Bay 5 Bed 1</button>
+        <button type="button" class="bed-btn" data-bed="Bay 5 Bed 2" onclick="toggl
