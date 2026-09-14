@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#1F4E79">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Thorndon Ward ICA Log</title>
+<style>
+:root{--navy:#1F4E79;--steel:#2F5597;--bg:#F4F6F8;--card:#fff;--red:#C00000;--green:#006100;--amber:#9C6500}
+*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:#1E293B;padding-bottom:85px}
+header{background:var(--navy);color:#fff;padding:12px 16px;position:sticky;top:0;z-index:100;display:flex;justify-content:space-between;align-items:center}
+header h1{font-size:15px;font-weight:700}
+.shift-tag{font-size:11px;background:rgba(255,255,255,.2);padding:3px 8px;border-radius:12px}
+nav{background:var(--steel);display:flex;overflow-x:auto;scrollbar-width:none}
+nav::-webkit-scrollbar{display:none}
+nav button{flex:0 0 auto;background:none;border:none;color:rgba(255,255,255,.8);padding:12px 14px;font-size:12px;font-weight:600;cursor:pointer}
+nav button.active{color:#fff;border-bottom:3px solid #fff;background:rgba(255,255,255,.15)}
+.content{padding:12px}
+.card{background:var(--card);border-radius:8px;padding:12px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.card-title{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+label{display:block;font-size:11px;font-weight:600;color:#64748B;margin:8px 0 3px}
+input,select{width:100%;padding:8px;border:1px solid #CBD5E1;border-radius:6px;font-size:13px;background:#fff}
+.row{display:flex;gap:8px}
+.row>div{flex:1}
+.btn{display:inline-block;padding:6px 12px;border-radius:6px;font-size:12px;font-weight:600;border:none;cursor:pointer}
+.btn-del{background:#FEE2E2;color:var(--red)}
+.btn-primary{background:var(--navy);color:#fff}
+.footer{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #E2E8F0;padding:8px 16px;display:flex;justify-content:space-between;z-index:100}
+.badge{display:inline-block;padding:3px 8px;border-radius:4px;font-size:11px;font-weight:700}
+.b-green{background:#DCFCE7;color:#166534}
+.b-amber{background:#FEF3C7;color:#92400E}
+.b-red{background:#FEE2E2;color:#991B1B}
+.bed-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px}
+.bed-pill{padding:12px 6px;border:1px solid #CBD5E1;border-radius:6px;background:#fff;font-size:12px;font-weight:600;text-align:center;cursor:pointer;color:#1E293B;width:100%}
+.bed-pill.active-bed{background:#2F5597!important;color:#fff!important;border-color:#1F4E79!important}
+.summary-sec{margin-bottom:8px;padding-bottom:6px;border-bottom:1px dashed #CBD5E1;font-size:12px;line-height:1.5}
+.summary-sec b{color:var(--steel)}
+</style>
+</head>
+<body>
+<header>
+  <div><h1>Thorndon Ward ICA Log</h1><div style="font-size:10px;opacity:.85;">Offline Shift Notepad &bull; SystmOne Staging</div></div>
+  <span class="shift-tag" id="status">Auto-Saved</span>
+</header>
+<nav id="navBar"></nav>
+<div class="content" id="tabContent"></div>
+<div class="footer">
+  <button type="button" class="btn btn-del" onclick="clearShift()">Clear Shift</button>
+  <button type="button" class="btn btn-primary" onclick="copyHandover()">Copy Handover</button>
+</div>
+
+<script>
+const BEDS=["Bay 1 Bed 1","Bay 1 Bed 2","Bay 2 Bed 1","Bay 2 Bed 2","Bay 2 Bed 3","Bay 2 Bed 4","Bay 3 Bed 1","Bay 3 Bed 2","Bay 3 Bed 3","Bay 3 Bed 4","Bay 4 Bed 1","Bay 4 Bed 2","Bay 4 Bed 3","Bay 4 Bed 4","Bay 5 Bed 1","Bay 5 Bed 2","Bay 5 Bed 3","Bay 5 Bed 4","Side Room 1","Side Room 2","Side Room 3","Side Room 4","Side Room 5","Side Room 6","Side Room 7"];
+const TABS=[["home","Home"],["amy","Amy's Round"],["news2","NEWS2"],["fluid","Fluids"],["food","Food"],["bowel","Bowels"],["turn","Turning"],["bp","L/S BP"],["bm","Glucose"],["must","MUST"],["summary","Summary"]];
+const HOURS=["07-08","08-09","09-10","10-11","11-12","12-13","13-14","14-15","15-16","16-17","17-18","18-19"];
+
+let curTab="home", allocated=[], records={};
+
+function loadDB(){
+  try{
+    const a=localStorage.getItem("tw_db_a"), r=localStorage.getItem("tw_db_r");
+    if(a) allocated=JSON.parse(a);
+    if(r) records=JSON.parse(r);
+  }catch(e){}
+  if(!Array.isArray(allocated)) allocated=[];
+  if(!records||typeof records!=="object") records={};
+}
+
+function saveDB(){
+  try{
+    localStorage.setItem("tw_db_a",JSON.stringify(allocated));
+    localStorage.setItem("tw_db_r",JSON.stringify(records));
+  }catch(e){}
+  const s=document.getElementById("status");
+  if(s){s.innerText="Saved";setTimeout(()=>s.innerText="Auto-Saved",800);}
+}
+
+function ensureBed(b){
+  if(!records[b]) records[b]={};
+  const r=records[b];
+  if(!r.amy) r.amy={sacrum:"",groin:"",heels:"",elbows:"",other:"",dress:"",band:"Yes",turn:"No",food:"Yes"};
+  if(!r.news2) r.news2={time:"",rr:"",spo2:"",o2:"Air",bp:"",hr:"",acvpu:"Alert",t:""};
+  if(!r.fluid||!Array.isArray(r.fluid.h)) r.fluid={h:Array(12).fill(null).map(()=>({i:"",o:""}))};
+  if(!r.food) r.food={b:"",l:"",d:"",note:""};
+  if(!r.bowel) r.bowel={time:"",amt:"",type:""};
+  if(!r.turn) r.turn={t1:"",t2:"",t3:"",t4:"",t5:"",t6:""};
+  if(!r.bp) r.bp={lying:"",standing:""};
+  if(!r.bm) r.bm={time:"",val:""};
+  if(!r.must) r.must={ht:"",wt:""};
+}
+
+function toggleAlloc(b){
+  const i=allocated.indexOf(b);
+  if(i>-1) allocated.splice(i,1);
+  else{allocated.push(b);ensureBed(b);}
+  saveDB();
+  renderApp();
+}
+
+function setVal(b,sec,k,v){
+  ensureBed(b);
+  records[b][sec][k]=v;
+  saveDB();
+  if(sec==="news2") calcNEWS2(b);
+  if(sec==="bp") calcBP(b);
+  if(sec==="bm") calcBM(b);
+  if(sec==="must") calcMUST(b);
+}
+
+function getNEWS2(r){
+  let sc=0, reasons=[];
+  const rr=+r.rr, sp=+r.spo2, bp=+(r.bp||"").split("/")[0], hr=+r.hr, t=+r.t;
+  if(r.rr!==""){if(rr<=8||rr>=25){sc+=3;reasons.push("RR "+rr+" [+3]");}else if(rr>=21){sc+=2;reasons.push("RR "+rr+" [+2]");}else if(rr<=11){sc+=1;reasons.push("RR "+rr+" [+1]");}}
+  if(r.spo2!==""){if(sp<=91){sc+=3;reasons.push("SpO2 "+sp+"% [+3]");}else if(sp<=93){sc+=2;reasons.push("SpO2 "+sp+"% [+2]");}else if(sp<=95){sc+=1;reasons.push("SpO2 "+sp+"% [+1]");}}
+  if(r.o2==="O2"){sc+=2;reasons.push("O2 [+2]");}
+  if(!isNaN(bp)&&r.bp){if(bp<=90||bp>=220){sc+=3;reasons.push("BP "+r.bp+" [+3]");}else if(bp<=100){sc+=2;reasons.push("BP "+r.bp+" [+2]");}else if(bp<=110){sc+=1;reasons.push("BP "+r.bp+" [+1]");}}
+  if(r.hr!==""){if(hr<=40||hr>=131){sc+=3;reasons.push("HR "+hr+" [+3]");}else if(hr>=111){sc+=2;reasons.push("HR "+hr+" [+2]");}else if(hr<=50||hr>=91){sc+=1;reasons.push("HR "+hr+" [+1]");}}
+  if(r.acvpu&&r.acvpu!=="Alert"){sc+=3;reasons.push(r.acvpu+" [+3]");}
+  if(r.t!==""){if(t<=35){sc+=3;reasons.push("T "+t+"°C [+3]");}else if(t>=39.1){sc+=2;reasons.push("T "+t+"°C [+2]");}else if((t>=35.1&&t<=36)||(t>=38.1&&t<=39)){sc+=1;reasons.push("T "+t+"°C [+1]");}}
+  return {sc,reasons};
+}
+
+function calcNEWS2(b){
+  const el=document.getElementById("bdg-n-"+b.replace(/\s+/g,""));
+  if(!el) return;
+  const {sc}=getNEWS2(records[b]?.news2||{});
+  el.className="badge "+(sc>=7?"b-red":(sc>=5?"b-amber":"b-green"));
+  el.innerText="Score: "+sc;
+}
+
+function calcBP(b){
+  const el=document.getElementById("bdg-p-"+b.replace(/\s+/g,""));
+  if(!el) return;
+  const r=records[b]?.bp||{};
+  const l=+(r.lying||"").split("/")[0]||0, s=+(r.standing||"").split("/")[0]||0;
+  if(!l||!s){el.className="badge b-green";el.innerText="Normal";return;}
+  const d=l-s;
+  el.className="badge "+(d>=20?"b-red":"b-green");
+  el.innerText=d>=20?"Drop (-"+d+")":"Normal ("+d+")";
+}
+
+function calcBM(b){
+  const el=document.getElementById("bdg-m-"+b.replace(/\s+/g,""));
+  if(!el) return;
+  const v=+records[b]?.bm?.val;
+  if(isNaN(v)||records[b]?.bm?.val===""){el.className="badge b-green";el.innerText="Pending";return;}
+  el.className="badge "+(v<4?"b-red":(v<=7?"b-green":(v<=11?"b-amber":"b-red")));
+  el.innerText=v<4?"HYPO":(v>11?"HIGH":"TARGET");
+}
+
+function calcMUST(b){
+  const el=document.getElementById("bdg-u-"+b.replace(/\s+/g,""));
+  if(!el) return;
+  const r=records[b]?.must||{}, h=+r.ht||0, w=+r.wt||0;
+  if(!h||!w){el.className="badge b-green";el.innerText="BMI: --";return;}
+  const bmi=(w/(h*h)).toFixed(1);
+  el.className="badge "+(bmi<18.5?"b-red":"b-green");
+  el.innerText="BMI: "+bmi;
+}
+
+function opt(arr,sel){
+  return arr.map(x=>`<option ${x===sel?'selected':''}>${x}</option>`).join("");
+}
+
+function inp(b,sec,k,lbl,val,type="text",ph=""){
+  return `<div><label>${lbl}</label><input type="${type}" placeholder="${ph}" value="${val||''}" oninput="setVal('${b}','${sec}','${k}',this.value)"></div>`;
+}
+
+function sel(b,sec,k,lbl,val,arr){
+  return `<div><label>${lbl}</label><select onchange="setVal('${b}','${sec}','${k}',this.value)">${opt(arr,val)}</select></div>`;
+}
+
+function renderTabContent(b, sb, rec){
+  if(curTab==="amy"){
+    return `<div class="row">${inp(b,'amy','sacrum','Sacrum',rec.amy.sacrum)}${inp(b,'amy','groin','Groin',rec.amy.groin)}</div>`
+    +`<div class="row">${inp(b,'amy','heels','Heels',rec.amy.heels)}${inp(b,'amy','elbows','Elbows',rec.amy.elbows)}</div>`
+    +inp(b,'amy','other','Other Skin Notes',rec.amy.other)
+    +`<div class="row">${inp(b,'amy','dress','Dressing Due',rec.amy.dress)}${sel(b,'amy','band','Wristband',rec.amy.band,['Yes','No','Red Band','Replaced'])}</div>`
+    +`<div class="row">${sel(b,'amy','turn','Turning',rec.amy.turn,['No','Yes','In bed only','Self-turns','N/A'])}${sel(b,'amy','food','Food/Drink',rec.amy.food,['Yes','No','Fluid Only','NBM'])}</div>`;
+  }
+  if(curTab==="news2"){
+    return `<div style="margin-bottom:8px"><span id="bdg-n-${sb}" class="badge b-green">Score: 0</span></div>`
+    +`<div class="row">${inp(b,'news2','time','Time',rec.news2.time,'time')}${inp(b,'news2','rr','RR',rec.news2.rr,'number')}${inp(b,'news2','spo2','SpO2%',rec.news2.spo2,'number')}</div>`
+    +`<div class="row">${sel(b,'news2','o2','Air/O2',rec.news2.o2,['Air','O2'])}${inp(b,'news2','bp','BP',rec.news2.bp,'text','120/80')}${inp(b,'news2','hr','HR',rec.news2.hr,'number')}</div>`
+    +`<div class="row">${sel(b,'news2','acvpu','ACVPU',rec.news2.acvpu,['Alert','CVPU'])}${inp(b,'news2','t','Temp',rec.news2.t,'number')}</div>`;
+  }
+  if(curTab==="fluid"){
+    let ti=0,to=0;
+    rec.fluid.h.forEach(x=>{ti+=+x.i||0;to+=+x.o||0;});
+    let rows=HOURS.map((h,hi)=>`<div class="row" style="margin-bottom:4px"><span style="font-size:10px;width:60px;line-height:28px">${h}</span><input type="number" placeholder="In" value="${rec.fluid.h[hi]?.i||''}" oninput="records['${b}'].fluid.h[${hi}].i=this.value;saveDB()"><input type="number" placeholder="Out" value="${rec.fluid.h[hi]?.o||''}" oninput="records['${b}'].fluid.h[${hi}].o=this.value;saveDB()"></div>`).join('');
+    return `<div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:12px"><span>In: <b>${ti}ml</b></span><span>Out: <b>${to}ml</b></span><span>Net: <b>${ti-to}ml</b></span></div><div style="max-height:160px;overflow-y:auto;border:1px solid #CBD5E1;padding:6px;border-radius:6px">${rows}</div>`;
+  }
+  if(curTab==="food"){
+    const fOpts=['','All','3/4','1/2','1/4','Refused','NBM'];
+    return `<div class="row">${sel(b,'food','b','Breakfast',rec.food.b,fOpts)}${sel(b,'food','l','Lunch',rec.food.l,fOpts)}${sel(b,'food','d','Dinner',rec.food.d,fOpts)}</div>${inp(b,'food','note','Notes',rec.food.note)}`;
+  }
+  if(curTab==="bowel"){
+    return `<div class="row">${inp(b,'bowel','time','Time',rec.bowel.time,'time')}${sel(b,'bowel','amt','Amount',rec.bowel.amt,['','Small','Medium','Large','Smear'])}</div>${sel(b,'bowel','type','Bristol Type',rec.bowel.type,['','Type 1','Type 2','Type 3','Type 4 (Smooth)','Type 5','Type 6','Type 7','BNO'])}`;
+  }
+  if(curTab==="turn"){
+    return `<div class="row">${inp(b,'turn','t1','08:00',rec.turn.t1)}${inp(b,'turn','t2','10:00',rec.turn.t2)}${inp(b,'turn','t3','12:00',rec.turn.t3)}</div><div class="row">${inp(b,'turn','t4','14:00',rec.turn.t4)}${inp(b,'turn','t5','16:00',rec.turn.t5)}${inp(b,'turn','t6','18:00',rec.turn.t6)}</div>`;
+  }
+  if(curTab==="bp"){
+    return `<div style="margin-bottom:6px"><span id="bdg-p-${sb}" class="badge b-green">Normal</span></div><div class="row">${inp(b,'bp','lying','Lying BP',rec.bp.lying,'text','120/80')}${inp(b,'bp','standing','Standing BP',rec.bp.standing,'text','118/78')}</div>`;
+  }
+  if(curTab==="bm"){
+    return `<div style="margin-bottom:6px"><span id="bdg-m-${sb}" class="badge b-green">Pending</span></div><div class="row">${inp(b,'bm','time','Time',rec.bm.time,'time')}${inp(b,'bm','val','BM mmol/L',rec.bm.val,'number')}</div>`;
+  }
+  if(curTab==="must"){
+    return `<div style="margin-bottom:6px"><span id="bdg-u-${sb}" class="badge b-green">BMI: --</span></div><div class="row">${inp(b,'must','ht','Height (m)',rec.must.ht,'number')}${inp(b,'must','wt','Weight (kg)',rec.must.wt,'number')}</div>`;
+  }
+  return '';
+}
+
+function renderApp(){
+  document.getElementById("navBar").innerHTML=TABS.map(([k,lbl])=>`<button type="button" class="${curTab===k?'active':''}" onclick="curTab='${k}';renderApp();">${lbl}</button>`).join("");
+  const root=document.getElementById("tabContent");
+
+  if(curTab==="home"){
+    root.innerHTML=`<div class="card"><div class="card-title">Select Shift Allocations</div><div style="font-size:12px;color:#64748B;margin-bottom:8px">Tap beds below to allocate to your shift.</div><div style="font-size:12px;font-weight:700;color:var(--navy);margin-bottom:10px">Allocated (${allocated.length}): ${allocated.join(", ")||'None selected'}</div><div class="bed-grid">${BEDS.map(b=>`<button type="button" class="bed-pill ${allocated.includes(b)?'active-bed':''}" onclick="toggleAlloc('${b}')">${b}</button>`).join("")}</div></div>`;
+    return;
+  }
+
+  if(curTab==="summary"){
+    if(!allocated.length){
+      root.innerHTML='<div class="card" style="text-align:center;padding:24px;color:#64748B;font-size:12px">No allocated beds.<br>Select beds in <b>Home</b> first.</div>';
+      return;
+    }
+    let h=`<div style="margin-bottom:10px"><b style="font-size:13px;color:var(--navy)">Shift Handover Summary (${allocated.length} Beds)</b></div>`;
+    allocated.forEach(b=>{
+      const r=records[b]||{};
+      let secs=[];
+      let sp=[];
+      if(r.amy?.sacrum) sp.push("Sacrum: "+r.amy.sacrum);
+      if(r.amy?.groin) sp.push("Groin: "+r.amy.groin);
+      if(r.amy?.heels) sp.push("Heels: "+r.amy.heels);
+      if(r.amy?.elbows) sp.push("Elbows: "+r.amy.elbows);
+      if(r.amy?.other) sp.push("Other: "+r.amy.other);
+      if(r.amy?.dress) sp.push("Dress: "+r.amy.dress);
+      if(sp.length) secs.push("<b>Skin:</b> "+sp.join(' | '));
+
+      if(r.news2&&(r.news2.rr||r.news2.spo2||r.news2.bp||r.news2.hr||r.news2.t)){
+        const {sc,reasons}=getNEWS2(r.news2);
+        if(sc===0) secs.push("<b>NEWS2:</b> 0"+(r.news2.time ? ' ('+r.news2.time+')' : ''));
+        else secs.push(`<b>NEWS2:</b> <span class="${sc>=7?'b-red':(sc>=5?'b-amber':'b-green')} badge">Score ${sc}</span>${r.news2.time ? ' at '+r.news2.time : ''} &bull; ${reasons.join(', ')}`);
+      }
+
+      let ti=0,to=0;
+      (r.fluid?.h||[]).forEach(x=>{ti+=+x.i||0;to+=+x.o||0;});
+      if(ti>0||to>0) secs.push(`<b>Fluids:</b> In: ${ti}ml | Out: ${to}ml | Net: ${ti-to}ml`);
+
+      let fp=[];
+      if(r.food?.b) fp.push("B: "+r.food.b);
+      if(r.food?.l) fp.push("L: "+r.food.l);
+      if(r.food?.d) fp.push("D: "+r.food.d);
+      if(r.food?.note) fp.push("Note: "+r.food.note);
+      if(fp.length) secs.push("<b>Food:</b> "+fp.join(' | '));
+
+      if(r.bowel?.amt||r.bowel?.type||r.bowel?.time){
+        secs.push(`<b>Bowels:</b> ${(r.bowel.time ? r.bowel.time+' - ' : '')}${r.bowel.amt||''} ${(r.bowel.type ? '('+r.bowel.type+')' : '')}`);
+      }
+      if(r.bm?.val) secs.push(`<b>Blood Glucose:</b> ${r.bm.val} mmol/L${r.bm.time ? ' ('+r.bm.time+')' : ''}`);
+      if(r.bp?.lying||r.bp?.standing) secs.push(`<b>L/S BP:</b> Lying: ${r.bp.lying||'-'} | Standing: ${r.bp.standing||'-'}`);
+
+      h+=`<div class="card"><div class="card-title">${b}</div>`;
+      if(secs.length) for(let s of secs) h+=`<div class="summary-sec">${s}</div>`;
+      else h+=`<div style="font-size:11px;color:#94A3B8;padding:4px 0">No entries recorded this shift.</div>`;
+      h+='</div>';
+    });
+    root.innerHTML=h;
+    return;
+  }
+
+  if(!allocated.length){
+    root.innerHTML='<div class="card" style="text-align:center;padding:24px;color:#64748B;font-size:12px">No allocated patients.<br>Select beds in <b>Home</b> first.</div>';
+    return;
+  }
+
+  let html=`<div style="margin-bottom:10px"><b style="font-size:13px;color:var(--navy);text-transform:capitalize">${curTab} &bull; ${allocated.length} Beds</b></div>`;
+  allocated.forEach(b=>{
+    ensureBed(b);
+    html+=`<div class="card"><div class="card-title">${b}</div>${renderTabContent(b, b.replace(/\s+/g,""), records[b])}</div>`;
+  });
+  root.innerHTML=html;
+  if(curTab==="news2") allocated.forEach(calcNEWS2);
+  if(curTab==="bp") allocated.forEach(calcBP);
+  if(curTab==="bm") allocated.forEach(calcBM);
+  if(curTab==="must") allocated.forEach(calcMUST);
+}
+
+function clearShift(){
+  if(confirm("Clear shift records? Ensure handover is finished.")){
+    allocated=[];records={};saveDB();renderApp();
+  }
+}
+
+function copyHandover(){
+  let s="THORNDON WARD SHIFT HANDOVER\n============================\n\n";
+  allocated.forEach(b=>{
+    const r=records[b]||{};
+    let lines=[];
+    let sp=[];
+    if(r.amy?.sacrum) sp.push("Sacrum: "+r.amy.sacrum);
+    if(r.amy?.groin) sp.push("Groin: "+r.amy.groin);
+    if(r.amy?.heels) sp.push("Heels: "+r.amy.heels);
+    if(r.amy?.elbows) sp.push("Elbows: "+r.amy.elbows);
+    if(r.amy?.other) sp.push("Other: "+r.amy.other);
+    if(r.amy?.dress) sp.push("Dress: "+r.amy.dress);
+    if(sp.length) lines.push("Skin: "+sp.join(', '));
+
+    if(r.news2&&(r.news2.rr||r.news2.spo2||r.news2.bp||r.news2.hr||r.news2.t)){
+      const {sc,reasons}=getNEWS2(r.news2);
+      lines.push(sc===0 ? "NEWS2: 0" : `NEWS2: ${sc} (${reasons.join(', ')})`);
+    }
+
+    let ti=0,to=0;
+    (r.fluid?.h||[]).forEach(x=>{ti+=+x.i||0;to+=+x.o||0;});
+    if(ti>0||to>0) lines.push(`Fluids: In ${ti}ml / Out ${to}ml (Net ${ti-to}ml)`);
+
+    let fp=[];
+    if(r.food?.b) fp.push("B:"+r.food.b);
+    if(r.food?.l) fp.push("L:"+r.food.l);
+    if(r.food?.d) fp.push("D:"+r.food.d);
+    if(r.food?.note) fp.push("Note:"+r.food.note);
+    if(fp.length) lines.push("Food: "+fp.join(' '));
+
+    if(r.bowel?.amt||r.bowel?.type) lines.push(`Bowels: ${r.bowel.time||''} ${r.bowel.amt||''} (${r.bowel.type||''})`);
+    if(r.bm?.val) lines.push("BM: "+r.bm.val+" mmol/L");
+
+    s+=`[${b}]\n` + (lines.length ? lines.join('\n') : 'No entries recorded.') + `\n------------------------------------\n`;
+  });
+  navigator.clipboard.writeText(s).then(()=>alert("Handover copied.")).catch(()=>prompt("Copy handover:",s));
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  loadDB();
+  renderApp();
+});
+if(document.readyState === "complete" || document.readyState === "interactive"){
+  loadDB();
+  renderApp();
+}
+</script>
+</body>
+</html>
