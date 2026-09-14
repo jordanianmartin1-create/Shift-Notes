@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Thorndon Ward ICA Log - v2.7</title>
+  <title>Thorndon Ward ICA Log - v2.8</title>
   <style>
     :root {
       --ward: #0b4d7a;
@@ -33,7 +33,6 @@
     .chip { background: #fff; border: 1px solid var(--border); border-radius: 16px; padding: 6px 10px; font-size: 0.78rem; cursor: pointer; }
     .chip.active { background: var(--ward); color: #fff; border-color: var(--ward); font-weight: 600; }
     .field-row { margin-bottom: 12px; background: #fff; border: 1px solid var(--border); padding: 12px; border-radius: 6px; display: none; }
-    .field-row.active { display: block; }
     label { display: block; font-size: 0.78rem; font-weight: 700; margin-bottom: 6px; color: var(--grey); text-transform: uppercase; }
     input, select, textarea { width: 100%; padding: 9px; border: 1px solid var(--border); border-radius: 4px; font-size: 0.9rem; background: #fff; }
     .area-grid { display: grid; grid-template-columns: 110px 1fr 1fr; gap: 6px; align-items: center; margin-bottom: 8px; }
@@ -48,12 +47,9 @@
     .view.active { display: block; }
   </style>
   <script>
-    var BEDS = [
-      "Bay 1 Bed 1", "Bay 1 Bed 2", "Bay 2 Bed 1", "Bay 2 Bed 2", "Bay 2 Bed 3", "Bay 2 Bed 4",
-      "Bay 3 Bed 1", "Bay 3 Bed 2", "Bay 3 Bed 3", "Bay 3 Bed 4", "Bay 4 Bed 1", "Bay 4 Bed 2",
-      "Bay 4 Bed 3", "Bay 4 Bed 4", "Bay 5 Bed 1", "Bay 5 Bed 2", "Bay 5 Bed 3", "Bay 5 Bed 4",
-      "Side Room 1", "Side Room 2", "Side Room 3", "Side Room 4", "Side Room 5", "Side Room 6", "Side Room 7"
-    ];
+    window.onerror = function(msg, url, line) {
+      alert("Script Error: " + msg + " (Line " + line + ")");
+    };
 
     var CHARTS = [
       { id: 'news', label: 'NEWS2' },
@@ -71,14 +67,14 @@
     var state = { allocated: [], activeBed: null, configs: {}, data: {} };
 
     function saveState() {
-      try { localStorage.setItem("thorndon_v27", JSON.stringify(state)); } catch(e){}
+      try { localStorage.setItem("thorndon_v28", JSON.stringify(state)); } catch(e){}
       var s = document.getElementById("save-status");
       if (s) { s.textContent = "Saved"; setTimeout(function(){ s.textContent = "Auto-Saved"; }, 600); }
     }
 
     function loadState() {
       try {
-        var raw = localStorage.getItem("thorndon_v27");
+        var raw = localStorage.getItem("thorndon_v28");
         if (raw) {
           var parsed = JSON.parse(raw);
           if (parsed && typeof parsed === "object") {
@@ -189,8 +185,7 @@
           chip.textContent = (isActive ? "✓ " : "+ ") + c.label;
         }
         if (sec) {
-          if (isActive) sec.classList.add("active");
-          else sec.classList.remove("active");
+          sec.style.display = isActive ? "block" : "none";
         }
       });
     }
@@ -355,6 +350,12 @@
       var grid = document.getElementById("mainBedGrid");
       if (grid) {
         grid.innerHTML = "";
+        var BEDS = [
+          "Bay 1 Bed 1", "Bay 1 Bed 2", "Bay 2 Bed 1", "Bay 2 Bed 2", "Bay 2 Bed 3", "Bay 2 Bed 4",
+          "Bay 3 Bed 1", "Bay 3 Bed 2", "Bay 3 Bed 3", "Bay 3 Bed 4", "Bay 4 Bed 1", "Bay 4 Bed 2",
+          "Bay 4 Bed 3", "Bay 4 Bed 4", "Bay 5 Bed 1", "Bay 5 Bed 2", "Bay 5 Bed 3", "Bay 5 Bed 4",
+          "Side Room 1", "Side Room 2", "Side Room 3", "Side Room 4", "Side Room 5", "Side Room 6", "Side Room 7"
+        ];
         BEDS.forEach(function(bedName) {
           var btn = document.createElement("button");
           btn.type = "button";
@@ -375,7 +376,7 @@
   <header>
     <div>
       <h1>Thorndon Ward ICA Log</h1>
-      <p>Offline Shift Notepad • SystmOne Staging (v2.7)</p>
+      <p>Offline Shift Notepad • SystmOne Staging (v2.8)</p>
     </div>
     <span class="badge" id="save-status">Auto-Saved</span>
   </header>
@@ -413,5 +414,4 @@
             <button type="button" class="chip" id="chip-fluids" onclick="toggleChart('fluids')">+ Fluid Balance</button>
             <button type="button" class="chip" id="chip-diet" onclick="toggleChart('diet')">+ Food & Diet</button>
             <button type="button" class="chip" id="chip-bm" onclick="toggleChart('bm')">+ BM (Glucose)</button>
-            <button type="button" class="chip" id="chip-events" onclick="toggleChart('events')">+ Notes</button>
-          </d
+            <button type="button" class="chip" id="chip-events" oncl
