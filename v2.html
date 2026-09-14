@@ -47,10 +47,6 @@
     .view.active { display: block; }
   </style>
   <script>
-    window.onerror = function(msg, url, line) {
-      alert("Notice: " + msg + " (Line " + line + ")");
-    };
-
     var CHARTS = [
       { id: 'news', label: 'NEWS2' },
       { id: 'bowels', label: 'Bowels' },
@@ -59,7 +55,7 @@
       { id: 'lsbp', label: 'Lying/Standing BP' },
       { id: 'weight', label: 'Weight' },
       { id: 'fluids', label: 'Fluid Balance' },
-      { id: 'diet', label: 'Diet' },
+      { id: 'diet', label: 'Food & Diet' },
       { id: 'bm', label: 'BM (Glucose)' },
       { id: 'events', label: 'Notes' }
     ];
@@ -67,14 +63,14 @@
     var state = { allocated: [], activeBed: null, configs: {}, data: {} };
 
     function saveState() {
-      try { localStorage.setItem("thorndon_v5", JSON.stringify(state)); } catch(e){}
+      try { localStorage.setItem("thorndon_v6", JSON.stringify(state)); } catch(e){}
       var s = document.getElementById("save-status");
       if (s) { s.textContent = "Saved"; setTimeout(function(){ s.textContent = "Auto-Saved"; }, 600); }
     }
 
     function loadState() {
       try {
-        var raw = localStorage.getItem("thorndon_v5");
+        var raw = localStorage.getItem("thorndon_v6");
         if (raw) state = JSON.parse(raw);
       } catch(e){}
       if (!Array.isArray(state.allocated)) state.allocated = [];
@@ -86,13 +82,17 @@
       var idx = state.allocated.indexOf(bedName);
       if (idx > -1) {
         state.allocated.splice(idx, 1);
-        btn.classList.remove("selected");
-        btn.textContent = bedName;
+        if (btn) {
+          btn.classList.remove("selected");
+          btn.textContent = bedName;
+        }
         if (state.activeBed === bedName) state.activeBed = null;
       } else {
         state.allocated.push(bedName);
-        btn.classList.add("selected");
-        btn.textContent = "✓ " + bedName;
+        if (btn) {
+          btn.classList.add("selected");
+          btn.textContent = "✓ " + bedName;
+        }
       }
       saveState();
       updateAllocatedText();
@@ -112,6 +112,7 @@
       state.allocated.forEach(function(bed) {
         var b = document.createElement("button");
         b.textContent = bed;
+        if (state.activeBed === bed) b.className = "active";
         b.onclick = function() { openBed(bed); };
         box.appendChild(b);
       });
@@ -122,9 +123,13 @@
       document.querySelectorAll("nav button").forEach(function(b){ b.classList.remove("active"); });
       var v = document.getElementById("view-" + viewId);
       if (v) v.classList.add("active");
-      if (viewId === "allocation") document.getElementById("nav-beds").classList.add("active");
+      if (viewId === "allocation") {
+        var nb = document.getElementById("nav-beds");
+        if (nb) nb.classList.add("active");
+      }
       if (viewId === "summary") {
-        document.getElementById("nav-summary").classList.add("active");
+        var ns = document.getElementById("nav-summary");
+        if (ns) ns.classList.add("active");
         renderSummary();
       }
       window.scrollTo(0, 0);
@@ -138,52 +143,65 @@
       if (!state.data[bed]) {
         state.data[bed] = { amysSacrumStatus: 'Skin intact', amysLeftHeelStatus: 'Skin intact', amysRightHeelStatus: 'Skin intact', amysOtherStatus: 'Skin intact' };
       }
-      document.getElementById("bedTitle").textContent = bed + " Entry Log";
-      renderChips();
+      var title = document.getElementById("bedTitle");
+      if (title) title.textContent = bed + " Entry Log";
+
+      updateChipsUI();
       populateForm();
       showView("bed");
-      document.querySelectorAll("#nav-dynamic-beds button").forEach(function(b){
+
+      var navBtns = document.querySelectorAll("#nav-dynamic-beds button");
+      navBtns.forEach(function(b){
         if (b.textContent === bed) b.classList.add("active");
+        else b.classList.remove("active");
       });
     }
 
-    function renderChips() {
-      var box = document.getElementById("chartToggles");
-      box.innerHTML = "";
+    function updateChipsUI() {
+      if (!state.activeBed) return;
       var cfg = state.configs[state.activeBed];
+      if (!cfg) return;
+
       CHARTS.forEach(function(c) {
-        var chip = document.createElement("button");
-        chip.type = "button";
-        chip.className = "chip " + (cfg[c.id] ? "active" : "");
-        chip.textContent = (cfg[c.id] ? "✓ " : "+ ") + c.label;
-        chip.onclick = function() {
-          cfg[c.id] = !cfg[c.id];
-          saveState();
-          renderChips();
-          populateForm();
-        };
-        box.appendChild(chip);
+        var chip = document.getElementById("chip-" + c.id);
+        var sec = document.getElementById("sec-" + c.id);
+        var isActive = !!cfg[c.id];
+        if (chip) {
+          chip.className = isActive ? "chip active" : "chip";
+          chip.textContent = (isActive ? "✓ " : "+ ") + c.label;
+        }
+        if (sec) {
+          sec.style.display = isActive ? "block" : "none";
+        }
       });
+    }
+
+    function toggleChart(chartId) {
+      if (!state.activeBed) return;
+      var cfg = state.configs[state.activeBed];
+      if (!cfg) return;
+      cfg[chartId] = !cfg[chartId];
+      saveState();
+      updateChipsUI();
     }
 
     function populateForm() {
-      var cfg = state.configs[state.activeBed];
-      var d = state.data[state.activeBed];
-      CHARTS.forEach(function(c) {
-        var el = document.getElementById("sec-" + c.id);
-        if (el) el.style.display = cfg[c.id] ? "block" : "none";
-      });
+      if (!state.activeBed) return;
+      var d = state.data[state.activeBed] || {};
       var keys = ['news', 'bowels', 'amysSacrumStatus', 'amysSacrumNotes', 'amysLeftHeelStatus', 'amysLeftHeelNotes', 
                   'amysRightHeelStatus', 'amysRightHeelNotes', 'amysOtherStatus', 'amysOtherNotes', 'turning', 
                   'lyingBP', 'standingBP', 'weight', 'fluidIn', 'fluidOut', 'diet', 'bm', 'events'];
       keys.forEach(function(k) {
         var inp = document.getElementById("f-" + k);
-        if (inp) inp.value = d[k] || (k.indexOf('Status') > -1 ? 'Skin intact' : '');
+        if (inp) {
+          inp.value = d[k] || (k.indexOf('Status') > -1 ? 'Skin intact' : '');
+        }
       });
     }
 
     function updateBedData(field, val) {
       if (!state.activeBed) return;
+      if (!state.data[state.activeBed]) state.data[state.activeBed] = {};
       state.data[state.activeBed][field] = val;
       saveState();
     }
@@ -194,60 +212,74 @@
     }
 
     function addTurn(pos) {
-      var cur = state.data[state.activeBed].turning || "";
+      if (!state.activeBed) return;
+      var cur = (state.data[state.activeBed] && state.data[state.activeBed].turning) || "";
       var val = (cur ? cur + "\n" : "") + getTime() + " " + pos;
       updateBedData('turning', val);
-      document.getElementById("f-turning").value = val;
+      var el = document.getElementById("f-turning");
+      if (el) el.value = val;
     }
 
     function addBristol(type) {
-      if (!type) return;
-      var cur = state.data[state.activeBed].bowels || "";
+      if (!type || !state.activeBed) return;
+      var cur = (state.data[state.activeBed] && state.data[state.activeBed].bowels) || "";
       var val = (cur ? cur + "; " : "") + "BO " + type;
       updateBedData('bowels', val);
-      document.getElementById("f-bowels").value = val;
+      var el = document.getElementById("f-bowels");
+      if (el) el.value = val;
     }
 
     function setBowel(text) {
       updateBedData('bowels', text);
-      document.getElementById("f-bowels").value = text;
+      var el = document.getElementById("f-bowels");
+      if (el) el.value = text;
     }
 
     function addFluidIn(amt) {
-      var cur = state.data[state.activeBed].fluidIn || "";
+      if (!state.activeBed) return;
+      var cur = (state.data[state.activeBed] && state.data[state.activeBed].fluidIn) || "";
       var m = cur.match(/(\d+)\s*ml/);
       var val = m ? cur.replace(m[1] + "ml", (parseInt(m[1], 10) + amt) + "ml") : (cur.trim() ? cur + " + " + amt + "ml" : amt + "ml");
       updateBedData('fluidIn', val);
-      document.getElementById("f-fluidIn").value = val;
+      var el = document.getElementById("f-fluidIn");
+      if (el) el.value = val;
     }
 
     function addFluidOut(text) {
-      var cur = state.data[state.activeBed].fluidOut || "";
+      if (!state.activeBed) return;
+      var cur = (state.data[state.activeBed] && state.data[state.activeBed].fluidOut) || "";
       var val = (cur ? cur + "; " : "") + text;
       updateBedData('fluidOut', val);
-      document.getElementById("f-fluidOut").value = val;
+      var el = document.getElementById("f-fluidOut");
+      if (el) el.value = val;
     }
 
     function addDiet(text) {
-      var cur = state.data[state.activeBed].diet || "";
+      if (!state.activeBed) return;
+      var cur = (state.data[state.activeBed] && state.data[state.activeBed].diet) || "";
       var val = (cur ? cur + "; " : "") + text;
       updateBedData('diet', val);
-      document.getElementById("f-diet").value = val;
+      var el = document.getElementById("f-diet");
+      if (el) el.value = val;
     }
 
     function insertTime() {
-      var cur = state.data[state.activeBed].events || "";
+      if (!state.activeBed) return;
+      var cur = (state.data[state.activeBed] && state.data[state.activeBed].events) || "";
       var val = (cur ? cur + "\n" : "") + getTime() + " ";
       updateBedData('events', val);
       var el = document.getElementById("f-events");
-      el.value = val;
-      el.focus();
+      if (el) {
+        el.value = val;
+        el.focus();
+      }
     }
 
     function renderSummary() {
       var div = document.getElementById("summary-cards");
+      if (!div) return;
       div.innerHTML = "";
-      if (!state.allocated.length) {
+      if (!state.allocated || !state.allocated.length) {
         div.innerHTML = "<p style='font-size:0.85rem;color:var(--grey);'>No beds allocated. Select beds on the Beds tab.</p>";
         return;
       }
@@ -262,7 +294,7 @@
         if (cfg.weight && d.weight) { t += "Weight: " + d.weight + "\n"; has = true; }
         if (cfg.bowels && d.bowels) { t += "Bowels: " + d.bowels + "\n"; has = true; }
         if (cfg.fluids && (d.fluidIn || d.fluidOut)) { t += "Fluid Balance: In: " + (d.fluidIn||'Nil') + " | Out: " + (d.fluidOut||'Nil') + "\n"; has = true; }
-        if (cfg.diet && d.diet) { t += "Diet: " + d.diet + "\n"; has = true; }
+        if (cfg.diet && d.diet) { t += "Food & Diet: " + d.diet + "\n"; has = true; }
         if (cfg.turning && d.turning) { t += "Turning Chart:\n" + d.turning + "\n"; has = true; }
         if (cfg.amys) {
           t += "Amy's Round:\n- Sacrum: " + (d.amysSacrumStatus||'Skin intact') + (d.amysSacrumNotes ? ' ('+d.amysSacrumNotes+')' : '') + "\n- Left Heel: " + (d.amysLeftHeelStatus||'Skin intact') + (d.amysLeftHeelNotes ? ' ('+d.amysLeftHeelNotes+')' : '') + "\n- Right Heel: " + (d.amysRightHeelStatus||'Skin intact') + (d.amysRightHeelNotes ? ' ('+d.amysRightHeelNotes+')' : '') + "\n";
@@ -280,8 +312,9 @@
     }
 
     function copyText(btn) {
-      var text = btn.parentElement.nextElementSibling.innerText;
-      navigator.clipboard.writeText(text).then(function() {
+      var block = btn.parentElement.nextElementSibling;
+      if (!block) return;
+      navigator.clipboard.writeText(block.innerText).then(function() {
         var orig = btn.innerText;
         btn.innerText = "Copied!";
         setTimeout(function() { btn.innerText = orig; }, 1200);
@@ -358,21 +391,4 @@
         <button type="button" class="bed-btn" data-bed="Bay 5 Bed 4" onclick="toggleBed(this, 'Bay 5 Bed 4')">Bay 5 Bed 4</button>
         <button type="button" class="bed-btn" data-bed="Side Room 1" onclick="toggleBed(this, 'Side Room 1')">Side Room 1</button>
         <button type="button" class="bed-btn" data-bed="Side Room 2" onclick="toggleBed(this, 'Side Room 2')">Side Room 2</button>
-        <button type="button" class="bed-btn" data-bed="Side Room 3" onclick="toggleBed(this, 'Side Room 3')">Side Room 3</button>
-        <button type="button" class="bed-btn" data-bed="Side Room 4" onclick="toggleBed(this, 'Side Room 4')">Side Room 4</button>
-        <button type="button" class="bed-btn" data-bed="Side Room 5" onclick="toggleBed(this, 'Side Room 5')">Side Room 5</button>
-        <button type="button" class="bed-btn" data-bed="Side Room 6" onclick="toggleBed(this, 'Side Room 6')">Side Room 6</button>
-        <button type="button" class="bed-btn" data-bed="Side Room 7" onclick="toggleBed(this, 'Side Room 7')">Side Room 7</button>
-      </div>
-    </div>
-
-    <div id="view-bed" class="view">
-      <div class="card">
-        <h2>
-          <span id="bedTitle">Bed Entry Log</span>
-          <button type="button" class="sec-btn" onclick="showView('allocation')">Back to Beds</button>
-        </h2>
-
-        <div class="tracking-box">
-          <small style="font-size:0.72rem;font-weight:700;color:var(--grey);text-transform:uppercase;">Active Charts for this Bed</small>
-          <div class="chips"
+        <button type="button" class="bed-btn" data-bed="Side Room 3" onclick="toggleBed(this, 'Side Room 3')">Side
