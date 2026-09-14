@@ -63,14 +63,14 @@
     var state = { allocated: [], activeBed: null, configs: {}, data: {} };
 
     function saveState() {
-      try { localStorage.setItem("thorndon_v6", JSON.stringify(state)); } catch(e){}
+      try { localStorage.setItem("thorndon_v7", JSON.stringify(state)); } catch(e){}
       var s = document.getElementById("save-status");
       if (s) { s.textContent = "Saved"; setTimeout(function(){ s.textContent = "Auto-Saved"; }, 600); }
     }
 
     function loadState() {
       try {
-        var raw = localStorage.getItem("thorndon_v6");
+        var raw = localStorage.getItem("thorndon_v7");
         if (raw) state = JSON.parse(raw);
       } catch(e){}
       if (!Array.isArray(state.allocated)) state.allocated = [];
@@ -121,16 +121,20 @@
     function showView(viewId) {
       document.querySelectorAll(".view").forEach(function(v){ v.classList.remove("active"); });
       document.querySelectorAll("nav button").forEach(function(b){ b.classList.remove("active"); });
-      var v = document.getElementById("view-" + viewId);
-      if (v) v.classList.add("active");
+      
+      var target = document.getElementById("view-" + viewId);
+      if (target) target.classList.add("active");
+
       if (viewId === "allocation") {
         var nb = document.getElementById("nav-beds");
         if (nb) nb.classList.add("active");
-      }
-      if (viewId === "summary") {
+      } else if (viewId === "summary") {
         var ns = document.getElementById("nav-summary");
         if (ns) ns.classList.add("active");
         renderSummary();
+      } else if (viewId === "bed") {
+        var vb = document.getElementById("view-bed");
+        if (vb) vb.classList.add("active");
       }
       window.scrollTo(0, 0);
     }
@@ -390,5 +394,4 @@
         <button type="button" class="bed-btn" data-bed="Bay 5 Bed 3" onclick="toggleBed(this, 'Bay 5 Bed 3')">Bay 5 Bed 3</button>
         <button type="button" class="bed-btn" data-bed="Bay 5 Bed 4" onclick="toggleBed(this, 'Bay 5 Bed 4')">Bay 5 Bed 4</button>
         <button type="button" class="bed-btn" data-bed="Side Room 1" onclick="toggleBed(this, 'Side Room 1')">Side Room 1</button>
-        <button type="button" class="bed-btn" data-bed="Side Room 2" onclick="toggleBed(this, 'Side Room 2')">Side Room 2</button>
-        <button type="button" class="bed-btn" data-bed="Side Room 3" onclick="toggleBed(this, 'Side Room 3')">Side
+        <button type="button" class="bed-btn" data-bed="Side Room 2" onclick="toggleBed(
