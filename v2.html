@@ -8,7 +8,6 @@
     :root {
       --ward-blue: #0b4d7a;
       --nhs-blue: #005eb8;
-      --nhs-dark-blue: #003087;
       --nhs-grey: #425563;
       --nhs-light-grey: #f0f4f5;
       --nhs-white: #ffffff;
@@ -30,7 +29,7 @@
       background-color: var(--nhs-white);
       color: var(--nhs-text);
       line-height: 1.4;
-      padding-bottom: 80px;
+      padding-bottom: 85px;
     }
 
     header {
@@ -347,15 +346,41 @@
 
   <div class="container">
     
-    <!-- Allocation Tab (exact matches to original screen) -->
+    <!-- Bed Allocation Tab -->
     <div id="tab-allocation" class="tab-content active">
       <p class="intro-text">Tap beds below to allocate to your shift.</p>
       <div class="allocated-summary" id="allocated-summary-text">Allocated (0): None selected</div>
 
-      <div class="bed-grid" id="bed-buttons-container"></div>
+      <div class="bed-grid" id="bed-buttons-container">
+        <button type="button" class="bed-btn" onclick="toggleBed('Bay 1 Bed 1', this)">Bay 1 Bed 1</button>
+        <button type="button" class="bed-btn" onclick="toggleBed('Bay 1 Bed 2', this)">Bay 1 Bed 2</button>
+        <button type="button" class="bed-btn" onclick="toggleBed('Bay 2 Bed 1', this)">Bay 2 Bed 1</button>
+        <button type="button" class="bed-btn" onclick="toggleBed('Bay 2 Bed 2', this)">Bay 2 Bed 2</button>
+        <button type="button" class="bed-btn" onclick="toggleBed('Bay 2 Bed 3', this)">Bay 2 Bed 3</button>
+        <button type="button" class="bed-btn" onclick="toggleBed('Bay 2 Bed 4', this)">Bay 2 Bed 4</button>
+        <button type="button" class="bed-btn" onclick="toggleBed('Bay 3 Bed 1', this)">Bay 3 Bed 1</button>
+        <button type="button" class="bed-btn" onclick="toggleBed('Bay 3 Bed 2', this)">Bay 3 Bed 2</button>
+        <button type="button" class="bed-btn" onclick="toggleBed('Bay 3 Bed 3', this)">Bay 3 Bed 3</button>
+        <button type="button" class="bed-btn" onclick="toggleBed('Bay 3 Bed 4', this)">Bay 3 Bed 4</button>
+        <button type="button" class="bed-btn" onclick="toggleBed('Bay 4 Bed 1', this)">Bay 4 Bed 1</button>
+        <button type="button" class="bed-btn" onclick="toggleBed('Bay 4 Bed 2', this)">Bay 4 Bed 2</button>
+        <button type="button" class="bed-btn" onclick="toggleBed('Bay 4 Bed 3', this)">Bay 4 Bed 3</button>
+        <button type="button" class="bed-btn" onclick="toggleBed('Bay 4 Bed 4', this)">Bay 4 Bed 4</button>
+        <button type="button" class="bed-btn" onclick="toggleBed('Bay 5 Bed 1', this)">Bay 5 Bed 1</button>
+        <button type="button" class="bed-btn" onclick="toggleBed('Bay 5 Bed 2', this)">Bay 5 Bed 2</button>
+        <button type="button" class="bed-btn" onclick="toggleBed('Bay 5 Bed 3', this)">Bay 5 Bed 3</button>
+        <button type="button" class="bed-btn" onclick="toggleBed('Bay 5 Bed 4', this)">Bay 5 Bed 4</button>
+        <button type="button" class="bed-btn" onclick="toggleBed('Side Room 1', this)">Side Room 1</button>
+        <button type="button" class="bed-btn" onclick="toggleBed('Side Room 2', this)">Side Room 2</button>
+        <button type="button" class="bed-btn" onclick="toggleBed('Side Room 3', this)">Side Room 3</button>
+        <button type="button" class="bed-btn" onclick="toggleBed('Side Room 4', this)">Side Room 4</button>
+        <button type="button" class="bed-btn" onclick="toggleBed('Side Room 5', this)">Side Room 5</button>
+        <button type="button" class="bed-btn" onclick="toggleBed('Side Room 6', this)">Side Room 6</button>
+        <button type="button" class="bed-btn" onclick="toggleBed('Side Room 7', this)">Side Room 7</button>
+      </div>
     </div>
 
-    <!-- Dynamic Bed Containers -->
+    <!-- Dynamic Bed Entry Cards -->
     <div id="dynamic-bed-containers"></div>
 
     <!-- Handover Summary Tab -->
@@ -371,29 +396,13 @@
 
   </div>
 
-  <!-- Sticky Bottom Actions matching the screenshot -->
+  <!-- Bottom Actions -->
   <div class="bottom-bar">
     <button type="button" class="btn-clear" onclick="clearShift()">Clear Shift</button>
     <button type="button" class="btn-handover" onclick="showTab('summary')">Copy Handover</button>
   </div>
 
   <script>
-    const THORNDON_BEDS = [
-      "Bay 1 Bed 1", "Bay 1 Bed 2",
-      "Bay 2 Bed 1", "Bay 2 Bed 2",
-      "Bay 2 Bed 3", "Bay 2 Bed 4",
-      "Bay 3 Bed 1", "Bay 3 Bed 2",
-      "Bay 3 Bed 3", "Bay 3 Bed 4",
-      "Bay 4 Bed 1", "Bay 4 Bed 2",
-      "Bay 4 Bed 3", "Bay 4 Bed 4",
-      "Bay 5 Bed 1", "Bay 5 Bed 2",
-      "Bay 5 Bed 3", "Bay 5 Bed 4",
-      "Side Room 1", "Side Room 2",
-      "Side Room 3", "Side Room 4",
-      "Side Room 5", "Side Room 6",
-      "Side Room 7"
-    ];
-
     const DEFAULT_CONFIG = {
       news: true,
       bowels: true,
@@ -414,54 +423,68 @@
     };
 
     function init() {
-      const saved = localStorage.getItem("thorndon_shift_v2");
-      if (saved) {
-        state = JSON.parse(saved);
-        if (!state.configs) state.configs = {};
+      try {
+        const saved = localStorage.getItem("thorndon_shift_v2_data");
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (parsed && typeof parsed === "object") {
+            state.allocated = Array.isArray(parsed.allocated) ? parsed.allocated : [];
+            state.configs = parsed.configs || {};
+            state.data = parsed.data || {};
+          }
+        }
+      } catch (e) {
+        state = { allocated: [], configs: {}, data: {} };
       }
-      renderAllocationGrid();
+
+      refreshGridButtons();
       renderNavigation();
       renderBedTabs();
       updateAllocationSummary();
     }
 
     function saveState() {
-      localStorage.setItem("thorndon_shift_v2", JSON.stringify(state));
+      localStorage.setItem("thorndon_shift_v2_data", JSON.stringify(state));
       const status = document.getElementById("save-status");
-      status.textContent = "Saved";
-      setTimeout(() => { status.textContent = "Auto-Saved"; }, 1000);
+      if (status) {
+        status.textContent = "Saved";
+        setTimeout(() => { status.textContent = "Auto-Saved"; }, 1000);
+      }
     }
 
-    function renderAllocationGrid() {
-      const grid = document.getElementById("bed-buttons-container");
-      grid.innerHTML = "";
-
-      THORNDON_BEDS.forEach(bed => {
-        const btn = document.createElement("button");
-        btn.type = "button";
-        btn.className = `bed-btn ${state.allocated.includes(bed) ? 'selected' : ''}`;
-        btn.textContent = bed;
-        btn.onclick = () => toggleBedSelection(bed);
-        grid.appendChild(btn);
-      });
-    }
-
-    function toggleBedSelection(bed) {
-      if (state.allocated.includes(bed)) {
-        state.allocated = state.allocated.filter(b => b !== bed);
+    function toggleBed(bed, btnEl) {
+      if (!Array.isArray(state.allocated)) state.allocated = [];
+      
+      const idx = state.allocated.indexOf(bed);
+      if (idx > -1) {
+        state.allocated.splice(idx, 1);
+        if (btnEl) btnEl.classList.remove("selected");
       } else {
         state.allocated.push(bed);
+        if (btnEl) btnEl.classList.add("selected");
       }
+
       saveState();
-      renderAllocationGrid();
+      updateAllocationSummary();
       renderNavigation();
       renderBedTabs();
-      updateAllocationSummary();
+    }
+
+    function refreshGridButtons() {
+      document.querySelectorAll(".bed-btn").forEach(btn => {
+        const bedName = btn.textContent.trim();
+        if (state.allocated.includes(bedName)) {
+          btn.classList.add("selected");
+        } else {
+          btn.classList.remove("selected");
+        }
+      });
     }
 
     function updateAllocationSummary() {
       const el = document.getElementById("allocated-summary-text");
-      if (state.allocated.length === 0) {
+      if (!el) return;
+      if (!state.allocated || state.allocated.length === 0) {
         el.textContent = "Allocated (0): None selected";
       } else {
         el.textContent = `Allocated (${state.allocated.length}): ${state.allocated.join(", ")}`;
@@ -484,7 +507,7 @@
     function renderNavigation() {
       const nav = document.getElementById("navbar");
       nav.innerHTML = `
-        <button id="btn-tab-allocation" onclick="showTab('allocation')">Beds</button>
+        <button id="btn-tab-allocation" class="active" onclick="showTab('allocation')">Beds</button>
       `;
 
       state.allocated.forEach(bed => {
@@ -565,13 +588,13 @@
                   ${cfg.bowels ? '✓' : '+'} Bowels
                 </button>
                 <button type="button" class="toggle-chip ${cfg.amys ? 'active' : ''}" onclick="toggleTrackingField('${bed}', 'amys')">
-                  ${cfg.amys ? '✓' : '+'} Amy's Round (Pressure)
+                  ${cfg.amys ? '✓' : '+'} Amy's Round
                 </button>
                 <button type="button" class="toggle-chip ${cfg.turning ? 'active' : ''}" onclick="toggleTrackingField('${bed}', 'turning')">
-                  ${cfg.turning ? '✓' : '+'} Turning Chart
+                  ${cfg.turning ? '✓' : '+'} Turning
                 </button>
                 <button type="button" class="toggle-chip ${cfg.lsbp ? 'active' : ''}" onclick="toggleTrackingField('${bed}', 'lsbp')">
-                  ${cfg.lsbp ? '✓' : '+'} Lying & Standing BP
+                  ${cfg.lsbp ? '✓' : '+'} Lying/Standing BP
                 </button>
                 <button type="button" class="toggle-chip ${cfg.weight ? 'active' : ''}" onclick="toggleTrackingField('${bed}', 'weight')">
                   ${cfg.weight ? '✓' : '+'} Weight
@@ -583,7 +606,7 @@
                   ${cfg.diet ? '✓' : '+'} Food & Diet
                 </button>
                 <button type="button" class="toggle-chip ${cfg.bm ? 'active' : ''}" onclick="toggleTrackingField('${bed}', 'bm')">
-                  ${cfg.bm ? '✓' : '+'} Blood Glucose (BM)
+                  ${cfg.bm ? '✓' : '+'} BM (Glucose)
                 </button>
                 <button type="button" class="toggle-chip ${cfg.events ? 'active' : ''}" onclick="toggleTrackingField('${bed}', 'events')">
                   ${cfg.events ? '✓' : '+'} Notes & Events
@@ -607,45 +630,7 @@
               <div style="display: flex; gap: 8px; margin-bottom: 6px;">
                 <select onchange="appendBristol('${bed}', this.value)">
                   <option value="">+ Add Bristol Type...</option>
-                  <option value="Type 1">Type 1 (Separate hard lumps)</option>
+                  <option value="Type 1">Type 1 (Hard lumps)</option>
                   <option value="Type 2">Type 2 (Lumpy sausage)</option>
                   <option value="Type 3">Type 3 (Cracked sausage)</option>
-                  <option value="Type 4">Type 4 (Smooth, soft snake)</option>
-                  <option value="Type 5">Type 5 (Soft blobs)</option>
-                  <option value="Type 6">Type 6 (Mushy consistency)</option>
-                  <option value="Type 7">Type 7 (Liquid, no solids)</option>
-                </select>
-                <button type="button" class="secondary-btn" onclick="updateField('${bed}', 'bowels', 'Not opened this shift')">BO Not Opened</button>
-              </div>
-              <input type="text" placeholder="e.g. BO x1 Type 4" 
-                value="${d.bowels || ''}" 
-                id="bowel-input-${safeId}"
-                oninput="updateField('${bed}', 'bowels', this.value)">
-            </div>` : ''}
-
-            <!-- Amy's Round (Pressure Area Check) -->
-            ${cfg.amys ? `
-            <div class="field-row">
-              <label>Amy's Round (Pressure Areas)</label>
-              
-              <div class="area-grid">
-                <strong>Sacrum</strong>
-                <select onchange="updateField('${bed}', 'amysSacrumStatus', this.value)">
-                  <option ${d.amysSacrumStatus === 'Skin intact' ? 'selected' : ''}>Skin intact</option>
-                  <option ${d.amysSacrumStatus === 'Blanching redness' ? 'selected' : ''}>Blanching redness</option>
-                  <option ${d.amysSacrumStatus === 'Non-blanching redness' ? 'selected' : ''}>Non-blanching redness</option>
-                  <option ${d.amysSacrumStatus === 'Moisture lesion' ? 'selected' : ''}>Moisture lesion</option>
-                  <option ${d.amysSacrumStatus === 'Dressing intact' ? 'selected' : ''}>Dressing intact</option>
-                  <option ${d.amysSacrumStatus === 'Broken skin' ? 'selected' : ''}>Broken skin</option>
-                </select>
-                <input type="text" placeholder="Extra notes (e.g. barrier cream applied)" 
-                  value="${d.amysSacrumNotes || ''}" 
-                  oninput="updateField('${bed}', 'amysSacrumNotes', this.value)">
-              </div>
-
-              <div class="area-grid">
-                <strong>Left Heel</strong>
-                <select onchange="updateField('${bed}', 'amysLeftHeelStatus', this.value)">
-                  <option ${d.amysLeftHeelStatus === 'Skin intact' ? 'selected' : ''}>Skin intact</option>
-                  <option ${d.amysLeftHeelStatus === 'Blanching redness' ? 'selected' : ''}>Blanching redness</option>
-                  <option ${d.amysLeftHeelStatus === 'Non-blanching redness' ? 'sel
+                  <option value="Type 4">
