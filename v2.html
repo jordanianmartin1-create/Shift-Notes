@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thorndon Ward ICA Log - v2</title>
+  <style>
+    :root {
+      --nhs-blue: #005eb8;
+      --nhs-dark-blue: #003087;
+      --nhs-grey: #425563;
+      --nhs-light-grey: #f0f4f5;
+      --nhs-white: #ffffff;
+      --nhs-border: #d8dde0;
+      --nhs-text: #212b32;
+      --nhs-green: #007f3b;
+      --nhs-red: #d5281b;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--nhs-light-grey);
+      color: var(--nhs-text);
+      line-height: 1.4;
+      padding-bottom: 60px;
+    }
+
+    header {
+      background-color: var(--nhs-blue);
+      color: var(--nhs-white);
+      padding: 12px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    header h1 {
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    header span {
+      font-size: 0.75rem;
+      background-color: rgba(255, 255, 255, 0.2);
+      padding: 3px 8px;
+      border-radius: 4px;
+    }
+
+    nav {
+      background: var(--nhs-white);
+      border-bottom: 1px solid var(--nhs-border);
+      display: flex;
+      overflow-x: auto;
+      white-space: nowrap;
+      position: sticky;
+      top: 48px;
+      z-index: 99;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    nav button {
+      background: none;
+      border: none;
+      padding: 12px 16px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--nhs-grey);
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+    }
+
+    nav button.active {
+      color: var(--nhs-blue);
+      border-bottom-color: var(--nhs-blue);
+    }
+
+    .container {
+      padding: 16px;
+      max-width: 850px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: var(--nhs-white);
+      border: 1px solid var(--nhs-border);
+      border-radius: 4px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .card h2 {
+      font-size: 1.05rem;
+      margin-bottom: 12px;
+      color: var(--nhs-dark-blue);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .grid-checkboxes {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--nhs-light-grey);
+      padding: 8px 12px;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      border: 1px solid var(--nhs-border);
+    }
+
+    .checkbox-label:has(input:checked) {
+      background: #e6f1f8;
+      border-color: var(--nhs-blue);
+      font-weight: 600;
+    }
+
+    .tracking-toggles {
+      background: #f8fafb;
+      border: 1px solid var(--nhs-border);
+      border-radius: 4px;
+      padding: 10px 12px;
+      margin-bottom: 16px;
+    }
+
+    .tracking-toggles small {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--nhs-grey);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .toggle-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .toggle-chip {
+      background: var(--nhs-white);
+      border: 1px solid var(--nhs-border);
+      color: var(--nhs-grey);
+      border-radius: 20px;
+      padding: 6px 12px;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+
+    .toggle-chip.active {
+      background: var(--nhs-blue);
+      color: var(--nhs-white);
+      border-color: var(--nhs-blue);
+      font-weight: 600;
+    }
+
+    .field-row {
+      margin-bottom: 14px;
+      background: #fff;
+      border: 1px solid var(--nhs-border);
+      padding: 12px;
+      border-radius: 4px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: var(--nhs-grey);
+      text-transform: uppercase;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 9px;
+      border: 1px solid var(--nhs-border);
+      border-radius: 4px;
+      font-size: 0.95rem;
+      background: var(--nhs-white);
+    }
+
+    .area-grid {
+      display: grid;
+      grid-template-columns: 140px 1fr 1.2fr;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    @media (max-width: 650px) {
+      .area-grid {
+        grid-template-columns: 1fr;
+        gap: 4px;
+        margin-bottom: 12px;
+        background: var(--nhs-light-grey);
+        padding: 8px;
+        border-radius: 4px;
+      }
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 6px;
+    }
+
+    .chip-btn {
+      background: var(--nhs-light-grey);
+      border: 1px solid var(--nhs-border);
+      border-radius: 20px;
+      padding: 6px 12px;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+
+    .chip-btn:active {
+      background: var(--nhs-blue);
+      color: var(--nhs-white);
+    }
+
+    .secondary-btn {
+      background-color: var(--nhs-white);
+      color: var(--nhs-blue);
+      border: 1px solid var(--nhs-blue);
+      padding: 8px 14px;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+
+    .danger-btn {
+      background-color: var(--nhs-red);
+      color: var(--nhs-white);
+      border: none;
+      padding: 10px 14px;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+
+    .copy-block {
+      background: #fafafa;
+      border-left: 3px solid var(--nhs-blue);
+      padding: 12px;
+      font-family: monospace;
+      font-size: 0.85rem;
+      white-space: pre-wrap;
+      margin-bottom: 12px;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div>
+      <h1>Thorndon Ward ICA Log</h1>
+      <small style="font-size: 0.75rem;">SystmOne Staging Notepad</small>
+    </div>
+    <span id="save-status">Saved</span>
+  </header>
+
+  <nav id="navbar">
+    <button class="active" onclick="showTab('setup')">Shift Allocation</button>
+    <button onclick="showTab('summary')">SystmOne Summary</button>
+  </nav>
+
+  <div class="container">
+    
+    <!-- Shift Setup Tab -->
+    <div id="tab-setup" class="tab-content active">
+      <div class="card">
+        <h2>Shift Bed Allocation</h2>
+        <p style="font-size: 0.85rem; color: var(--nhs-grey); margin-bottom: 12px;">
+          Tick the beds you are assigned to. Only these will appear in your top navigation tabs.
+        </p>
+
+        <strong style="font-size: 0.85rem;">Bay A</strong>
+        <div class="grid-checkboxes">
+          <label class="checkbox-label"><input type="checkbox" value="Bed 1" onchange="toggleBed(this)"> Bed 1</label>
+          <label class="checkbox-label"><input type="checkbox" value="Bed 2" onchange="toggleBed(this)"> Bed 2</label>
+          <label class="checkbox-label"><input type="checkbox" value="Bed 3" onchange="toggleBed(this)"> Bed 3</label>
+          <label class="checkbox-label"><input type="checkbox" value="Bed 4" onchange="toggleBed(this)"> Bed 4</label>
+        </div>
+
+        <strong style="font-size: 0.85rem; margin-top: 16px; display: block;">Bay B</strong>
+        <div class="grid-checkboxes">
+          <label class="checkbox-label"><input type="checkbox" value="Bed 5" onchange="toggleBed(this)"> Bed 5</label>
+          <label class="checkbox-label"><input type="checkbox" value="Bed 6" onchange="toggleBed(this)"> Bed 6</label>
+          <label class="checkbox-label"><input type="checkbox" value="Bed 7" onchange="toggleBed(this)"> Bed 7</label>
+          <label class="checkbox-label"><input type="checkbox" value="Bed 8" onchange="toggleBed(this)"> Bed 8</label>
+        </div>
+
+        <strong style="font-size: 0.85rem; margin-top: 16px; display: block;">Bay C</strong>
+        <div class="grid-checkboxes">
+          <label class="checkbox-label"><input type="checkbox" value="Bed 9" onchange="toggleBed(this)"> Bed 9</label>
+          <label class="checkbox-label"><input type="checkbox" value="Bed 10" onchange="toggleBed(this)"> Bed 10</label>
+          <label class="checkbox-label"><input type="checkbox" value="Bed 11" onchange="toggleBed(this)"> Bed 11</label>
+          <label class="checkbox-label"><input type="checkbox" value="Bed 12" onchange="toggleBed(this)"> Bed 12</label>
+        </div>
+
+        <strong style="font-size: 0.85rem; margin-top: 16px; display: block;">Side Rooms</strong>
+        <div class="grid-checkboxes">
+          <label class="checkbox-label"><input type="checkbox" value="SR 1" onchange="toggleBed(this)"> SR 1</label>
+          <label class="checkbox-label"><input type="checkbox" value="SR 2" onchange="toggleBed(this)"> SR 2</label>
+          <label class="checkbox-label"><input type="checkbox" value="SR 3" onchange="toggleBed(this)"> SR 3</label>
+          <label class="checkbox-label"><input type="checkbox" value="SR 4" onchange="toggleBed(this)"> SR 4</label>
+        </div>
+
+        <button class="danger-btn" onclick="clearShift()" style="margin-top: 24px;">Clear Shift Data</button>
+      </div>
+    </div>
+
+    <!-- Container where dynamic bed tabs render -->
+    <div id="dynamic-bed-containers"></div>
+
+    <!-- SystmOne Handover Summary Tab -->
+    <div id="tab-summary" class="tab-content">
+      <div class="card">
+        <h2>SystmOne Handover Summary</h2>
+        <p style="font-size: 0.85rem; color: var(--nhs-grey); margin-bottom: 16px;">
+          Only active charts with entries will be compiled below.
+        </p>
+        <div id="summary-cards"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    let state = {
+      allocated: [],
+      configs: {},
+      data: {}
+    };
+
+    const DEFAULT_CONFIG = {
+      news: true,
+      bowels: true,
+      amys: false,
+      turning: false,
+      lsbp: false,
+      weight: false,
+      fluids: false,
+      diet: false,
+      bm: false,
+      events: true
+    };
+
+    function init() {
+      const saved = localStorage.getItem("thorndon_shift_v2");
+      if (saved) {
+        state = JSON.parse(saved);
+        if (!state.configs) state.configs = {};
+      } else {
+        state.allocated = ["Bed 1", "Bed 2", "Bed 3", "Bed 4"];
+        state.configs = {};
+      }
+
+      document.querySelectorAll('#tab-setup input[type="checkbox"]').forEach(box => {
+        box.checked = state.allocated.includes(box.value);
+      });
+
+      renderNavigation();
+      renderBedTabs();
+    }
+
+    function saveState() {
+      localStorage.setItem("thorndon_shift_v2", JSON.stringify(state));
+      const status = document.getElementById("save-status");
+      status.textContent = "Saved";
+      setTimeout(() => { status.textContent = "Auto-Saved"; }, 1000);
+    }
+
+    function toggleBed(checkbox) {
+      const bed = checkbox.value;
+      if (checkbox.checked) {
+        if (!state.allocated.includes(bed)) state.allocated.push(bed);
+      } else {
+        state.allocated = state.allocated.filter(b => b !== bed);
+      }
+      saveState();
+      renderNavigation();
+      renderBedTabs();
+    }
+
+    function toggleTrackingField(bed, field) {
+      if (!state.configs[bed]) {
+        state.configs[bed] = { ...DEFAULT_CONFIG };
+      }
+      state.configs[bed][field] = !state.configs[bed][field];
+      saveState();
+      renderBedTabs();
+    }
+
+    function getBedConfig(bed) {
+      return state.configs[bed] || { ...DEFAULT_CONFIG };
+    }
+
+    function renderNavigation() {
+      const nav = document.getElementById("navbar");
+      nav.innerHTML = `
+        <button id="btn-tab-setup" onclick="showTab('setup')">Shift Allocation</button>
+      `;
+
+      state.allocated.forEach(bed => {
+        const safeId = bed.replace(/\s+/g, '');
+        const btn = document.createElement("button");
+        btn.id = `btn-tab-${safeId}`;
+        btn.textContent = bed;
+        btn.onclick = () => showTab(safeId);
+        nav.appendChild(btn);
+      });
+
+      const summaryBtn = document.createElement("button");
+      summaryBtn.id = "btn-tab-summary";
+      summaryBtn.textContent = "SystmOne Summary";
+      summaryBtn.onclick = () => showTab('summary');
+      nav.appendChild(summaryBtn);
+    }
+
+    function getTimeStamp() {
+      const now = new Date();
+      return `[${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}]`;
+    }
+
+    function renderBedTabs() {
+      const container = document.getElementById("dynamic-bed-containers");
+      const activeTab = document.querySelector('.tab-content.active');
+      const activeTabId = activeTab ? activeTab.id : 'tab-setup';
+      container.innerHTML = "";
+
+      state.allocated.forEach(bed => {
+        const safeId = bed.replace(/\s+/g, '');
+        if (!state.data[bed]) {
+          state.data[bed] = {
+            news: "",
+            bowels: "",
+            amysSacrumStatus: "Skin intact",
+            amysSacrumNotes: "",
+            amysLeftHeelStatus: "Skin intact",
+            amysLeftHeelNotes: "",
+            amysRightHeelStatus: "Skin intact",
+            amysRightHeelNotes: "",
+            amysOtherStatus: "Skin intact",
+            amysOtherNotes: "",
+            turning: "",
+            lyingBP: "",
+            standingBP: "",
+            weight: "",
+            fluidIn: "",
+            fluidOut: "",
+            bm: "",
+            diet: "",
+            events: ""
+          };
+        }
+        if (!state.configs[bed]) {
+          state.configs[bed] = { ...DEFAULT_CONFIG };
+        }
+
+        const d = state.data[bed];
+        const cfg = state.configs[bed];
+
+        const tabDiv = document.createElement("div");
+        tabDiv.id = `tab-${safeId}`;
+        tabDiv.className = `tab-content ${activeTabId === `tab-${safeId}` ? 'active' : ''}`;
+
+        tabDiv.innerHTML = `
+          <div class="card">
+            <h2>${bed} Entry Log</h2>
+
+            <!-- Required Fields Toggle Bar -->
+            <div class="tracking-toggles">
+              <small>Toggle Active Charts for ${bed}</small>
+              <div class="toggle-chips">
+                <button type="button" class="toggle-chip ${cfg.news ? 'active' : ''}" onclick="toggleTrackingField('${bed}', 'news')">
+                  ${cfg.news ? '✓' : '+'} NEWS2
+                </button>
+                <button type="button" class="toggle-chip ${cfg.bowels ? 'active' : ''}" onclick="toggleTrackingField('${bed}', 'bowels')">
+                  ${cfg.bowels ? '✓' : '+'} Bowels
+                </button>
+                <button type="button" class="toggle-chip ${cfg.amys ? 'active' : ''}" onclick="toggleTrackingField('${bed}', 'amys')">
+                  ${cfg.amys ? '✓' : '+'} Amy's Round (Pressure)
+                </button>
+                <button type="button" class="toggle-chip ${cfg.turning ? 'active' : ''}" onclick="toggleTrackingField('${bed}', 'turning')">
+                  ${cfg.turning ? '✓' : '+'} Turning Chart
+                </button>
+                <button type="button" class="toggle-chip ${cfg.lsbp ? 'active' : ''}" onclick="toggleTrackingField('${bed}', 'lsbp')">
+                  ${cfg.lsbp ? '✓' : '+'} Lying & Standing BP
+                </button>
+                <button type="button" class="toggle-chip ${cfg.weight ? 'active' : ''}" onclick="toggleTrackingField('${bed}', 'weight')">
+                  ${cfg.weight ? '✓' : '+'} Weight
+                </button>
+                <button type="button" class="toggle-chip ${cfg.fluids ? 'active' : ''}" onclick="toggleTrackingField('${bed}', 'fluids')">
+                  ${cfg.fluids ? '✓' : '+'} Fluid Balance
+                </button>
+                <button type="button" class="toggle-chip ${cfg.diet ? 'active' : ''}" onclick="toggleTrackingField('${bed}', 'diet')">
+                  ${cfg.diet ? '✓' : '+'} Food & Diet
+                </button>
+                <button type="button" class="toggle-chip ${cfg.bm ? 'active' : ''}" onclick="toggleTrackingField('${bed}', 'bm')">
+                  ${cfg.bm ? '✓' : '+'} Blood Glucose (BM)
+                </button>
+                <button type="button" class="toggle-chip ${cfg.events ? 'active' : ''}" onclick="toggleTrackingField('${bed}', 'events')">
+                  ${cfg.events ? '✓' : '+'} Notes & Events
+                </button>
+              </div>
+            </div>
+
+            <!-- NEWS2 -->
+            ${cfg.news ? `
+            <div class="field-row">
+              <label>NEWS2 / Observations & Time</label>
+              <input type="text" placeholder="e.g. 08:30 NEWS: 1 (Pulse 96)" 
+                value="${d.news || ''}" 
+                oninput="updateField('${bed}', 'news', this.value)">
+            </div>` : ''}
+
+            <!-- Bowel Movement -->
+            ${cfg.bowels ? `
+            <div class="field-row">
+              <label>Bowel Movement & Bristol Stool Scale</label>
+              <div style="display: flex; gap: 8px; margin-bottom: 6px;">
+                <select onchange="appendBristol('${bed}', this.value)">
+                  <option value="">+ Add Bristol Type...</option>
+                  <option value="Type 1">Type 1 (Separate hard lumps)</option>
+                  <option value="Type 2">Type 2 (Lumpy sausage)</option>
+                  <option value="Type 3">Type 3 (Cracked sausage)</option>
+                  <option value="Type 4">Type 4 (Smooth, soft snake)</option>
+                  <option value="Type 5">Type 5 (Soft blobs)</option>
+                  <option value="Type 6">Type 6 (Mushy consistency)</option>
+                  <option value="Type 7">Type 7 (Liquid, no solids)</option>
+                </select>
+                <button type="button" class="secondary-btn" onclick="updateField('${bed}', 'bowels', 'Not opened this shift')">BO Not Opened</button>
+              </div>
+              <input type="text" placeholder="e.g. BO x1 Type 4" 
+                value="${d.bowels || ''}" 
+                id="bowel-input-${safeId}"
+                oninput="updateField('${bed}', 'bowels', this.value)">
+            </div>` : ''}
+
+            <!-- Amy's Round (Pressure Area Check) -->
+            ${cfg.amys ? `
+            <div class="field-row">
+              <label>Amy's Round (Pressure Areas)</label>
+              
+              <div class="area-grid">
+                <strong>Sacrum</strong>
+                <select onchange="updateField('${bed}', 'amysSacrumStatus', this.value)">
+                  <option ${d.amysSacrumStatus === 'Skin intact' ? 'selected' : ''}>Skin intact</option>
+                  <option ${d.amysSacrumStatus === 'Blanching redness' ? 'selected' : ''}>Blanching redness</option>
+                  <option ${d.amysSacrumStatus === 'Non-blanching redness' ? 'selected' : ''}>Non-blanching redness</option>
+                  <option ${d.amysSacrumStatus === 'Moisture lesion' ? 'selected' : ''}>Moisture lesion</option>
+                  <option ${d.amysSacrumStatus === 'Dressing intact' ? 'selected' : ''}>Dressing intact</option>
+                  <option ${d.amysSacrumStatus === 'Broken skin' ? 'selected' : ''}>Broken skin</option>
+                </select>
+                <input type="text" placeholder="Extra notes (e.g. barrier cream applied)" 
+                  value="${d.amysSacrumNotes || ''}" 
+                  oninput="updateField('${bed}', 'amysSacrumNotes', this.value)">
+              </div>
+
+              <div class="area-grid">
+                <strong>Left Heel</strong>
+                <select onchange="updateField('${bed}', 'amysLeftHeelStatus', this.value)">
+                  <option ${d.amysLeftHeelStatus === 'Skin intact' ? 'selected' : ''}>Skin intact</option>
+                  <option ${d.amysLeftHeelStatus === 'Blanching redness' ? 'selected' : ''}>Blanching redness</option>
+                  <option ${d.amysLeftHeelStatus === 'Non-blanching redness' ? 'selected' : ''}>Non-blanching redness</optio
