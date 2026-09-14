@@ -6,49 +6,315 @@
   <title>Thorndon Ward ICA Log</title>
   <style>
     :root {
-      --ward-blue: #0b4d7a;
-      --nhs-blue: #005eb8;
-      --nhs-grey: #425563;
-      --nhs-light: #f0f4f5;
-      --nhs-white: #ffffff;
-      --nhs-border: #d8dde0;
-      --nhs-text: #212b32;
-      --nhs-red-bg: #fce8e6;
-      --nhs-red-text: #c5221f;
+      --ward: #0b4d7a;
+      --blue: #005eb8;
+      --grey: #425563;
+      --light: #f0f4f5;
+      --border: #d8dde0;
+      --text: #212b32;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-    body { background: var(--nhs-white); color: var(--nhs-text); line-height: 1.4; padding-bottom: 75px; }
-    header { background: var(--ward-blue); color: #fff; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+    body { background: #fff; color: var(--text); padding-bottom: 75px; }
+    header { background: var(--ward); color: #fff; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
     header h1 { font-size: 1.05rem; font-weight: 700; }
     header p { font-size: 0.72rem; opacity: 0.85; margin-top: 2px; }
-    .badge { font-size: 0.75rem; background: rgba(255,255,255,0.2); padding: 4px 10px; border-radius: 12px; font-weight: 500; }
-    nav { background: #fff; border-bottom: 1px solid var(--nhs-border); display: flex; overflow-x: auto; position: sticky; top: 54px; z-index: 99; white-space: nowrap; -webkit-overflow-scrolling: touch; }
-    nav button { background: none; border: none; padding: 12px 14px; font-size: 0.85rem; font-weight: 600; color: var(--nhs-grey); cursor: pointer; border-bottom: 3px solid transparent; flex-shrink: 0; }
-    nav button.active { color: var(--ward-blue); border-bottom-color: var(--ward-blue); }
+    .badge { font-size: 0.75rem; background: rgba(255,255,255,0.2); padding: 4px 10px; border-radius: 12px; }
+    nav { background: #fff; border-bottom: 1px solid var(--border); display: flex; overflow-x: auto; position: sticky; top: 54px; z-index: 99; white-space: nowrap; -webkit-overflow-scrolling: touch; }
+    nav button { background: none; border: none; padding: 12px 14px; font-size: 0.85rem; font-weight: 600; color: var(--grey); cursor: pointer; border-bottom: 3px solid transparent; flex-shrink: 0; }
+    nav button.active { color: var(--ward); border-bottom-color: var(--ward); }
     .container { padding: 16px; max-width: 760px; margin: 0 auto; }
     .bed-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
-    .bed-btn { background: #fff; border: 1px solid var(--nhs-border); border-radius: 8px; padding: 14px 6px; font-size: 0.88rem; font-weight: 600; color: var(--nhs-text); cursor: pointer; text-align: center; -webkit-tap-highlight-color: transparent; }
-    .bed-btn.selected { background: var(--nhs-blue); color: #fff; border-color: var(--nhs-blue); }
-    .card { background: #fff; border: 1px solid var(--nhs-border); border-radius: 6px; padding: 16px; margin-bottom: 16px; }
-    .card h2 { font-size: 1.05rem; margin-bottom: 12px; color: var(--ward-blue); display: flex; justify-content: space-between; align-items: center; }
-    .tracking-box { background: var(--nhs-light); border: 1px solid var(--nhs-border); border-radius: 6px; padding: 10px 12px; margin-bottom: 16px; }
+    .bed-btn { background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 14px 6px; font-size: 0.88rem; font-weight: 600; color: var(--text); cursor: pointer; text-align: center; }
+    .bed-btn.selected { background: var(--blue) !important; color: #fff !important; border-color: var(--blue) !important; }
+    .card { background: #fff; border: 1px solid var(--border); border-radius: 6px; padding: 16px; margin-bottom: 16px; }
+    .card h2 { font-size: 1.05rem; margin-bottom: 12px; color: var(--ward); display: flex; justify-content: space-between; align-items: center; }
+    .tracking-box { background: var(--light); border: 1px solid var(--border); border-radius: 6px; padding: 10px 12px; margin-bottom: 16px; }
     .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
-    .chip { background: #fff; border: 1px solid var(--nhs-border); border-radius: 16px; padding: 6px 10px; font-size: 0.78rem; cursor: pointer; }
-    .chip.active { background: var(--ward-blue); color: #fff; border-color: var(--ward-blue); font-weight: 600; }
-    .field-row { margin-bottom: 12px; background: #fff; border: 1px solid var(--nhs-border); padding: 12px; border-radius: 6px; }
-    label { display: block; font-size: 0.78rem; font-weight: 700; margin-bottom: 6px; color: var(--nhs-grey); text-transform: uppercase; }
-    input, select, textarea { width: 100%; padding: 9px; border: 1px solid var(--nhs-border); border-radius: 4px; font-size: 0.9rem; }
+    .chip { background: #fff; border: 1px solid var(--border); border-radius: 16px; padding: 6px 10px; font-size: 0.78rem; cursor: pointer; }
+    .chip.active { background: var(--ward); color: #fff; border-color: var(--ward); font-weight: 600; }
+    .field-row { margin-bottom: 12px; background: #fff; border: 1px solid var(--border); padding: 12px; border-radius: 6px; }
+    label { display: block; font-size: 0.78rem; font-weight: 700; margin-bottom: 6px; color: var(--grey); text-transform: uppercase; }
+    input, select, textarea { width: 100%; padding: 9px; border: 1px solid var(--border); border-radius: 4px; font-size: 0.9rem; }
     .area-grid { display: grid; grid-template-columns: 110px 1fr 1fr; gap: 6px; align-items: center; margin-bottom: 8px; }
-    @media(max-width:600px) { .area-grid { grid-template-columns: 1fr; background: var(--nhs-light); padding: 8px; border-radius: 4px; } }
+    @media(max-width:600px) { .area-grid { grid-template-columns: 1fr; background: var(--light); padding: 8px; border-radius: 4px; } }
     .btn-row { display: flex; gap: 6px; flex-wrap: wrap; margin: 6px 0; }
-    .action-chip { background: var(--nhs-light); border: 1px solid var(--nhs-border); border-radius: 14px; padding: 5px 10px; font-size: 0.76rem; cursor: pointer; }
-    .sec-btn { background: #fff; color: var(--ward-blue); border: 1px solid var(--ward-blue); padding: 6px 12px; border-radius: 4px; font-size: 0.8rem; cursor: pointer; font-weight: 600; }
-    .btn-clear { background: var(--nhs-red-bg); color: var(--nhs-red-text); border: 1px solid #f5c2be; border-radius: 6px; padding: 9px 16px; font-size: 0.85rem; font-weight: 600; cursor: pointer; }
-    .bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; border-top: 1px solid var(--nhs-border); padding: 10px 16px; display: flex; justify-content: flex-start; z-index: 100; max-width: 760px; margin: 0 auto; }
-    .copy-block { background: #fafafa; border-left: 3px solid var(--ward-blue); padding: 10px; font-family: monospace; font-size: 0.82rem; white-space: pre-wrap; margin-bottom: 12px; }
+    .action-chip { background: var(--light); border: 1px solid var(--border); border-radius: 14px; padding: 5px 10px; font-size: 0.76rem; cursor: pointer; }
+    .sec-btn { background: #fff; color: var(--ward); border: 1px solid var(--ward); padding: 6px 12px; border-radius: 4px; font-size: 0.8rem; cursor: pointer; font-weight: 600; }
+    .btn-clear { background: #fce8e6; color: #c5221f; border: 1px solid #f5c2be; border-radius: 6px; padding: 9px 16px; font-size: 0.85rem; font-weight: 600; cursor: pointer; }
+    .bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; border-top: 1px solid var(--border); padding: 10px 16px; display: flex; justify-content: flex-start; z-index: 100; max-width: 760px; margin: 0 auto; }
+    .copy-block { background: #fafafa; border-left: 3px solid var(--ward); padding: 10px; font-family: monospace; font-size: 0.82rem; white-space: pre-wrap; margin-bottom: 12px; }
     .view { display: none; }
     .view.active { display: block; }
   </style>
+  <script>
+    window.onerror = function(msg, url, line) {
+      alert("Notice: " + msg + " (Line " + line + ")");
+    };
+
+    var CHARTS = [
+      { id: 'news', label: 'NEWS2' },
+      { id: 'bowels', label: 'Bowels' },
+      { id: 'amys', label: "Amy's Round" },
+      { id: 'turning', label: 'Turning' },
+      { id: 'lsbp', label: 'Lying/Standing BP' },
+      { id: 'weight', label: 'Weight' },
+      { id: 'fluids', label: 'Fluid Balance' },
+      { id: 'diet', label: 'Diet' },
+      { id: 'bm', label: 'BM (Glucose)' },
+      { id: 'events', label: 'Notes' }
+    ];
+
+    var state = { allocated: [], activeBed: null, configs: {}, data: {} };
+
+    function saveState() {
+      try { localStorage.setItem("thorndon_v5", JSON.stringify(state)); } catch(e){}
+      var s = document.getElementById("save-status");
+      if (s) { s.textContent = "Saved"; setTimeout(function(){ s.textContent = "Auto-Saved"; }, 600); }
+    }
+
+    function loadState() {
+      try {
+        var raw = localStorage.getItem("thorndon_v5");
+        if (raw) state = JSON.parse(raw);
+      } catch(e){}
+      if (!Array.isArray(state.allocated)) state.allocated = [];
+      if (!state.configs) state.configs = {};
+      if (!state.data) state.data = {};
+    }
+
+    function toggleBed(btn, bedName) {
+      var idx = state.allocated.indexOf(bedName);
+      if (idx > -1) {
+        state.allocated.splice(idx, 1);
+        btn.classList.remove("selected");
+        btn.textContent = bedName;
+        if (state.activeBed === bedName) state.activeBed = null;
+      } else {
+        state.allocated.push(bedName);
+        btn.classList.add("selected");
+        btn.textContent = "✓ " + bedName;
+      }
+      saveState();
+      updateAllocatedText();
+      renderNavBeds();
+    }
+
+    function updateAllocatedText() {
+      var el = document.getElementById("allocated-text");
+      if (!el) return;
+      el.textContent = state.allocated.length ? "Allocated (" + state.allocated.length + "): " + state.allocated.join(", ") : "Allocated (0): None selected";
+    }
+
+    function renderNavBeds() {
+      var box = document.getElementById("nav-dynamic-beds");
+      if (!box) return;
+      box.innerHTML = "";
+      state.allocated.forEach(function(bed) {
+        var b = document.createElement("button");
+        b.textContent = bed;
+        b.onclick = function() { openBed(bed); };
+        box.appendChild(b);
+      });
+    }
+
+    function showView(viewId) {
+      document.querySelectorAll(".view").forEach(function(v){ v.classList.remove("active"); });
+      document.querySelectorAll("nav button").forEach(function(b){ b.classList.remove("active"); });
+      var v = document.getElementById("view-" + viewId);
+      if (v) v.classList.add("active");
+      if (viewId === "allocation") document.getElementById("nav-beds").classList.add("active");
+      if (viewId === "summary") {
+        document.getElementById("nav-summary").classList.add("active");
+        renderSummary();
+      }
+      window.scrollTo(0, 0);
+    }
+
+    function openBed(bed) {
+      state.activeBed = bed;
+      if (!state.configs[bed]) {
+        state.configs[bed] = { news: true, bowels: true, amys: false, turning: false, lsbp: false, weight: false, fluids: false, diet: false, bm: false, events: true };
+      }
+      if (!state.data[bed]) {
+        state.data[bed] = { amysSacrumStatus: 'Skin intact', amysLeftHeelStatus: 'Skin intact', amysRightHeelStatus: 'Skin intact', amysOtherStatus: 'Skin intact' };
+      }
+      document.getElementById("bedTitle").textContent = bed + " Entry Log";
+      renderChips();
+      populateForm();
+      showView("bed");
+      document.querySelectorAll("#nav-dynamic-beds button").forEach(function(b){
+        if (b.textContent === bed) b.classList.add("active");
+      });
+    }
+
+    function renderChips() {
+      var box = document.getElementById("chartToggles");
+      box.innerHTML = "";
+      var cfg = state.configs[state.activeBed];
+      CHARTS.forEach(function(c) {
+        var chip = document.createElement("button");
+        chip.type = "button";
+        chip.className = "chip " + (cfg[c.id] ? "active" : "");
+        chip.textContent = (cfg[c.id] ? "✓ " : "+ ") + c.label;
+        chip.onclick = function() {
+          cfg[c.id] = !cfg[c.id];
+          saveState();
+          renderChips();
+          populateForm();
+        };
+        box.appendChild(chip);
+      });
+    }
+
+    function populateForm() {
+      var cfg = state.configs[state.activeBed];
+      var d = state.data[state.activeBed];
+      CHARTS.forEach(function(c) {
+        var el = document.getElementById("sec-" + c.id);
+        if (el) el.style.display = cfg[c.id] ? "block" : "none";
+      });
+      var keys = ['news', 'bowels', 'amysSacrumStatus', 'amysSacrumNotes', 'amysLeftHeelStatus', 'amysLeftHeelNotes', 
+                  'amysRightHeelStatus', 'amysRightHeelNotes', 'amysOtherStatus', 'amysOtherNotes', 'turning', 
+                  'lyingBP', 'standingBP', 'weight', 'fluidIn', 'fluidOut', 'diet', 'bm', 'events'];
+      keys.forEach(function(k) {
+        var inp = document.getElementById("f-" + k);
+        if (inp) inp.value = d[k] || (k.indexOf('Status') > -1 ? 'Skin intact' : '');
+      });
+    }
+
+    function updateBedData(field, val) {
+      if (!state.activeBed) return;
+      state.data[state.activeBed][field] = val;
+      saveState();
+    }
+
+    function getTime() {
+      var d = new Date();
+      return "[" + String(d.getHours()).padStart(2, '0') + ":" + String(d.getMinutes()).padStart(2, '0') + "]";
+    }
+
+    function addTurn(pos) {
+      var cur = state.data[state.activeBed].turning || "";
+      var val = (cur ? cur + "\n" : "") + getTime() + " " + pos;
+      updateBedData('turning', val);
+      document.getElementById("f-turning").value = val;
+    }
+
+    function addBristol(type) {
+      if (!type) return;
+      var cur = state.data[state.activeBed].bowels || "";
+      var val = (cur ? cur + "; " : "") + "BO " + type;
+      updateBedData('bowels', val);
+      document.getElementById("f-bowels").value = val;
+    }
+
+    function setBowel(text) {
+      updateBedData('bowels', text);
+      document.getElementById("f-bowels").value = text;
+    }
+
+    function addFluidIn(amt) {
+      var cur = state.data[state.activeBed].fluidIn || "";
+      var m = cur.match(/(\d+)\s*ml/);
+      var val = m ? cur.replace(m[1] + "ml", (parseInt(m[1], 10) + amt) + "ml") : (cur.trim() ? cur + " + " + amt + "ml" : amt + "ml");
+      updateBedData('fluidIn', val);
+      document.getElementById("f-fluidIn").value = val;
+    }
+
+    function addFluidOut(text) {
+      var cur = state.data[state.activeBed].fluidOut || "";
+      var val = (cur ? cur + "; " : "") + text;
+      updateBedData('fluidOut', val);
+      document.getElementById("f-fluidOut").value = val;
+    }
+
+    function addDiet(text) {
+      var cur = state.data[state.activeBed].diet || "";
+      var val = (cur ? cur + "; " : "") + text;
+      updateBedData('diet', val);
+      document.getElementById("f-diet").value = val;
+    }
+
+    function insertTime() {
+      var cur = state.data[state.activeBed].events || "";
+      var val = (cur ? cur + "\n" : "") + getTime() + " ";
+      updateBedData('events', val);
+      var el = document.getElementById("f-events");
+      el.value = val;
+      el.focus();
+    }
+
+    function renderSummary() {
+      var div = document.getElementById("summary-cards");
+      div.innerHTML = "";
+      if (!state.allocated.length) {
+        div.innerHTML = "<p style='font-size:0.85rem;color:var(--grey);'>No beds allocated. Select beds on the Beds tab.</p>";
+        return;
+      }
+      state.allocated.forEach(function(bed) {
+        var d = state.data[bed] || {};
+        var cfg = state.configs[bed] || {};
+        var t = "--- " + bed + " SHIFT SUMMARY ---\n";
+        var has = false;
+        if (cfg.news && d.news) { t += "NEWS2: " + d.news + "\n"; has = true; }
+        if (cfg.bm && d.bm) { t += "Blood Glucose: " + d.bm + "\n"; has = true; }
+        if (cfg.lsbp && (d.lyingBP || d.standingBP)) { t += "Lying & Standing BP: Lying: " + (d.lyingBP||'N/R') + " | Standing: " + (d.standingBP||'N/R') + "\n"; has = true; }
+        if (cfg.weight && d.weight) { t += "Weight: " + d.weight + "\n"; has = true; }
+        if (cfg.bowels && d.bowels) { t += "Bowels: " + d.bowels + "\n"; has = true; }
+        if (cfg.fluids && (d.fluidIn || d.fluidOut)) { t += "Fluid Balance: In: " + (d.fluidIn||'Nil') + " | Out: " + (d.fluidOut||'Nil') + "\n"; has = true; }
+        if (cfg.diet && d.diet) { t += "Diet: " + d.diet + "\n"; has = true; }
+        if (cfg.turning && d.turning) { t += "Turning Chart:\n" + d.turning + "\n"; has = true; }
+        if (cfg.amys) {
+          t += "Amy's Round:\n- Sacrum: " + (d.amysSacrumStatus||'Skin intact') + (d.amysSacrumNotes ? ' ('+d.amysSacrumNotes+')' : '') + "\n- Left Heel: " + (d.amysLeftHeelStatus||'Skin intact') + (d.amysLeftHeelNotes ? ' ('+d.amysLeftHeelNotes+')' : '') + "\n- Right Heel: " + (d.amysRightHeelStatus||'Skin intact') + (d.amysRightHeelNotes ? ' ('+d.amysRightHeelNotes+')' : '') + "\n";
+          if (d.amysOtherNotes || (d.amysOtherStatus && d.amysOtherStatus !== 'Skin intact')) t += "- Other: " + (d.amysOtherStatus||'Skin intact') + " (" + (d.amysOtherNotes||'') + ")\n";
+          has = true;
+        }
+        if (cfg.events && d.events) { t += "Notes:\n" + d.events + "\n"; has = true; }
+        if (!has) t += "No active entries recorded.\n";
+
+        var card = document.createElement("div");
+        card.style.marginBottom = "14px";
+        card.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;"><strong>' + bed + '</strong><button type="button" class="sec-btn" onclick="copyText(this)">Copy Note</button></div><div class="copy-block">' + t + '</div>';
+        div.appendChild(card);
+      });
+    }
+
+    function copyText(btn) {
+      var text = btn.parentElement.nextElementSibling.innerText;
+      navigator.clipboard.writeText(text).then(function() {
+        var orig = btn.innerText;
+        btn.innerText = "Copied!";
+        setTimeout(function() { btn.innerText = orig; }, 1200);
+      });
+    }
+
+    function clearShift() {
+      if (confirm("Clear all shift data?")) {
+        state = { allocated: [], activeBed: null, configs: {}, data: {} };
+        saveState();
+        document.querySelectorAll(".bed-btn").forEach(function(b){
+          b.classList.remove("selected");
+          b.textContent = b.getAttribute("data-bed");
+        });
+        updateAllocatedText();
+        renderNavBeds();
+        showView("allocation");
+      }
+    }
+
+    window.addEventListener("DOMContentLoaded", function() {
+      loadState();
+      document.querySelectorAll(".bed-btn").forEach(function(b) {
+        var name = b.getAttribute("data-bed");
+        if (state.allocated.indexOf(name) > -1) {
+          b.classList.add("selected");
+          b.textContent = "✓ " + name;
+        }
+      });
+      updateAllocatedText();
+      renderNavBeds();
+    });
+  </script>
 </head>
 <body>
 
@@ -67,42 +333,39 @@
   </nav>
 
   <div class="container">
-    
-    <!-- View 1: Bed Allocation Grid (Hardcoded HTML so it always renders) -->
     <div id="view-allocation" class="view active">
-      <p style="font-size:0.85rem;color:var(--nhs-grey);">Tap beds to allocate to your shift. Tapping opens their tab in the top bar.</p>
+      <p style="font-size:0.85rem;color:var(--grey);">Tap beds to allocate to your shift. Tapping opens their tab in the top bar.</p>
       <div style="font-size:0.9rem;font-weight:700;margin-top:4px;" id="allocated-text">Allocated (0): None selected</div>
       
-      <div class="bed-grid" id="bedGrid">
-        <button type="button" class="bed-btn" data-bed="Bay 1 Bed 1" onclick="toggleBed('Bay 1 Bed 1')">Bay 1 Bed 1</button>
-        <button type="button" class="bed-btn" data-bed="Bay 1 Bed 2" onclick="toggleBed('Bay 1 Bed 2')">Bay 1 Bed 2</button>
-        <button type="button" class="bed-btn" data-bed="Bay 2 Bed 1" onclick="toggleBed('Bay 2 Bed 1')">Bay 2 Bed 1</button>
-        <button type="button" class="bed-btn" data-bed="Bay 2 Bed 2" onclick="toggleBed('Bay 2 Bed 2')">Bay 2 Bed 2</button>
-        <button type="button" class="bed-btn" data-bed="Bay 2 Bed 3" onclick="toggleBed('Bay 2 Bed 3')">Bay 2 Bed 3</button>
-        <button type="button" class="bed-btn" data-bed="Bay 2 Bed 4" onclick="toggleBed('Bay 2 Bed 4')">Bay 2 Bed 4</button>
-        <button type="button" class="bed-btn" data-bed="Bay 3 Bed 1" onclick="toggleBed('Bay 3 Bed 1')">Bay 3 Bed 1</button>
-        <button type="button" class="bed-btn" data-bed="Bay 3 Bed 2" onclick="toggleBed('Bay 3 Bed 2')">Bay 3 Bed 2</button>
-        <button type="button" class="bed-btn" data-bed="Bay 3 Bed 3" onclick="toggleBed('Bay 3 Bed 3')">Bay 3 Bed 3</button>
-        <button type="button" class="bed-btn" data-bed="Bay 3 Bed 4" onclick="toggleBed('Bay 3 Bed 4')">Bay 3 Bed 4</button>
-        <button type="button" class="bed-btn" data-bed="Bay 4 Bed 1" onclick="toggleBed('Bay 4 Bed 1')">Bay 4 Bed 1</button>
-        <button type="button" class="bed-btn" data-bed="Bay 4 Bed 2" onclick="toggleBed('Bay 4 Bed 2')">Bay 4 Bed 2</button>
-        <button type="button" class="bed-btn" data-bed="Bay 4 Bed 3" onclick="toggleBed('Bay 4 Bed 3')">Bay 4 Bed 3</button>
-        <button type="button" class="bed-btn" data-bed="Bay 4 Bed 4" onclick="toggleBed('Bay 4 Bed 4')">Bay 4 Bed 4</button>
-        <button type="button" class="bed-btn" data-bed="Bay 5 Bed 1" onclick="toggleBed('Bay 5 Bed 1')">Bay 5 Bed 1</button>
-        <button type="button" class="bed-btn" data-bed="Bay 5 Bed 2" onclick="toggleBed('Bay 5 Bed 2')">Bay 5 Bed 2</button>
-        <button type="button" class="bed-btn" data-bed="Bay 5 Bed 3" onclick="toggleBed('Bay 5 Bed 3')">Bay 5 Bed 3</button>
-        <button type="button" class="bed-btn" data-bed="Bay 5 Bed 4" onclick="toggleBed('Bay 5 Bed 4')">Bay 5 Bed 4</button>
-        <button type="button" class="bed-btn" data-bed="Side Room 1" onclick="toggleBed('Side Room 1')">Side Room 1</button>
-        <button type="button" class="bed-btn" data-bed="Side Room 2" onclick="toggleBed('Side Room 2')">Side Room 2</button>
-        <button type="button" class="bed-btn" data-bed="Side Room 3" onclick="toggleBed('Side Room 3')">Side Room 3</button>
-        <button type="button" class="bed-btn" data-bed="Side Room 4" onclick="toggleBed('Side Room 4')">Side Room 4</button>
-        <button type="button" class="bed-btn" data-bed="Side Room 5" onclick="toggleBed('Side Room 5')">Side Room 5</button>
-        <button type="button" class="bed-btn" data-bed="Side Room 6" onclick="toggleBed('Side Room 6')">Side Room 6</button>
-        <button type="button" class="bed-btn" data-bed="Side Room 7" onclick="toggleBed('Side Room 7')">Side Room 7</button>
+      <div class="bed-grid">
+        <button type="button" class="bed-btn" data-bed="Bay 1 Bed 1" onclick="toggleBed(this, 'Bay 1 Bed 1')">Bay 1 Bed 1</button>
+        <button type="button" class="bed-btn" data-bed="Bay 1 Bed 2" onclick="toggleBed(this, 'Bay 1 Bed 2')">Bay 1 Bed 2</button>
+        <button type="button" class="bed-btn" data-bed="Bay 2 Bed 1" onclick="toggleBed(this, 'Bay 2 Bed 1')">Bay 2 Bed 1</button>
+        <button type="button" class="bed-btn" data-bed="Bay 2 Bed 2" onclick="toggleBed(this, 'Bay 2 Bed 2')">Bay 2 Bed 2</button>
+        <button type="button" class="bed-btn" data-bed="Bay 2 Bed 3" onclick="toggleBed(this, 'Bay 2 Bed 3')">Bay 2 Bed 3</button>
+        <button type="button" class="bed-btn" data-bed="Bay 2 Bed 4" onclick="toggleBed(this, 'Bay 2 Bed 4')">Bay 2 Bed 4</button>
+        <button type="button" class="bed-btn" data-bed="Bay 3 Bed 1" onclick="toggleBed(this, 'Bay 3 Bed 1')">Bay 3 Bed 1</button>
+        <button type="button" class="bed-btn" data-bed="Bay 3 Bed 2" onclick="toggleBed(this, 'Bay 3 Bed 2')">Bay 3 Bed 2</button>
+        <button type="button" class="bed-btn" data-bed="Bay 3 Bed 3" onclick="toggleBed(this, 'Bay 3 Bed 3')">Bay 3 Bed 3</button>
+        <button type="button" class="bed-btn" data-bed="Bay 3 Bed 4" onclick="toggleBed(this, 'Bay 3 Bed 4')">Bay 3 Bed 4</button>
+        <button type="button" class="bed-btn" data-bed="Bay 4 Bed 1" onclick="toggleBed(this, 'Bay 4 Bed 1')">Bay 4 Bed 1</button>
+        <button type="button" class="bed-btn" data-bed="Bay 4 Bed 2" onclick="toggleBed(this, 'Bay 4 Bed 2')">Bay 4 Bed 2</button>
+        <button type="button" class="bed-btn" data-bed="Bay 4 Bed 3" onclick="toggleBed(this, 'Bay 4 Bed 3')">Bay 4 Bed 3</button>
+        <button type="button" class="bed-btn" data-bed="Bay 4 Bed 4" onclick="toggleBed(this, 'Bay 4 Bed 4')">Bay 4 Bed 4</button>
+        <button type="button" class="bed-btn" data-bed="Bay 5 Bed 1" onclick="toggleBed(this, 'Bay 5 Bed 1')">Bay 5 Bed 1</button>
+        <button type="button" class="bed-btn" data-bed="Bay 5 Bed 2" onclick="toggleBed(this, 'Bay 5 Bed 2')">Bay 5 Bed 2</button>
+        <button type="button" class="bed-btn" data-bed="Bay 5 Bed 3" onclick="toggleBed(this, 'Bay 5 Bed 3')">Bay 5 Bed 3</button>
+        <button type="button" class="bed-btn" data-bed="Bay 5 Bed 4" onclick="toggleBed(this, 'Bay 5 Bed 4')">Bay 5 Bed 4</button>
+        <button type="button" class="bed-btn" data-bed="Side Room 1" onclick="toggleBed(this, 'Side Room 1')">Side Room 1</button>
+        <button type="button" class="bed-btn" data-bed="Side Room 2" onclick="toggleBed(this, 'Side Room 2')">Side Room 2</button>
+        <button type="button" class="bed-btn" data-bed="Side Room 3" onclick="toggleBed(this, 'Side Room 3')">Side Room 3</button>
+        <button type="button" class="bed-btn" data-bed="Side Room 4" onclick="toggleBed(this, 'Side Room 4')">Side Room 4</button>
+        <button type="button" class="bed-btn" data-bed="Side Room 5" onclick="toggleBed(this, 'Side Room 5')">Side Room 5</button>
+        <button type="button" class="bed-btn" data-bed="Side Room 6" onclick="toggleBed(this, 'Side Room 6')">Side Room 6</button>
+        <button type="button" class="bed-btn" data-bed="Side Room 7" onclick="toggleBed(this, 'Side Room 7')">Side Room 7</button>
       </div>
     </div>
 
-    <!-- View 2: Active Bed Entry Card -->
     <div id="view-bed" class="view">
       <div class="card">
         <h2>
@@ -111,234 +374,5 @@
         </h2>
 
         <div class="tracking-box">
-          <small style="font-size:0.72rem;font-weight:700;color:var(--nhs-grey);text-transform:uppercase;">Active Charts for this Bed</small>
-          <div class="chips" id="chartToggles"></div>
-        </div>
-
-        <div id="sec-news" class="field-row">
-          <label>NEWS2 / Observations & Time</label>
-          <input type="text" id="f-news" placeholder="e.g. 08:30 NEWS: 1 (Pulse 96)" oninput="updateBedData('news', this.value)">
-        </div>
-
-        <div id="sec-bowels" class="field-row">
-          <label>Bowel Movement & Bristol Stool Scale</label>
-          <div style="display:flex;gap:6px;margin-bottom:6px;">
-            <select id="sel-bristol" onchange="addBristol(this.value); this.value='';">
-              <option value="">+ Add Bristol Type...</option>
-              <option value="Type 1">Type 1 (Hard lumps)</option>
-              <option value="Type 2">Type 2 (Lumpy sausage)</option>
-              <option value="Type 3">Type 3 (Cracked sausage)</option>
-              <option value="Type 4">Type 4 (Smooth, soft)</option>
-              <option value="Type 5">Type 5 (Soft blobs)</option>
-              <option value="Type 6">Type 6 (Mushy)</option>
-              <option value="Type 7">Type 7 (Liquid)</option>
-            </select>
-            <button type="button" class="sec-btn" onclick="setBowel('Not opened this shift')">BO Not Opened</button>
-          </div>
-          <input type="text" id="f-bowels" placeholder="e.g. BO x1 Type 4" oninput="updateBedData('bowels', this.value)">
-        </div>
-
-        <div id="sec-amys" class="field-row">
-          <label>Amy's Round (Pressure Areas)</label>
-          <div class="area-grid">
-            <strong>Sacrum</strong>
-            <select id="f-amysSacrumStatus" onchange="updateBedData('amysSacrumStatus', this.value)">
-              <option>Skin intact</option><option>Blanching redness</option><option>Non-blanching redness</option><option>Moisture lesion</option><option>Dressing intact</option><option>Broken skin</option>
-            </select>
-            <input type="text" id="f-amysSacrumNotes" placeholder="Sacrum notes" oninput="updateBedData('amysSacrumNotes', this.value)">
-          </div>
-          <div class="area-grid">
-            <strong>Left Heel</strong>
-            <select id="f-amysLeftHeelStatus" onchange="updateBedData('amysLeftHeelStatus', this.value)">
-              <option>Skin intact</option><option>Blanching redness</option><option>Offloaded on pillow</option><option>Dressing intact</option><option>Broken skin</option>
-            </select>
-            <input type="text" id="f-amysLeftHeelNotes" placeholder="Left heel notes" oninput="updateBedData('amysLeftHeelNotes', this.value)">
-          </div>
-          <div class="area-grid">
-            <strong>Right Heel</strong>
-            <select id="f-amysRightHeelStatus" onchange="updateBedData('amysRightHeelStatus', this.value)">
-              <option>Skin intact</option><option>Blanching redness</option><option>Offloaded on pillow</option><option>Dressing intact</option><option>Broken skin</option>
-            </select>
-            <input type="text" id="f-amysRightHeelNotes" placeholder="Right heel notes" oninput="updateBedData('amysRightHeelNotes', this.value)">
-          </div>
-          <div class="area-grid">
-            <strong>Other/Buttocks</strong>
-            <select id="f-amysOtherStatus" onchange="updateBedData('amysOtherStatus', this.value)">
-              <option>Skin intact</option><option>Blanching redness</option><option>Moisture lesion</option><option>Broken skin</option>
-            </select>
-            <input type="text" id="f-amysOtherNotes" placeholder="Details" oninput="updateBedData('amysOtherNotes', this.value)">
-          </div>
-        </div>
-
-        <div id="sec-turning" class="field-row">
-          <label>Turning & Repositioning Chart</label>
-          <div class="btn-row">
-            <button type="button" class="action-chip" onclick="addTurn('Left side')">+ Left Side</button>
-            <button type="button" class="action-chip" onclick="addTurn('Right side')">+ Right Side</button>
-            <button type="button" class="action-chip" onclick="addTurn('Supine')">+ Supine</button>
-            <button type="button" class="action-chip" onclick="addTurn('Sitting in chair')">+ Sitting in chair</button>
-          </div>
-          <textarea rows="3" id="f-turning" placeholder="Tapping position stamps time..." oninput="updateBedData('turning', this.value)"></textarea>
-        </div>
-
-        <div id="sec-lsbp" class="field-row">
-          <label>Lying & Standing Blood Pressure</label>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-            <div><small style="font-weight:700;color:var(--nhs-grey);">Lying BP</small><input type="text" id="f-lyingBP" placeholder="e.g. 132/78" oninput="updateBedData('lyingBP', this.value)"></div>
-            <div><small style="font-weight:700;color:var(--nhs-grey);">Standing BP</small><input type="text" id="f-standingBP" placeholder="e.g. 118/72" oninput="updateBedData('standingBP', this.value)"></div>
-          </div>
-        </div>
-
-        <div id="sec-weight" class="field-row">
-          <label>Weight (kg)</label>
-          <input type="text" id="f-weight" placeholder="e.g. 68.4 kg" oninput="updateBedData('weight', this.value)">
-        </div>
-
-        <div id="sec-fluids" class="field-row">
-          <label>Fluid Intake (ml)</label>
-          <div class="btn-row">
-            <button type="button" class="action-chip" onclick="addFluidIn(150)">+150ml (Cup)</button>
-            <button type="button" class="action-chip" onclick="addFluidIn(200)">+200ml (Mug)</button>
-            <button type="button" class="action-chip" onclick="addFluidIn(500)">+500ml (Jug)</button>
-          </div>
-          <input type="text" id="f-fluidIn" placeholder="e.g. 650ml oral fluids" oninput="updateBedData('fluidIn', this.value)">
-          <label style="margin-top:8px;">Fluid Output / Urine</label>
-          <div class="btn-row">
-            <button type="button" class="action-chip" onclick="addFluidOut('Pad wet x1')">+ Pad Wet</button>
-            <button type="button" class="action-chip" onclick="addFluidOut('PU urinal 250ml')">+ 250ml Urinal</button>
-            <button type="button" class="action-chip" onclick="addFluidOut('Catheter emptied 400ml')">+ 400ml Catheter</button>
-          </div>
-          <input type="text" id="f-fluidOut" placeholder="e.g. Catheter 500ml clear amber" oninput="updateBedData('fluidOut', this.value)">
-        </div>
-
-        <div id="sec-diet" class="field-row">
-          <label>Food & Diet Intake</label>
-          <div class="btn-row">
-            <button type="button" class="action-chip" onclick="addDiet('Breakfast 100%')">Breakfast 100%</button>
-            <button type="button" class="action-chip" onclick="addDiet('Lunch 50%')">Lunch 50%</button>
-            <button type="button" class="action-chip" onclick="addDiet('Refused meal')">Refused</button>
-          </div>
-          <input type="text" id="f-diet" placeholder="e.g. Lunch 75% taken well" oninput="updateBedData('diet', this.value)">
-        </div>
-
-        <div id="sec-bm" class="field-row">
-          <label>Blood Glucose (BM)</label>
-          <input type="text" id="f-bm" placeholder="e.g. 07:45 BM: 6.8 mmol/L" oninput="updateBedData('bm', this.value)">
-        </div>
-
-        <div id="sec-events" class="field-row">
-          <label>General Notes, Specimens & Events</label>
-          <button type="button" class="sec-btn" style="margin-bottom:6px;" onclick="insertTime()">+ Insert Time</button>
-          <textarea rows="3" id="f-events" placeholder="Click + Insert Time to stamp quick notes..." oninput="updateBedData('events', this.value)"></textarea>
-        </div>
-
-      </div>
-    </div>
-
-    <!-- View 3: Handover Summary -->
-    <div id="view-summary" class="view">
-      <div class="card">
-        <h2>SystmOne Handover Summary</h2>
-        <div id="summary-cards"></div>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- Bottom Bar: Only Clear Shift Remains -->
-  <div class="bottom-bar">
-    <button type="button" class="btn-clear" onclick="clearShift()">Clear Shift</button>
-  </div>
-
-  <script>
-    var CHARTS = [
-      { id: 'news', label: 'NEWS2' },
-      { id: 'bowels', label: 'Bowels' },
-      { id: 'amys', label: "Amy's Round" },
-      { id: 'turning', label: 'Turning' },
-      { id: 'lsbp', label: 'Lying/Standing BP' },
-      { id: 'weight', label: 'Weight' },
-      { id: 'fluids', label: 'Fluid Balance' },
-      { id: 'diet', label: 'Diet' },
-      { id: 'bm', label: 'BM (Glucose)' },
-      { id: 'events', label: 'Notes' }
-    ];
-
-    var state = {
-      allocated: [],
-      activeBed: null,
-      configs: {},
-      data: {}
-    };
-
-    function init() {
-      try {
-        var s = localStorage.getItem("thorndon_v4_stable");
-        if (s) {
-          var parsed = JSON.parse(s);
-          if (parsed && Array.isArray(parsed.allocated)) {
-            state = parsed;
-          }
-        }
-      } catch(e){}
-
-      refreshBedButtons();
-      updateNav();
-      updateAllocatedText();
-    }
-
-    function save() {
-      try {
-        localStorage.setItem("thorndon_v4_stable", JSON.stringify(state));
-        var s = document.getElementById("save-status");
-        if (s) {
-          s.textContent = "Saved";
-          setTimeout(function() { s.textContent = "Auto-Saved"; }, 800);
-        }
-      } catch(e){}
-    }
-
-    function toggleBed(bed) {
-      if (!Array.isArray(state.allocated)) state.allocated = [];
-      var idx = state.allocated.indexOf(bed);
-      if (idx > -1) {
-        state.allocated.splice(idx, 1);
-        if (state.activeBed === bed) state.activeBed = null;
-      } else {
-        state.allocated.push(bed);
-      }
-      save();
-      refreshBedButtons();
-      updateNav();
-      updateAllocatedText();
-    }
-
-    function refreshBedButtons() {
-      var btns = document.querySelectorAll(".bed-btn");
-      for (var i = 0; i < btns.length; i++) {
-        var b = btns[i];
-        var bedName = b.getAttribute("data-bed");
-        if (state.allocated.indexOf(bedName) > -1) {
-          b.className = "bed-btn selected";
-          b.textContent = "✓ " + bedName;
-        } else {
-          b.className = "bed-btn";
-          b.textContent = bedName;
-        }
-      }
-    }
-
-    function updateAllocatedText() {
-      var el = document.getElementById("allocated-text");
-      if (!el) return;
-      if (state.allocated && state.allocated.length) {
-        el.textContent = "Allocated (" + state.allocated.length + "): " + state.allocated.join(", ");
-      } else {
-        el.textContent = "Allocated (0): None selected";
-      }
-    }
-
-    function updateNav() {
-      var container = document.getElementById("nav-dynamic-beds");
-      if (!container) return;
-      container.in
+          <small style="font-size:0.72rem;font-weight:700;color:var(--grey);text-transform:uppercase;">Active Charts for this Bed</small>
+          <div class="chips"
