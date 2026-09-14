@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Thorndon Ward ICA Log - v2.13</title>
+  <title>Thorndon Ward ICA Log - v2.14</title>
   <style>
     :root {
       --ward: #0b4d7a;
@@ -44,24 +44,17 @@
     .tab-content.active { display: block; }
   </style>
   <script>
-    var BEDS = [
-      "Bay 1 Bed 1", "Bay 1 Bed 2", "Bay 2 Bed 1", "Bay 2 Bed 2", "Bay 2 Bed 3", "Bay 2 Bed 4",
-      "Bay 3 Bed 1", "Bay 3 Bed 2", "Bay 3 Bed 3", "Bay 3 Bed 4", "Bay 4 Bed 1", "Bay 4 Bed 2",
-      "Bay 4 Bed 3", "Bay 4 Bed 4", "Bay 5 Bed 1", "Bay 5 Bed 2", "Bay 5 Bed 3", "Bay 5 Bed 4",
-      "Side Room 1", "Side Room 2", "Side Room 3", "Side Room 4", "Side Room 5", "Side Room 6", "Side Room 7"
-    ];
-
     var state = { allocated: [], data: {} };
 
     function saveState() {
-      try { localStorage.setItem("thorndon_v213", JSON.stringify(state)); } catch(e){}
+      try { localStorage.setItem("thorndon_v214", JSON.stringify(state)); } catch(e){}
       var s = document.getElementById("save-status");
       if (s) { s.textContent = "Saved"; setTimeout(function(){ s.textContent = "Auto-Saved"; }, 600); }
     }
 
     function loadState() {
       try {
-        var raw = localStorage.getItem("thorndon_v213");
+        var raw = localStorage.getItem("thorndon_v214");
         if (raw) {
           var parsed = JSON.parse(raw);
           if (parsed && typeof parsed === "object") {
@@ -119,31 +112,17 @@
 
       nav.innerHTML = '<button class="active" id="btn-tab-allocation" onclick="switchTab(\'allocation\')">Beds</button>';
       
-      // Keep static allocation view wrapper in container, rebuild bed tabs
       var allocationHTML = document.getElementById("tab-allocation") ? document.getElementById("tab-allocation").outerHTML : '';
       var summaryHTML = document.getElementById("tab-summary") ? document.getElementById("tab-summary").outerHTML : '';
       
       if (!allocationHTML) {
-        allocationHTML = '<div id="tab-allocation" class="tab-content active"><p style="font-size:0.85rem;color:var(--grey);">Tap beds to allocate to your shift. Tapping creates their tab in the top bar.</p><div style="font-size:0.9rem;font-weight:700;margin-top:4px;" id="allocated-text">Allocated (0): None selected</div><div class="bed-grid" id="mainBedGrid"></div></div>';
+        allocationHTML = document.getElementById("tab-allocation-template") ? document.getElementById("tab-allocation-template").innerHTML : '';
       }
       if (!summaryHTML) {
         summaryHTML = '<div id="tab-summary" class="tab-content"><div class="card"><h2>SystmOne Handover Summary</h2><div id="summary-cards"></div></div></div>';
       }
 
       container.innerHTML = allocationHTML + summaryHTML;
-
-      var grid = document.getElementById("mainBedGrid");
-      if (grid && grid.children.length === 0) {
-        BEDS.forEach(function(bedName) {
-          var btn = document.createElement("button");
-          btn.type = "button";
-          btn.className = "bed-btn";
-          btn.setAttribute("data-bed", bedName);
-          btn.textContent = bedName;
-          btn.onclick = function() { toggleBed(bedName); };
-          grid.appendChild(btn);
-        });
-      }
 
       state.allocated.forEach(function(bed) {
         var safeId = bed.replace(/[^a-zA-Z0-9]/g, '');
@@ -323,4 +302,39 @@
           b.textContent = name;
         }
       });
-      var el = document.getElementById("allocated-te
+      var el = document.getElementById("allocated-text");
+      if (el) {
+        el.textContent = state.allocated.length ? "Allocated (" + state.allocated.length + "): " + state.allocated.join(", ") : "Allocated (0): None selected";
+      }
+    }
+
+    function switchTab(tabId) {
+      document.querySelectorAll(".tab-content").forEach(function(v){ v.classList.remove("active"); });
+      document.querySelectorAll("nav button").forEach(function(b){ b.classList.remove("active"); });
+
+      var cleanId = tabId.replace("tab-", "");
+      var target = document.getElementById("tab-" + cleanId);
+      var btn = document.getElementById("btn-tab-" + cleanId);
+
+      if (target) target.classList.add("active");
+      if (btn) btn.classList.add("active");
+
+      if (cleanId === "summary") {
+        renderSummary();
+      }
+      window.scrollTo(0, 0);
+    }
+
+    function updateData(bed, field, val) {
+      if (!state.data[bed]) state.data[bed] = {};
+      state.data[bed][field] = val;
+      saveState();
+    }
+
+    function getTime() {
+      var d = new Date();
+      return "[" + String(d.getHours()).padStart(2, '0') + ":" + String(d.getMinutes()).padStart(2, '0') + "]";
+    }
+
+    function addTurn(bed, pos) {
+      var safeId = bed.replace(/[^a
