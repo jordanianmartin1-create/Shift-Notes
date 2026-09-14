@@ -165,8 +165,9 @@ function opt(arr,sel){
   return arr.map(x=>`<option ${x===sel?'selected':''}>${x}</option>`).join("");
 }
 
-function inp(b,sec,k,lbl,val,type="text",ph=""){
-  return `<div><label>${lbl}</label><input type="${type}" placeholder="${ph}" value="${val||''}" oninput="setVal('${b}','${sec}','${k}',this.value)"></div>`;
+function inp(b,sec,k,lbl,val,type="text",ph="",mode=""){
+  const modeAttr = mode ? `inputmode="${mode}"` : '';
+  return `<div><label>${lbl}</label><input type="${type}" ${modeAttr} placeholder="${ph}" value="${val||''}" oninput="setVal('${b}','${sec}','${k}',this.value)"></div>`;
 }
 
 function sel(b,sec,k,lbl,val,arr){
@@ -183,14 +184,14 @@ function renderTabContent(b, sb, rec){
   }
   if(curTab==="news2"){
     return `<div style="margin-bottom:8px"><span id="bdg-n-${sb}" class="badge b-green">Score: 0</span></div>`
-    +`<div class="row">${inp(b,'news2','time','Time',rec.news2.time,'time')}${inp(b,'news2','rr','RR',rec.news2.rr,'number')}${inp(b,'news2','spo2','SpO2%',rec.news2.spo2,'number')}</div>`
-    +`<div class="row">${sel(b,'news2','o2','Air/O2',rec.news2.o2,['Air','O2'])}${inp(b,'news2','bp','BP',rec.news2.bp,'text','120/80')}${inp(b,'news2','hr','HR',rec.news2.hr,'number')}</div>`
-    +`<div class="row">${sel(b,'news2','acvpu','ACVPU',rec.news2.acvpu,['Alert','CVPU'])}${inp(b,'news2','t','Temp',rec.news2.t,'number')}</div>`;
+    +`<div class="row">${inp(b,'news2','time','Time',rec.news2.time,'time')}${inp(b,'news2','rr','RR',rec.news2.rr,'text','','numeric')}${inp(b,'news2','spo2','SpO2%',rec.news2.spo2,'text','','numeric')}</div>`
+    +`<div class="row">${sel(b,'news2','o2','Air/O2',rec.news2.o2,['Air','O2'])}${inp(b,'news2','bp','BP',rec.news2.bp,'text','120/80','numeric')}${inp(b,'news2','hr','HR',rec.news2.hr,'text','','numeric')}</div>`
+    +`<div class="row">${sel(b,'news2','acvpu','ACVPU',rec.news2.acvpu,['Alert','CVPU'])}${inp(b,'news2','t','Temp',rec.news2.t,'text','37.0','decimal')}</div>`;
   }
   if(curTab==="fluid"){
     let ti=0,to=0;
     rec.fluid.h.forEach(x=>{ti+=+x.i||0;to+=+x.o||0;});
-    let rows=HOURS.map((h,hi)=>`<div class="row" style="margin-bottom:4px"><span style="font-size:10px;width:60px;line-height:28px">${h}</span><input type="number" placeholder="In" value="${rec.fluid.h[hi]?.i||''}" oninput="records['${b}'].fluid.h[${hi}].i=this.value;saveDB()"><input type="number" placeholder="Out" value="${rec.fluid.h[hi]?.o||''}" oninput="records['${b}'].fluid.h[${hi}].o=this.value;saveDB()"></div>`).join('');
+    let rows=HOURS.map((h,hi)=>`<div class="row" style="margin-bottom:4px"><span style="font-size:10px;width:60px;line-height:28px">${h}</span><input type="text" inputmode="numeric" placeholder="In" value="${rec.fluid.h[hi]?.i||''}" oninput="records['${b}'].fluid.h[${hi}].i=this.value;saveDB()"><input type="text" inputmode="numeric" placeholder="Out" value="${rec.fluid.h[hi]?.o||''}" oninput="records['${b}'].fluid.h[${hi}].o=this.value;saveDB()"></div>`).join('');
     return `<div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:12px"><span>In: <b>${ti}ml</b></span><span>Out: <b>${to}ml</b></span><span>Net: <b>${ti-to}ml</b></span></div><div style="max-height:160px;overflow-y:auto;border:1px solid #CBD5E1;padding:6px;border-radius:6px">${rows}</div>`;
   }
   if(curTab==="food"){
@@ -204,13 +205,13 @@ function renderTabContent(b, sb, rec){
     return `<div class="row">${inp(b,'turn','t1','08:00',rec.turn.t1)}${inp(b,'turn','t2','10:00',rec.turn.t2)}${inp(b,'turn','t3','12:00',rec.turn.t3)}</div><div class="row">${inp(b,'turn','t4','14:00',rec.turn.t4)}${inp(b,'turn','t5','16:00',rec.turn.t5)}${inp(b,'turn','t6','18:00',rec.turn.t6)}</div>`;
   }
   if(curTab==="bp"){
-    return `<div style="margin-bottom:6px"><span id="bdg-p-${sb}" class="badge b-green">Normal</span></div><div class="row">${inp(b,'bp','lying','Lying BP',rec.bp.lying,'text','120/80')}${inp(b,'bp','standing','Standing BP',rec.bp.standing,'text','118/78')}</div>`;
+    return `<div style="margin-bottom:6px"><span id="bdg-p-${sb}" class="badge b-green">Normal</span></div><div class="row">${inp(b,'bp','lying','Lying BP',rec.bp.lying,'text','120/80','numeric')}${inp(b,'bp','standing','Standing BP',rec.bp.standing,'text','118/78','numeric')}</div>`;
   }
   if(curTab==="bm"){
-    return `<div style="margin-bottom:6px"><span id="bdg-m-${sb}" class="badge b-green">Pending</span></div><div class="row">${inp(b,'bm','time','Time',rec.bm.time,'time')}${inp(b,'bm','val','BM mmol/L',rec.bm.val,'number')}</div>`;
+    return `<div style="margin-bottom:6px"><span id="bdg-m-${sb}" class="badge b-green">Pending</span></div><div class="row">${inp(b,'bm','time','Time',rec.bm.time,'time')}${inp(b,'bm','val','BM mmol/L',rec.bm.val,'text','','decimal')}</div>`;
   }
   if(curTab==="must"){
-    return `<div style="margin-bottom:6px"><span id="bdg-u-${sb}" class="badge b-green">BMI: --</span></div><div class="row">${inp(b,'must','ht','Height (m)',rec.must.ht,'number')}${inp(b,'must','wt','Weight (kg)',rec.must.wt,'number')}</div>`;
+    return `<div style="margin-bottom:6px"><span id="bdg-u-${sb}" class="badge b-green">BMI: --</span></div><div class="row">${inp(b,'must','ht','Height (m)',rec.must.ht,'text','1.75','decimal')}${inp(b,'must','wt','Weight (kg)',rec.must.wt,'text','70.5','decimal')}</div>`;
   }
   return '';
 }
