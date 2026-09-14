@@ -29,7 +29,7 @@
       background-color: var(--nhs-white);
       color: var(--nhs-text);
       line-height: 1.4;
-      padding-bottom: 85px;
+      padding-bottom: 90px;
     }
 
     header {
@@ -130,6 +130,7 @@
       text-align: center;
       user-select: none;
       -webkit-tap-highlight-color: transparent;
+      transition: background 0.15s, border-color 0.15s;
     }
 
     .bed-btn.selected {
@@ -341,42 +342,42 @@
   </header>
 
   <nav id="navbar">
-    <button class="active" id="btn-tab-allocation" onclick="showTab('allocation')">Beds</button>
-    <button id="btn-tab-summary" onclick="showTab('summary')">Summary</button>
+    <button class="active" id="nav-btn-allocation">Beds</button>
+    <button id="nav-btn-summary">Summary</button>
   </nav>
 
   <div class="container">
     
     <div id="tab-allocation" class="tab-content active">
-      <p class="intro-text">Tap beds to allocate to your shift. Tap an allocated bed to open its note.</p>
+      <p class="intro-text">Tap beds below to allocate to your shift.</p>
       <div class="allocated-summary" id="allocated-summary-text">Allocated (0): None selected</div>
 
       <div class="bed-grid" id="bed-grid-buttons">
-        <button type="button" class="bed-btn" onclick="handleBedTap('Bay 1 Bed 1')">Bay 1 Bed 1</button>
-        <button type="button" class="bed-btn" onclick="handleBedTap('Bay 1 Bed 2')">Bay 1 Bed 2</button>
-        <button type="button" class="bed-btn" onclick="handleBedTap('Bay 2 Bed 1')">Bay 2 Bed 1</button>
-        <button type="button" class="bed-btn" onclick="handleBedTap('Bay 2 Bed 2')">Bay 2 Bed 2</button>
-        <button type="button" class="bed-btn" onclick="handleBedTap('Bay 2 Bed 3')">Bay 2 Bed 3</button>
-        <button type="button" class="bed-btn" onclick="handleBedTap('Bay 2 Bed 4')">Bay 2 Bed 4</button>
-        <button type="button" class="bed-btn" onclick="handleBedTap('Bay 3 Bed 1')">Bay 3 Bed 1</button>
-        <button type="button" class="bed-btn" onclick="handleBedTap('Bay 3 Bed 2')">Bay 3 Bed 2</button>
-        <button type="button" class="bed-btn" onclick="handleBedTap('Bay 3 Bed 3')">Bay 3 Bed 3</button>
-        <button type="button" class="bed-btn" onclick="handleBedTap('Bay 3 Bed 4')">Bay 3 Bed 4</button>
-        <button type="button" class="bed-btn" onclick="handleBedTap('Bay 4 Bed 1')">Bay 4 Bed 1</button>
-        <button type="button" class="bed-btn" onclick="handleBedTap('Bay 4 Bed 2')">Bay 4 Bed 2</button>
-        <button type="button" class="bed-btn" onclick="handleBedTap('Bay 4 Bed 3')">Bay 4 Bed 3</button>
-        <button type="button" class="bed-btn" onclick="handleBedTap('Bay 4 Bed 4')">Bay 4 Bed 4</button>
-        <button type="button" class="bed-btn" onclick="handleBedTap('Bay 5 Bed 1')">Bay 5 Bed 1</button>
-        <button type="button" class="bed-btn" onclick="handleBedTap('Bay 5 Bed 2')">Bay 5 Bed 2</button>
-        <button type="button" class="bed-btn" onclick="handleBedTap('Bay 5 Bed 3')">Bay 5 Bed 3</button>
-        <button type="button" class="bed-btn" onclick="handleBedTap('Bay 5 Bed 4')">Bay 5 Bed 4</button>
-        <button type="button" class="bed-btn" onclick="handleBedTap('Side Room 1')">Side Room 1</button>
-        <button type="button" class="bed-btn" onclick="handleBedTap('Side Room 2')">Side Room 2</button>
-        <button type="button" class="bed-btn" onclick="handleBedTap('Side Room 3')">Side Room 3</button>
-        <button type="button" class="bed-btn" onclick="handleBedTap('Side Room 4')">Side Room 4</button>
-        <button type="button" class="bed-btn" onclick="handleBedTap('Side Room 5')">Side Room 5</button>
-        <button type="button" class="bed-btn" onclick="handleBedTap('Side Room 6')">Side Room 6</button>
-        <button type="button" class="bed-btn" onclick="handleBedTap('Side Room 7')">Side Room 7</button>
+        <button type="button" class="bed-btn" data-bed="Bay 1 Bed 1">Bay 1 Bed 1</button>
+        <button type="button" class="bed-btn" data-bed="Bay 1 Bed 2">Bay 1 Bed 2</button>
+        <button type="button" class="bed-btn" data-bed="Bay 2 Bed 1">Bay 2 Bed 1</button>
+        <button type="button" class="bed-btn" data-bed="Bay 2 Bed 2">Bay 2 Bed 2</button>
+        <button type="button" class="bed-btn" data-bed="Bay 2 Bed 3">Bay 2 Bed 3</button>
+        <button type="button" class="bed-btn" data-bed="Bay 2 Bed 4">Bay 2 Bed 4</button>
+        <button type="button" class="bed-btn" data-bed="Bay 3 Bed 1">Bay 3 Bed 1</button>
+        <button type="button" class="bed-btn" data-bed="Bay 3 Bed 2">Bay 3 Bed 2</button>
+        <button type="button" class="bed-btn" data-bed="Bay 3 Bed 3">Bay 3 Bed 3</button>
+        <button type="button" class="bed-btn" data-bed="Bay 3 Bed 4">Bay 3 Bed 4</button>
+        <button type="button" class="bed-btn" data-bed="Bay 4 Bed 1">Bay 4 Bed 1</button>
+        <button type="button" class="bed-btn" data-bed="Bay 4 Bed 2">Bay 4 Bed 2</button>
+        <button type="button" class="bed-btn" data-bed="Bay 4 Bed 3">Bay 4 Bed 3</button>
+        <button type="button" class="bed-btn" data-bed="Bay 4 Bed 4">Bay 4 Bed 4</button>
+        <button type="button" class="bed-btn" data-bed="Bay 5 Bed 1">Bay 5 Bed 1</button>
+        <button type="button" class="bed-btn" data-bed="Bay 5 Bed 2">Bay 5 Bed 2</button>
+        <button type="button" class="bed-btn" data-bed="Bay 5 Bed 3">Bay 5 Bed 3</button>
+        <button type="button" class="bed-btn" data-bed="Bay 5 Bed 4">Bay 5 Bed 4</button>
+        <button type="button" class="bed-btn" data-bed="Side Room 1">Side Room 1</button>
+        <button type="button" class="bed-btn" data-bed="Side Room 2">Side Room 2</button>
+        <button type="button" class="bed-btn" data-bed="Side Room 3">Side Room 3</button>
+        <button type="button" class="bed-btn" data-bed="Side Room 4">Side Room 4</button>
+        <button type="button" class="bed-btn" data-bed="Side Room 5">Side Room 5</button>
+        <button type="button" class="bed-btn" data-bed="Side Room 6">Side Room 6</button>
+        <button type="button" class="bed-btn" data-bed="Side Room 7">Side Room 7</button>
       </div>
     </div>
 
@@ -395,18 +396,12 @@
   </div>
 
   <div class="bottom-bar">
-    <button type="button" class="btn-clear" onclick="clearShift()">Clear Shift</button>
-    <button type="button" class="btn-handover" onclick="showTab('summary')">Copy Handover</button>
+    <button type="button" class="btn-clear" id="btn-action-clear">Clear Shift</button>
+    <button type="button" class="btn-handover" id="btn-action-summary">Copy Handover</button>
   </div>
 
   <script>
-    var appState = {
-      allocated: [],
-      configs: {},
-      data: {}
-    };
-
-    var BASE_CONFIG = {
+    const DEFAULT_CONFIG = {
       news: true,
       bowels: true,
       amys: false,
@@ -419,11 +414,17 @@
       events: true
     };
 
-    function safeInit() {
+    let appState = {
+      allocated: [],
+      configs: {},
+      data: {}
+    };
+
+    function loadState() {
       try {
-        var raw = localStorage.getItem("thorndon_v2_clean");
-        if (raw) {
-          var parsed = JSON.parse(raw);
+        const stored = localStorage.getItem("thorndon_v2_stable");
+        if (stored) {
+          const parsed = JSON.parse(stored);
           if (parsed && typeof parsed === "object") {
             appState.allocated = Array.isArray(parsed.allocated) ? parsed.allocated : [];
             appState.configs = parsed.configs || {};
@@ -433,173 +434,182 @@
       } catch (err) {
         appState = { allocated: [], configs: {}, data: {} };
       }
-
-      syncButtons();
-      buildNav();
-      buildBedLogs();
-      syncSummaryText();
     }
 
-    function persistState() {
+    function saveState() {
       try {
-        localStorage.setItem("thorndon_v2_clean", JSON.stringify(appState));
-        var el = document.getElementById("save-status");
+        localStorage.setItem("thorndon_v2_stable", JSON.stringify(appState));
+        const el = document.getElementById("save-status");
         if (el) {
           el.textContent = "Saved";
-          setTimeout(function() { el.textContent = "Auto-Saved"; }, 1000);
+          setTimeout(() => { el.textContent = "Auto-Saved"; }, 1000);
         }
       } catch (err) {}
     }
 
-    function handleBedTap(bedName) {
-      if (!Array.isArray(appState.allocated)) appState.allocated = [];
-      
-      var idx = appState.allocated.indexOf(bedName);
-      if (idx > -1) {
-        var safeId = bedName.replace(/\s+/g, '');
-        showTab(safeId);
-      } else {
-        appState.allocated.push(bedName);
-        persistState();
-        syncButtons();
-        syncSummaryText();
-        buildNav();
-        buildBedLogs();
-      }
+    function getBedSafeId(bed) {
+      return bed.replace(/[^a-zA-Z0-9]/g, '');
     }
 
-    function unallocateBed(bedName) {
-      appState.allocated = appState.allocated.filter(function(b) { return b !== bedName; });
-      persistState();
-      syncButtons();
-      syncSummaryText();
-      buildNav();
-      buildBedLogs();
-      showTab('allocation');
-    }
-
-    function syncButtons() {
-      var btns = document.querySelectorAll("#bed-grid-buttons .bed-btn");
-      btns.forEach(function(btn) {
-        var name = btn.textContent.replace('✓ ', '').trim();
-        if (appState.allocated.indexOf(name) > -1) {
-          btn.classList.add("selected");
-          btn.textContent = "✓ " + name;
-        } else {
-          btn.classList.remove("selected");
-          btn.textContent = name;
-        }
-      });
-    }
-
-    function syncSummaryText() {
-      var el = document.getElementById("allocated-summary-text");
-      if (!el) return;
-      if (!appState.allocated || appState.allocated.length === 0) {
-        el.textContent = "Allocated (0): None selected";
-      } else {
-        el.textContent = "Allocated (" + appState.allocated.length + "): " + appState.allocated.join(", ");
-      }
-    }
-
-    function buildNav() {
-      var nav = document.getElementById("navbar");
-      nav.innerHTML = '<button id="btn-tab-allocation" class="active" onclick="showTab(\'allocation\')">Beds</button>';
-
-      appState.allocated.forEach(function(bed) {
-        var safeId = bed.replace(/\s+/g, '');
-        var btn = document.createElement("button");
-        btn.id = "btn-tab-" + safeId;
-        btn.textContent = bed;
-        btn.onclick = function() { showTab(safeId); };
-        nav.appendChild(btn);
-      });
-
-      var summaryBtn = document.createElement("button");
-      summaryBtn.id = "btn-tab-summary";
-      summaryBtn.textContent = "Summary";
-      summaryBtn.onclick = function() { showTab('summary'); };
-      nav.appendChild(summaryBtn);
-    }
-
-    function getBedCfg(bed) {
+    function getBedConfig(bed) {
       if (!appState.configs[bed]) {
-        appState.configs[bed] = Object.assign({}, BASE_CONFIG);
+        appState.configs[bed] = Object.assign({}, DEFAULT_CONFIG);
       }
       return appState.configs[bed];
     }
 
-    function toggleChartField(bed, field) {
-      var cfg = getBedCfg(bed);
-      cfg[field] = !cfg[field];
-      persistState();
-      buildBedLogs();
+    function getBedData(bed) {
+      if (!appState.data[bed]) {
+        appState.data[bed] = {
+          news: "", bowels: "",
+          amysSacrumStatus: "Skin intact", amysSacrumNotes: "",
+          amysLeftHeelStatus: "Skin intact", amysLeftHeelNotes: "",
+          amysRightHeelStatus: "Skin intact", amysRightHeelNotes: "",
+          amysOtherStatus: "Skin intact", amysOtherNotes: "",
+          turning: "", lyingBP: "", standingBP: "", weight: "",
+          fluidIn: "", fluidOut: "", bm: "", diet: "", events: ""
+        };
+      }
+      return appState.data[bed];
     }
 
-    function buildBedLogs() {
-      var container = document.getElementById("dynamic-bed-containers");
-      var currentActive = document.querySelector('.tab-content.active');
-      var activeId = currentActive ? currentActive.id : 'tab-allocation';
+    function updateSummaryText() {
+      const summaryEl = document.getElementById("allocated-summary-text");
+      if (!summaryEl) return;
+      if (appState.allocated.length === 0) {
+        summaryEl.textContent = "Allocated (0): None selected";
+      } else {
+        summaryEl.textContent = `Allocated (${appState.allocated.length}): ${appState.allocated.join(", ")}`;
+      }
+    }
+
+    function syncGridButtons() {
+      document.querySelectorAll(".bed-btn").forEach(btn => {
+        const bed = btn.getAttribute("data-bed");
+        if (appState.allocated.includes(bed)) {
+          btn.classList.add("selected");
+          btn.textContent = `✓ ${bed}`;
+        } else {
+          btn.classList.remove("selected");
+          btn.textContent = bed;
+        }
+      });
+    }
+
+    function buildNavbar() {
+      const nav = document.getElementById("navbar");
+      nav.innerHTML = `
+        <button id="nav-btn-allocation" class="active">Beds</button>
+      `;
+
+      appState.allocated.forEach(bed => {
+        const safeId = getBedSafeId(bed);
+        const btn = document.createElement("button");
+        btn.id = `nav-btn-${safeId}`;
+        btn.textContent = bed;
+        btn.addEventListener("click", () => showTab(safeId));
+        nav.appendChild(btn);
+      });
+
+      const summaryBtn = document.createElement("button");
+      summaryBtn.id = "nav-btn-summary";
+      summaryBtn.textContent = "Summary";
+      summaryBtn.addEventListener("click", () => showTab("summary"));
+      nav.appendChild(summaryBtn);
+
+      document.getElementById("nav-btn-allocation").addEventListener("click", () => showTab("allocation"));
+    }
+
+    function showTab(tabId) {
+      document.querySelectorAll(".tab-content").forEach(el => el.classList.remove("active"));
+      document.querySelectorAll("nav button").forEach(el => el.classList.remove("active"));
+
+      const target = document.getElementById(`tab-${tabId}`);
+      const btn = document.getElementById(`nav-btn-${tabId}`);
+
+      if (target) target.classList.add("active");
+      if (btn) btn.classList.add("active");
+
+      if (tabId === "summary") {
+        renderSummaryOutput();
+      }
+      window.scrollTo(0, 0);
+    }
+
+    function getTimeStamp() {
+      const now = new Date();
+      return `[${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}]`;
+    }
+
+    function buildBedTabs() {
+      const container = document.getElementById("dynamic-bed-containers");
+      const activeTab = document.querySelector(".tab-content.active");
+      const activeId = activeTab ? activeTab.id : "tab-allocation";
       container.innerHTML = "";
 
-      appState.allocated.forEach(function(bed) {
-        var safeId = bed.replace(/\s+/g, '');
-        if (!appState.data[bed]) {
-          appState.data[bed] = {
-            news: "", bowels: "", amysSacrumStatus: "Skin intact", amysSacrumNotes: "",
-            amysLeftHeelStatus: "Skin intact", amysLeftHeelNotes: "", amysRightHeelStatus: "Skin intact",
-            amysRightHeelNotes: "", amysOtherStatus: "Skin intact", amysOtherNotes: "",
-            turning: "", lyingBP: "", standingBP: "", weight: "", fluidIn: "", fluidOut: "",
-            bm: "", diet: "", events: ""
-          };
-        }
+      appState.allocated.forEach(bed => {
+        const safeId = getBedSafeId(bed);
+        const d = getBedData(bed);
+        const cfg = getBedConfig(bed);
 
-        var d = appState.data[bed];
-        var cfg = getBedCfg(bed);
+        const tab = document.createElement("div");
+        tab.id = `tab-${safeId}`;
+        tab.className = `tab-content ${activeId === `tab-${safeId}` ? 'active' : ''}`;
 
-        var tabDiv = document.createElement("div");
-        tabDiv.id = "tab-" + safeId;
-        tabDiv.className = "tab-content " + (activeId === ("tab-" + safeId) ? "active" : "");
+        tab.innerHTML = `
+          <div class="card">
+            <h2>
+              <span>${bed} Entry Log</span>
+              <button type="button" class="secondary-btn" style="color:var(--nhs-red-text);border-color:var(--nhs-red-border);" data-remove="${bed}">Remove Bed</button>
+            </h2>
 
-        tabDiv.innerHTML = [
-          '<div class="card">',
-            '<h2>',
-              '<span>' + bed + ' Entry Log</span>',
-              '<button type="button" class="secondary-btn" style="color:var(--nhs-red-text);border-color:var(--nhs-red-border);" onclick="unallocateBed(\'' + bed + '\')">Remove Bed</button>',
-            '</h2>',
+            <div class="tracking-toggles">
+              <small>Toggle Active Charts for ${bed}</small>
+              <div class="toggle-chips">
+                <button type="button" class="toggle-chip ${cfg.news ? 'active' : ''}" data-bed="${bed}" data-toggle="news">${cfg.news ? '✓' : '+'} NEWS2</button>
+                <button type="button" class="toggle-chip ${cfg.bowels ? 'active' : ''}" data-bed="${bed}" data-toggle="bowels">${cfg.bowels ? '✓' : '+'} Bowels</button>
+                <button type="button" class="toggle-chip ${cfg.amys ? 'active' : ''}" data-bed="${bed}" data-toggle="amys">${cfg.amys ? '✓' : '+'} Amy's Round</button>
+                <button type="button" class="toggle-chip ${cfg.turning ? 'active' : ''}" data-bed="${bed}" data-toggle="turning">${cfg.turning ? '✓' : '+'} Turning</button>
+                <button type="button" class="toggle-chip ${cfg.lsbp ? 'active' : ''}" data-bed="${bed}" data-toggle="lsbp">${cfg.lsbp ? '✓' : '+'} Lying/Standing BP</button>
+                <button type="button" class="toggle-chip ${cfg.weight ? 'active' : ''}" data-bed="${bed}" data-toggle="weight">${cfg.weight ? '✓' : '+'} Weight</button>
+                <button type="button" class="toggle-chip ${cfg.fluids ? 'active' : ''}" data-bed="${bed}" data-toggle="fluids">${cfg.fluids ? '✓' : '+'} Fluid Balance</button>
+                <button type="button" class="toggle-chip ${cfg.diet ? 'active' : ''}" data-bed="${bed}" data-toggle="diet">${cfg.diet ? '✓' : '+'} Food & Diet</button>
+                <button type="button" class="toggle-chip ${cfg.bm ? 'active' : ''}" data-bed="${bed}" data-toggle="bm">${cfg.bm ? '✓' : '+'} BM (Glucose)</button>
+                <button type="button" class="toggle-chip ${cfg.events ? 'active' : ''}" data-bed="${bed}" data-toggle="events">${cfg.events ? '✓' : '+'} Notes</button>
+              </div>
+            </div>
 
-            '<div class="tracking-toggles">',
-              '<small>Toggle Active Charts for ' + bed + '</small>',
-              '<div class="toggle-chips">',
-                '<button type="button" class="toggle-chip ' + (cfg.news ? 'active' : '') + '" onclick="toggleChartField(\'' + bed + '\', \'news\')">' + (cfg.news ? '✓' : '+') + ' NEWS2</button>',
-                '<button type="button" class="toggle-chip ' + (cfg.bowels ? 'active' : '') + '" onclick="toggleChartField(\'' + bed + '\', \'bowels\')">' + (cfg.bowels ? '✓' : '+') + ' Bowels</button>',
-                '<button type="button" class="toggle-chip ' + (cfg.amys ? 'active' : '') + '" onclick="toggleChartField(\'' + bed + '\', \'amys\')">' + (cfg.amys ? '✓' : '+') + ' Amy\'s Round</button>',
-                '<button type="button" class="toggle-chip ' + (cfg.turning ? 'active' : '') + '" onclick="toggleChartField(\'' + bed + '\', \'turning\')">' + (cfg.turning ? '✓' : '+') + ' Turning</button>',
-                '<button type="button" class="toggle-chip ' + (cfg.lsbp ? 'active' : '') + '" onclick="toggleChartField(\'' + bed + '\', \'lsbp\')">' + (cfg.lsbp ? '✓' : '+') + ' Lying/Standing BP</button>',
-                '<button type="button" class="toggle-chip ' + (cfg.weight ? 'active' : '') + '" onclick="toggleChartField(\'' + bed + '\', \'weight\')">' + (cfg.weight ? '✓' : '+') + ' Weight</button>',
-                '<button type="button" class="toggle-chip ' + (cfg.fluids ? 'active' : '') + '" onclick="toggleChartField(\'' + bed + '\', \'fluids\')">' + (cfg.fluids ? '✓' : '+') + ' Fluid Balance</button>',
-                '<button type="button" class="toggle-chip ' + (cfg.diet ? 'active' : '') + '" onclick="toggleChartField(\'' + bed + '\', \'diet\')">' + (cfg.diet ? '✓' : '+') + ' Food & Diet</button>',
-                '<button type="button" class="toggle-chip ' + (cfg.bm ? 'active' : '') + '" onclick="toggleChartField(\'' + bed + '\', \'bm\')">' + (cfg.bm ? '✓' : '+') + ' BM (Glucose)</button>',
-                '<button type="button" class="toggle-chip ' + (cfg.events ? 'active' : '') + '" onclick="toggleChartField(\'' + bed + '\', \'events\')">' + (cfg.events ? '✓' : '+') + ' Notes</button>',
-              '</div>',
-            '</div>',
+            ${cfg.news ? `
+            <div class="field-row">
+              <label>NEWS2 / Observations & Time</label>
+              <input type="text" placeholder="e.g. 08:30 NEWS: 1 (Pulse 96)" value="${d.news || ''}" data-bed="${bed}" data-field="news">
+            </div>` : ''}
 
-            cfg.news ? [
-              '<div class="field-row">',
-                '<label>NEWS2 / Observations & Time</label>',
-                '<input type="text" placeholder="e.g. 08:30 NEWS: 1 (Pulse 96)" value="' + (d.news || '') + '" oninput="saveBedVal(\'' + bed + '\', \'news\', this.value)">',
-              '</div>'
-            ].join('') : '',
+            ${cfg.bowels ? `
+            <div class="field-row">
+              <label>Bowel Movement & Bristol Stool Scale</label>
+              <div style="display:flex;gap:8px;margin-bottom:6px;">
+                <select data-bed="${bed}" class="bristol-select">
+                  <option value="">+ Add Bristol Type...</option>
+                  <option value="Type 1">Type 1 (Hard lumps)</option>
+                  <option value="Type 2">Type 2 (Lumpy sausage)</option>
+                  <option value="Type 3">Type 3 (Cracked sausage)</option>
+                  <option value="Type 4">Type 4 (Smooth, soft)</option>
+                  <option value="Type 5">Type 5 (Soft blobs)</option>
+                  <option value="Type 6">Type 6 (Mushy)</option>
+                  <option value="Type 7">Type 7 (Liquid)</option>
+                </select>
+                <button type="button" class="secondary-btn" data-bed="${bed}" data-bo-none="true">BO Not Opened</button>
+              </div>
+              <input type="text" placeholder="e.g. BO x1 Type 4" value="${d.bowels || ''}" id="input-bowel-${safeId}" data-bed="${bed}" data-field="bowels">
+            </div>` : ''}
 
-            cfg.bowels ? [
-              '<div class="field-row">',
-                '<label>Bowel Movement & Bristol Stool Scale</label>',
-                '<div style="display:flex;gap:8px;margin-bottom:6px;">',
-                  '<select onchange="addBristol(\'' + bed + '\', this.value)">',
-                    '<option value="">+ Add Bristol Type...</option>',
-                    '<option value="Type 1">Type 1 (Hard lumps)</option>',
-                    '<option value="Type 2">Type 2 (Lumpy sausage)</option>',
-                    '<option value="Type 3">Type 3 (Cracked sausage)</option>',
-                    '<option value="Type 4">Type 4 (Smooth, soft)</option>',
-                    '<option value="Type 5">Type 5 (Soft blobs)</option>',
-                    '<option value="
+            ${cfg.amys ? `
+            <div class="field-row">
+              <label>Amy's Round (Pressure Areas)</label>
+              <div class="area-grid">
+                <strong>Sacrum</strong>
+                <select data-bed="${bed}" data-field="amysSacrumStatus">
+                  <option ${d.amysSacrumStatus === 'Skin intact' ? 'selected' : ''}>Skin intact</option>
+                  <option ${d.amysSacrumStatus === 'Blanching redness' ? 'selected' : ''}>Blanching redness</option>
+                  <option ${d.amysSacrumStatus === 'Non-blanching 
