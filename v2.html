@@ -128,7 +128,8 @@
       color: var(--nhs-text);
       cursor: pointer;
       text-align: center;
-      transition: background 0.15s ease, border-color 0.15s ease;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
     }
 
     .bed-btn.selected {
@@ -346,44 +347,41 @@
 
   <div class="container">
     
-    <!-- Bed Allocation Tab -->
     <div id="tab-allocation" class="tab-content active">
-      <p class="intro-text">Tap beds below to allocate to your shift.</p>
+      <p class="intro-text">Tap beds to allocate to your shift. Tap an allocated bed to open its note.</p>
       <div class="allocated-summary" id="allocated-summary-text">Allocated (0): None selected</div>
 
-      <div class="bed-grid" id="bed-buttons-container">
-        <button type="button" class="bed-btn" onclick="toggleBed('Bay 1 Bed 1', this)">Bay 1 Bed 1</button>
-        <button type="button" class="bed-btn" onclick="toggleBed('Bay 1 Bed 2', this)">Bay 1 Bed 2</button>
-        <button type="button" class="bed-btn" onclick="toggleBed('Bay 2 Bed 1', this)">Bay 2 Bed 1</button>
-        <button type="button" class="bed-btn" onclick="toggleBed('Bay 2 Bed 2', this)">Bay 2 Bed 2</button>
-        <button type="button" class="bed-btn" onclick="toggleBed('Bay 2 Bed 3', this)">Bay 2 Bed 3</button>
-        <button type="button" class="bed-btn" onclick="toggleBed('Bay 2 Bed 4', this)">Bay 2 Bed 4</button>
-        <button type="button" class="bed-btn" onclick="toggleBed('Bay 3 Bed 1', this)">Bay 3 Bed 1</button>
-        <button type="button" class="bed-btn" onclick="toggleBed('Bay 3 Bed 2', this)">Bay 3 Bed 2</button>
-        <button type="button" class="bed-btn" onclick="toggleBed('Bay 3 Bed 3', this)">Bay 3 Bed 3</button>
-        <button type="button" class="bed-btn" onclick="toggleBed('Bay 3 Bed 4', this)">Bay 3 Bed 4</button>
-        <button type="button" class="bed-btn" onclick="toggleBed('Bay 4 Bed 1', this)">Bay 4 Bed 1</button>
-        <button type="button" class="bed-btn" onclick="toggleBed('Bay 4 Bed 2', this)">Bay 4 Bed 2</button>
-        <button type="button" class="bed-btn" onclick="toggleBed('Bay 4 Bed 3', this)">Bay 4 Bed 3</button>
-        <button type="button" class="bed-btn" onclick="toggleBed('Bay 4 Bed 4', this)">Bay 4 Bed 4</button>
-        <button type="button" class="bed-btn" onclick="toggleBed('Bay 5 Bed 1', this)">Bay 5 Bed 1</button>
-        <button type="button" class="bed-btn" onclick="toggleBed('Bay 5 Bed 2', this)">Bay 5 Bed 2</button>
-        <button type="button" class="bed-btn" onclick="toggleBed('Bay 5 Bed 3', this)">Bay 5 Bed 3</button>
-        <button type="button" class="bed-btn" onclick="toggleBed('Bay 5 Bed 4', this)">Bay 5 Bed 4</button>
-        <button type="button" class="bed-btn" onclick="toggleBed('Side Room 1', this)">Side Room 1</button>
-        <button type="button" class="bed-btn" onclick="toggleBed('Side Room 2', this)">Side Room 2</button>
-        <button type="button" class="bed-btn" onclick="toggleBed('Side Room 3', this)">Side Room 3</button>
-        <button type="button" class="bed-btn" onclick="toggleBed('Side Room 4', this)">Side Room 4</button>
-        <button type="button" class="bed-btn" onclick="toggleBed('Side Room 5', this)">Side Room 5</button>
-        <button type="button" class="bed-btn" onclick="toggleBed('Side Room 6', this)">Side Room 6</button>
-        <button type="button" class="bed-btn" onclick="toggleBed('Side Room 7', this)">Side Room 7</button>
+      <div class="bed-grid" id="bed-grid-buttons">
+        <button type="button" class="bed-btn" onclick="handleBedTap('Bay 1 Bed 1')">Bay 1 Bed 1</button>
+        <button type="button" class="bed-btn" onclick="handleBedTap('Bay 1 Bed 2')">Bay 1 Bed 2</button>
+        <button type="button" class="bed-btn" onclick="handleBedTap('Bay 2 Bed 1')">Bay 2 Bed 1</button>
+        <button type="button" class="bed-btn" onclick="handleBedTap('Bay 2 Bed 2')">Bay 2 Bed 2</button>
+        <button type="button" class="bed-btn" onclick="handleBedTap('Bay 2 Bed 3')">Bay 2 Bed 3</button>
+        <button type="button" class="bed-btn" onclick="handleBedTap('Bay 2 Bed 4')">Bay 2 Bed 4</button>
+        <button type="button" class="bed-btn" onclick="handleBedTap('Bay 3 Bed 1')">Bay 3 Bed 1</button>
+        <button type="button" class="bed-btn" onclick="handleBedTap('Bay 3 Bed 2')">Bay 3 Bed 2</button>
+        <button type="button" class="bed-btn" onclick="handleBedTap('Bay 3 Bed 3')">Bay 3 Bed 3</button>
+        <button type="button" class="bed-btn" onclick="handleBedTap('Bay 3 Bed 4')">Bay 3 Bed 4</button>
+        <button type="button" class="bed-btn" onclick="handleBedTap('Bay 4 Bed 1')">Bay 4 Bed 1</button>
+        <button type="button" class="bed-btn" onclick="handleBedTap('Bay 4 Bed 2')">Bay 4 Bed 2</button>
+        <button type="button" class="bed-btn" onclick="handleBedTap('Bay 4 Bed 3')">Bay 4 Bed 3</button>
+        <button type="button" class="bed-btn" onclick="handleBedTap('Bay 4 Bed 4')">Bay 4 Bed 4</button>
+        <button type="button" class="bed-btn" onclick="handleBedTap('Bay 5 Bed 1')">Bay 5 Bed 1</button>
+        <button type="button" class="bed-btn" onclick="handleBedTap('Bay 5 Bed 2')">Bay 5 Bed 2</button>
+        <button type="button" class="bed-btn" onclick="handleBedTap('Bay 5 Bed 3')">Bay 5 Bed 3</button>
+        <button type="button" class="bed-btn" onclick="handleBedTap('Bay 5 Bed 4')">Bay 5 Bed 4</button>
+        <button type="button" class="bed-btn" onclick="handleBedTap('Side Room 1')">Side Room 1</button>
+        <button type="button" class="bed-btn" onclick="handleBedTap('Side Room 2')">Side Room 2</button>
+        <button type="button" class="bed-btn" onclick="handleBedTap('Side Room 3')">Side Room 3</button>
+        <button type="button" class="bed-btn" onclick="handleBedTap('Side Room 4')">Side Room 4</button>
+        <button type="button" class="bed-btn" onclick="handleBedTap('Side Room 5')">Side Room 5</button>
+        <button type="button" class="bed-btn" onclick="handleBedTap('Side Room 6')">Side Room 6</button>
+        <button type="button" class="bed-btn" onclick="handleBedTap('Side Room 7')">Side Room 7</button>
       </div>
     </div>
 
-    <!-- Dynamic Bed Entry Cards -->
     <div id="dynamic-bed-containers"></div>
 
-    <!-- Handover Summary Tab -->
     <div id="tab-summary" class="tab-content">
       <div class="card">
         <h2>SystmOne Handover Summary</h2>
@@ -396,14 +394,19 @@
 
   </div>
 
-  <!-- Bottom Actions -->
   <div class="bottom-bar">
     <button type="button" class="btn-clear" onclick="clearShift()">Clear Shift</button>
     <button type="button" class="btn-handover" onclick="showTab('summary')">Copy Handover</button>
   </div>
 
   <script>
-    const DEFAULT_CONFIG = {
+    var appState = {
+      allocated: [],
+      configs: {},
+      data: {}
+    };
+
+    var BASE_CONFIG = {
       news: true,
       bowels: true,
       amys: false,
@@ -416,221 +419,187 @@
       events: true
     };
 
-    let state = {
-      allocated: [],
-      configs: {},
-      data: {}
-    };
-
-    function init() {
+    function safeInit() {
       try {
-        const saved = localStorage.getItem("thorndon_shift_v2_data");
-        if (saved) {
-          const parsed = JSON.parse(saved);
+        var raw = localStorage.getItem("thorndon_v2_clean");
+        if (raw) {
+          var parsed = JSON.parse(raw);
           if (parsed && typeof parsed === "object") {
-            state.allocated = Array.isArray(parsed.allocated) ? parsed.allocated : [];
-            state.configs = parsed.configs || {};
-            state.data = parsed.data || {};
+            appState.allocated = Array.isArray(parsed.allocated) ? parsed.allocated : [];
+            appState.configs = parsed.configs || {};
+            appState.data = parsed.data || {};
           }
         }
-      } catch (e) {
-        state = { allocated: [], configs: {}, data: {} };
+      } catch (err) {
+        appState = { allocated: [], configs: {}, data: {} };
       }
 
-      refreshGridButtons();
-      renderNavigation();
-      renderBedTabs();
-      updateAllocationSummary();
+      syncButtons();
+      buildNav();
+      buildBedLogs();
+      syncSummaryText();
     }
 
-    function saveState() {
-      localStorage.setItem("thorndon_shift_v2_data", JSON.stringify(state));
-      const status = document.getElementById("save-status");
-      if (status) {
-        status.textContent = "Saved";
-        setTimeout(() => { status.textContent = "Auto-Saved"; }, 1000);
-      }
+    function persistState() {
+      try {
+        localStorage.setItem("thorndon_v2_clean", JSON.stringify(appState));
+        var el = document.getElementById("save-status");
+        if (el) {
+          el.textContent = "Saved";
+          setTimeout(function() { el.textContent = "Auto-Saved"; }, 1000);
+        }
+      } catch (err) {}
     }
 
-    function toggleBed(bed, btnEl) {
-      if (!Array.isArray(state.allocated)) state.allocated = [];
+    function handleBedTap(bedName) {
+      if (!Array.isArray(appState.allocated)) appState.allocated = [];
       
-      const idx = state.allocated.indexOf(bed);
+      var idx = appState.allocated.indexOf(bedName);
       if (idx > -1) {
-        state.allocated.splice(idx, 1);
-        if (btnEl) btnEl.classList.remove("selected");
+        var safeId = bedName.replace(/\s+/g, '');
+        showTab(safeId);
       } else {
-        state.allocated.push(bed);
-        if (btnEl) btnEl.classList.add("selected");
+        appState.allocated.push(bedName);
+        persistState();
+        syncButtons();
+        syncSummaryText();
+        buildNav();
+        buildBedLogs();
       }
-
-      saveState();
-      updateAllocationSummary();
-      renderNavigation();
-      renderBedTabs();
     }
 
-    function refreshGridButtons() {
-      document.querySelectorAll(".bed-btn").forEach(btn => {
-        const bedName = btn.textContent.trim();
-        if (state.allocated.includes(bedName)) {
+    function unallocateBed(bedName) {
+      appState.allocated = appState.allocated.filter(function(b) { return b !== bedName; });
+      persistState();
+      syncButtons();
+      syncSummaryText();
+      buildNav();
+      buildBedLogs();
+      showTab('allocation');
+    }
+
+    function syncButtons() {
+      var btns = document.querySelectorAll("#bed-grid-buttons .bed-btn");
+      btns.forEach(function(btn) {
+        var name = btn.textContent.replace('✓ ', '').trim();
+        if (appState.allocated.indexOf(name) > -1) {
           btn.classList.add("selected");
+          btn.textContent = "✓ " + name;
         } else {
           btn.classList.remove("selected");
+          btn.textContent = name;
         }
       });
     }
 
-    function updateAllocationSummary() {
-      const el = document.getElementById("allocated-summary-text");
+    function syncSummaryText() {
+      var el = document.getElementById("allocated-summary-text");
       if (!el) return;
-      if (!state.allocated || state.allocated.length === 0) {
+      if (!appState.allocated || appState.allocated.length === 0) {
         el.textContent = "Allocated (0): None selected";
       } else {
-        el.textContent = `Allocated (${state.allocated.length}): ${state.allocated.join(", ")}`;
+        el.textContent = "Allocated (" + appState.allocated.length + "): " + appState.allocated.join(", ");
       }
     }
 
-    function toggleTrackingField(bed, field) {
-      if (!state.configs[bed]) {
-        state.configs[bed] = { ...DEFAULT_CONFIG };
-      }
-      state.configs[bed][field] = !state.configs[bed][field];
-      saveState();
-      renderBedTabs();
-    }
+    function buildNav() {
+      var nav = document.getElementById("navbar");
+      nav.innerHTML = '<button id="btn-tab-allocation" class="active" onclick="showTab(\'allocation\')">Beds</button>';
 
-    function getBedConfig(bed) {
-      return state.configs[bed] || { ...DEFAULT_CONFIG };
-    }
-
-    function renderNavigation() {
-      const nav = document.getElementById("navbar");
-      nav.innerHTML = `
-        <button id="btn-tab-allocation" class="active" onclick="showTab('allocation')">Beds</button>
-      `;
-
-      state.allocated.forEach(bed => {
-        const safeId = bed.replace(/\s+/g, '');
-        const btn = document.createElement("button");
-        btn.id = `btn-tab-${safeId}`;
+      appState.allocated.forEach(function(bed) {
+        var safeId = bed.replace(/\s+/g, '');
+        var btn = document.createElement("button");
+        btn.id = "btn-tab-" + safeId;
         btn.textContent = bed;
-        btn.onclick = () => showTab(safeId);
+        btn.onclick = function() { showTab(safeId); };
         nav.appendChild(btn);
       });
 
-      const summaryBtn = document.createElement("button");
+      var summaryBtn = document.createElement("button");
       summaryBtn.id = "btn-tab-summary";
       summaryBtn.textContent = "Summary";
-      summaryBtn.onclick = () => showTab('summary');
+      summaryBtn.onclick = function() { showTab('summary'); };
       nav.appendChild(summaryBtn);
     }
 
-    function getTimeStamp() {
-      const now = new Date();
-      return `[${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}]`;
+    function getBedCfg(bed) {
+      if (!appState.configs[bed]) {
+        appState.configs[bed] = Object.assign({}, BASE_CONFIG);
+      }
+      return appState.configs[bed];
     }
 
-    function renderBedTabs() {
-      const container = document.getElementById("dynamic-bed-containers");
-      const currentActive = document.querySelector('.tab-content.active');
-      const activeId = currentActive ? currentActive.id : 'tab-allocation';
+    function toggleChartField(bed, field) {
+      var cfg = getBedCfg(bed);
+      cfg[field] = !cfg[field];
+      persistState();
+      buildBedLogs();
+    }
+
+    function buildBedLogs() {
+      var container = document.getElementById("dynamic-bed-containers");
+      var currentActive = document.querySelector('.tab-content.active');
+      var activeId = currentActive ? currentActive.id : 'tab-allocation';
       container.innerHTML = "";
 
-      state.allocated.forEach(bed => {
-        const safeId = bed.replace(/\s+/g, '');
-        if (!state.data[bed]) {
-          state.data[bed] = {
-            news: "",
-            bowels: "",
-            amysSacrumStatus: "Skin intact",
-            amysSacrumNotes: "",
-            amysLeftHeelStatus: "Skin intact",
-            amysLeftHeelNotes: "",
-            amysRightHeelStatus: "Skin intact",
-            amysRightHeelNotes: "",
-            amysOtherStatus: "Skin intact",
-            amysOtherNotes: "",
-            turning: "",
-            lyingBP: "",
-            standingBP: "",
-            weight: "",
-            fluidIn: "",
-            fluidOut: "",
-            bm: "",
-            diet: "",
-            events: ""
+      appState.allocated.forEach(function(bed) {
+        var safeId = bed.replace(/\s+/g, '');
+        if (!appState.data[bed]) {
+          appState.data[bed] = {
+            news: "", bowels: "", amysSacrumStatus: "Skin intact", amysSacrumNotes: "",
+            amysLeftHeelStatus: "Skin intact", amysLeftHeelNotes: "", amysRightHeelStatus: "Skin intact",
+            amysRightHeelNotes: "", amysOtherStatus: "Skin intact", amysOtherNotes: "",
+            turning: "", lyingBP: "", standingBP: "", weight: "", fluidIn: "", fluidOut: "",
+            bm: "", diet: "", events: ""
           };
         }
-        if (!state.configs[bed]) {
-          state.configs[bed] = { ...DEFAULT_CONFIG };
-        }
 
-        const d = state.data[bed];
-        const cfg = state.configs[bed];
+        var d = appState.data[bed];
+        var cfg = getBedCfg(bed);
 
-        const tabDiv = document.createElement("div");
-        tabDiv.id = `tab-${safeId}`;
-        tabDiv.className = `tab-content ${activeId === `tab-${safeId}` ? 'active' : ''}`;
+        var tabDiv = document.createElement("div");
+        tabDiv.id = "tab-" + safeId;
+        tabDiv.className = "tab-content " + (activeId === ("tab-" + safeId) ? "active" : "");
 
-        tabDiv.innerHTML = `
-          <div class="card">
-            <h2>${bed} Entry Log</h2>
+        tabDiv.innerHTML = [
+          '<div class="card">',
+            '<h2>',
+              '<span>' + bed + ' Entry Log</span>',
+              '<button type="button" class="secondary-btn" style="color:var(--nhs-red-text);border-color:var(--nhs-red-border);" onclick="unallocateBed(\'' + bed + '\')">Remove Bed</button>',
+            '</h2>',
 
-            <!-- Required Fields Toggle Bar -->
-            <div class="tracking-toggles">
-              <small>Toggle Active Charts for ${bed}</small>
-              <div class="toggle-chips">
-                <button type="button" class="toggle-chip ${cfg.news ? 'active' : ''}" onclick="toggleTrackingField('${bed}', 'news')">
-                  ${cfg.news ? '✓' : '+'} NEWS2
-                </button>
-                <button type="button" class="toggle-chip ${cfg.bowels ? 'active' : ''}" onclick="toggleTrackingField('${bed}', 'bowels')">
-                  ${cfg.bowels ? '✓' : '+'} Bowels
-                </button>
-                <button type="button" class="toggle-chip ${cfg.amys ? 'active' : ''}" onclick="toggleTrackingField('${bed}', 'amys')">
-                  ${cfg.amys ? '✓' : '+'} Amy's Round
-                </button>
-                <button type="button" class="toggle-chip ${cfg.turning ? 'active' : ''}" onclick="toggleTrackingField('${bed}', 'turning')">
-                  ${cfg.turning ? '✓' : '+'} Turning
-                </button>
-                <button type="button" class="toggle-chip ${cfg.lsbp ? 'active' : ''}" onclick="toggleTrackingField('${bed}', 'lsbp')">
-                  ${cfg.lsbp ? '✓' : '+'} Lying/Standing BP
-                </button>
-                <button type="button" class="toggle-chip ${cfg.weight ? 'active' : ''}" onclick="toggleTrackingField('${bed}', 'weight')">
-                  ${cfg.weight ? '✓' : '+'} Weight
-                </button>
-                <button type="button" class="toggle-chip ${cfg.fluids ? 'active' : ''}" onclick="toggleTrackingField('${bed}', 'fluids')">
-                  ${cfg.fluids ? '✓' : '+'} Fluid Balance
-                </button>
-                <button type="button" class="toggle-chip ${cfg.diet ? 'active' : ''}" onclick="toggleTrackingField('${bed}', 'diet')">
-                  ${cfg.diet ? '✓' : '+'} Food & Diet
-                </button>
-                <button type="button" class="toggle-chip ${cfg.bm ? 'active' : ''}" onclick="toggleTrackingField('${bed}', 'bm')">
-                  ${cfg.bm ? '✓' : '+'} BM (Glucose)
-                </button>
-                <button type="button" class="toggle-chip ${cfg.events ? 'active' : ''}" onclick="toggleTrackingField('${bed}', 'events')">
-                  ${cfg.events ? '✓' : '+'} Notes & Events
-                </button>
-              </div>
-            </div>
+            '<div class="tracking-toggles">',
+              '<small>Toggle Active Charts for ' + bed + '</small>',
+              '<div class="toggle-chips">',
+                '<button type="button" class="toggle-chip ' + (cfg.news ? 'active' : '') + '" onclick="toggleChartField(\'' + bed + '\', \'news\')">' + (cfg.news ? '✓' : '+') + ' NEWS2</button>',
+                '<button type="button" class="toggle-chip ' + (cfg.bowels ? 'active' : '') + '" onclick="toggleChartField(\'' + bed + '\', \'bowels\')">' + (cfg.bowels ? '✓' : '+') + ' Bowels</button>',
+                '<button type="button" class="toggle-chip ' + (cfg.amys ? 'active' : '') + '" onclick="toggleChartField(\'' + bed + '\', \'amys\')">' + (cfg.amys ? '✓' : '+') + ' Amy\'s Round</button>',
+                '<button type="button" class="toggle-chip ' + (cfg.turning ? 'active' : '') + '" onclick="toggleChartField(\'' + bed + '\', \'turning\')">' + (cfg.turning ? '✓' : '+') + ' Turning</button>',
+                '<button type="button" class="toggle-chip ' + (cfg.lsbp ? 'active' : '') + '" onclick="toggleChartField(\'' + bed + '\', \'lsbp\')">' + (cfg.lsbp ? '✓' : '+') + ' Lying/Standing BP</button>',
+                '<button type="button" class="toggle-chip ' + (cfg.weight ? 'active' : '') + '" onclick="toggleChartField(\'' + bed + '\', \'weight\')">' + (cfg.weight ? '✓' : '+') + ' Weight</button>',
+                '<button type="button" class="toggle-chip ' + (cfg.fluids ? 'active' : '') + '" onclick="toggleChartField(\'' + bed + '\', \'fluids\')">' + (cfg.fluids ? '✓' : '+') + ' Fluid Balance</button>',
+                '<button type="button" class="toggle-chip ' + (cfg.diet ? 'active' : '') + '" onclick="toggleChartField(\'' + bed + '\', \'diet\')">' + (cfg.diet ? '✓' : '+') + ' Food & Diet</button>',
+                '<button type="button" class="toggle-chip ' + (cfg.bm ? 'active' : '') + '" onclick="toggleChartField(\'' + bed + '\', \'bm\')">' + (cfg.bm ? '✓' : '+') + ' BM (Glucose)</button>',
+                '<button type="button" class="toggle-chip ' + (cfg.events ? 'active' : '') + '" onclick="toggleChartField(\'' + bed + '\', \'events\')">' + (cfg.events ? '✓' : '+') + ' Notes</button>',
+              '</div>',
+            '</div>',
 
-            <!-- NEWS2 -->
-            ${cfg.news ? `
-            <div class="field-row">
-              <label>NEWS2 / Observations & Time</label>
-              <input type="text" placeholder="e.g. 08:30 NEWS: 1 (Pulse 96)" 
-                value="${d.news || ''}" 
-                oninput="updateField('${bed}', 'news', this.value)">
-            </div>` : ''}
+            cfg.news ? [
+              '<div class="field-row">',
+                '<label>NEWS2 / Observations & Time</label>',
+                '<input type="text" placeholder="e.g. 08:30 NEWS: 1 (Pulse 96)" value="' + (d.news || '') + '" oninput="saveBedVal(\'' + bed + '\', \'news\', this.value)">',
+              '</div>'
+            ].join('') : '',
 
-            <!-- Bowel Movement -->
-            ${cfg.bowels ? `
-            <div class="field-row">
-              <label>Bowel Movement & Bristol Stool Scale</label>
-              <div style="display: flex; gap: 8px; margin-bottom: 6px;">
-                <select onchange="appendBristol('${bed}', this.value)">
-                  <option value="">+ Add Bristol Type...</option>
-                  <option value="Type 1">Type 1 (Hard lumps)</option>
-                  <option value="Type 2">Type 2 (Lumpy sausage)</option>
-                  <option value="Type 3">Type 3 (Cracked sausage)</option>
-                  <option value="Type 4">
+            cfg.bowels ? [
+              '<div class="field-row">',
+                '<label>Bowel Movement & Bristol Stool Scale</label>',
+                '<div style="display:flex;gap:8px;margin-bottom:6px;">',
+                  '<select onchange="addBristol(\'' + bed + '\', this.value)">',
+                    '<option value="">+ Add Bristol Type...</option>',
+                    '<option value="Type 1">Type 1 (Hard lumps)</option>',
+                    '<option value="Type 2">Type 2 (Lumpy sausage)</option>',
+                    '<option value="Type 3">Type 3 (Cracked sausage)</option>',
+                    '<option value="Type 4">Type 4 (Smooth, soft)</option>',
+                    '<option value="Type 5">Type 5 (Soft blobs)</option>',
+                    '<option value="
