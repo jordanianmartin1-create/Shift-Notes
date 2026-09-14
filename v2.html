@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Thorndon Ward ICA Log - v2.10</title>
+  <title>Thorndon Ward ICA Log - v2.11</title>
   <style>
     :root {
       --ward: #0b4d7a;
@@ -40,21 +40,28 @@
     .btn-clear { background: #fce8e6; color: #c5221f; border: 1px solid #f5c2be; border-radius: 6px; padding: 9px 16px; font-size: 0.85rem; font-weight: 600; cursor: pointer; }
     .bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; border-top: 1px solid var(--border); padding: 10px 16px; display: flex; justify-content: space-between; align-items: center; z-index: 100; max-width: 760px; margin: 0 auto; box-shadow: 0 -2px 5px rgba(0,0,0,0.05); }
     .copy-block { background: #fafafa; border-left: 3px solid var(--ward); padding: 10px; font-family: monospace; font-size: 0.82rem; white-space: pre-wrap; margin-bottom: 12px; }
-    .view { display: none; }
-    .view.active { display: block; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
   </style>
   <script>
-    var state = { allocated: [], activeBed: null, data: {} };
+    var BEDS = [
+      "Bay 1 Bed 1", "Bay 1 Bed 2", "Bay 2 Bed 1", "Bay 2 Bed 2", "Bay 2 Bed 3", "Bay 2 Bed 4",
+      "Bay 3 Bed 1", "Bay 3 Bed 2", "Bay 3 Bed 3", "Bay 3 Bed 4", "Bay 4 Bed 1", "Bay 4 Bed 2",
+      "Bay 4 Bed 3", "Bay 4 Bed 4", "Bay 5 Bed 1", "Bay 5 Bed 2", "Bay 5 Bed 3", "Bay 5 Bed 4",
+      "Side Room 1", "Side Room 2", "Side Room 3", "Side Room 4", "Side Room 5", "Side Room 6", "Side Room 7"
+    ];
+
+    var state = { allocated: [], data: {} };
 
     function saveState() {
-      try { localStorage.setItem("thorndon_v210", JSON.stringify(state)); } catch(e){}
+      try { localStorage.setItem("thorndon_v211", JSON.stringify(state)); } catch(e){}
       var s = document.getElementById("save-status");
       if (s) { s.textContent = "Saved"; setTimeout(function(){ s.textContent = "Auto-Saved"; }, 600); }
     }
 
     function loadState() {
       try {
-        var raw = localStorage.getItem("thorndon_v210");
+        var raw = localStorage.getItem("thorndon_v211");
         if (raw) {
           var parsed = JSON.parse(raw);
           if (parsed && typeof parsed === "object") {
@@ -63,7 +70,7 @@
           }
         }
       } catch(e){
-        state = { allocated: [], activeBed: null, data: {} };
+        state = { allocated: [], data: {} };
       }
     }
 
@@ -72,16 +79,18 @@
       var idx = state.allocated.indexOf(bedName);
       if (idx > -1) {
         state.allocated.splice(idx, 1);
-        if (state.activeBed === bedName) state.activeBed = null;
       } else {
         state.allocated.push(bedName);
+        if (!state.data[bedName]) {
+          state.data[bedName] = { amysSacrumStatus: 'Skin intact', amysLeftHeelStatus: 'Skin intact', amysRightHeelStatus: 'Skin intact', amysOtherStatus: 'Skin intact' };
+        }
       }
       saveState();
-      refreshGridUI();
-      renderNavBeds();
+      refreshUI();
     }
 
-    function refreshGridUI() {
+    function refreshUI() {
+      // Refresh grid buttons
       var buttons = document.querySelectorAll(".bed-btn");
       buttons.forEach(function(b) {
         var name = b.getAttribute("data-bed");
@@ -93,77 +102,218 @@
           b.textContent = name;
         }
       });
+
       var el = document.getElementById("allocated-text");
       if (el) {
         el.textContent = state.allocated.length ? "Allocated (" + state.allocated.length + "): " + state.allocated.join(", ") : "Allocated (0): None selected";
       }
+
+      renderNavAndTabs();
     }
 
-    function renderNavBeds() {
-      var box = document.getElementById("nav-dynamic-beds");
-      if (!box) return;
-      box.innerHTML = "";
-      state.allocated.forEach(function(bed) {
-        var b = document.createElement("button");
-        b.textContent = bed;
-        if (state.activeBed === bed) b.className = "active";
-        b.onclick = function() { openBed(bed); };
-        box.appendChild(b);
-      });
-    }
+    function renderNavAndTabs() {
+      var nav = document.getElementById("dynamic-nav");
+      var container = document.getElementById("dynamic-tabs-container");
+      if (!nav || !container) return;
 
-    function showView(viewId) {
-      document.querySelectorAll(".view").forEach(function(v){ v.classList.remove("active"); });
-      document.querySelectorAll("nav button").forEach(function(b){ b.classList.remove("active"); });
+      // Retain active tab if possible
+      var activeTabId = document.querySelector(".tab-content.active") ? document.querySelector(".tab-content.active").id : "tab-allocation";
+
+      nav.innerHTML = '<button class="active" id="btn-tab-allocation" onclick="switchTab(\'allocation\')">Beds</button>';
       
-      var target = document.getElementById("view-" + viewId);
-      if (target) target.classList.add("active");
+      // Keep static allocation view wrapper in container, rebuild bed tabs
+      var allocationHTML = document.getElementById("tab-allocation").outerHTML;
+      var summaryHTML = document.getElementById("tab-summary").outerHTML;
+      container.innerHTML = allocationHTML + summaryHTML;
 
-      if (viewId === "allocation") {
-        var nb = document.getElementById("nav-beds");
-        if (nb) nb.classList.add("active");
-      } else if (viewId === "summary") {
-        var ns = document.getElementById("nav-summary");
-        if (ns) ns.classList.add("active");
+      state.allocated.forEach(function(bed) {
+        var safeId = bed.replace(/[^a-zA-Z0-9]/g, '');
+        
+        // Build Nav Button
+        var btn = document.createElement("button");
+        btn.id = "btn-tab-" + safeId;
+        btn.textContent = bed;
+        btn.onclick = function() { switchTab(safeId); };
+        nav.appendChild(btn);
+
+        // Build Bed Form Tab
+        var d = state.data[bed] || { amysSacrumStatus: 'Skin intact', amysLeftHeelStatus: 'Skin intact', amysRightHeelStatus: 'Skin intact', amysOtherStatus: 'Skin intact' };
+        var tabDiv = document.createElement("div");
+        tabDiv.id = "tab-" + safeId;
+        tabDiv.className = "tab-content";
+        tabDiv.innerHTML = `
+          <div class="card">
+            <h2>
+              <span>${bed} Entry Log</span>
+              <button type="button" class="sec-btn" onclick="switchTab('allocation')">Back to Beds</button>
+            </h2>
+
+            <div class="field-row">
+              <label>NEWS2 / Observations & Time</label>
+              <input type="text" placeholder="e.g. 08:30 NEWS: 1 (Pulse 96)" value="${d.news || ''}" oninput="updateData('${bed}', 'news', this.value)">
+            </div>
+
+            <div class="field-row">
+              <label>Bowel Movement & Bristol Stool Scale</label>
+              <div style="display:flex;gap:6px;margin-bottom:6px;">
+                <select onchange="addBristol('${bed}', this.value); this.value='';">
+                  <option value="">+ Add Bristol Type...</option>
+                  <option value="Type 1">Type 1 (Hard lumps)</option>
+                  <option value="Type 2">Type 2 (Lumpy sausage)</option>
+                  <option value="Type 3">Type 3 (Cracked sausage)</option>
+                  <option value="Type 4">Type 4 (Smooth, soft)</option>
+                  <option value="Type 5">Type 5 (Soft blobs)</option>
+                  <option value="Type 6">Type 6 (Mushy)</option>
+                  <option value="Type 7">Type 7 (Liquid)</option>
+                </select>
+                <button type="button" class="sec-btn" onclick="updateData('${bed}', 'bowels', 'Not opened this shift'); document.getElementById('bowel-${safeId}').value='Not opened this shift';">BO Not Opened</button>
+              </div>
+              <input type="text" id="bowel-${safeId}" placeholder="e.g. BO x1 Type 4" value="${d.bowels || ''}" oninput="updateData('${bed}', 'bowels', this.value)">
+            </div>
+
+            <div class="field-row">
+              <label>Amy's Round (Pressure Areas)</label>
+              <div class="area-grid">
+                <strong>Sacrum</strong>
+                <select onchange="updateData('${bed}', 'amysSacrumStatus', this.value)">
+                  <option ${d.amysSacrumStatus==='Skin intact'?'selected':''}>Skin intact</option>
+                  <option ${d.amysSacrumStatus==='Blanching redness'?'selected':''}>Blanching redness</option>
+                  <option ${d.amysSacrumStatus==='Non-blanching redness'?'selected':''}>Non-blanching redness</option>
+                  <option ${d.amysSacrumStatus==='Moisture lesion'?'selected':''}>Moisture lesion</option>
+                  <option ${d.amysSacrumStatus==='Dressing intact'?'selected':''}>Dressing intact</option>
+                  <option ${d.amysSacrumStatus==='Broken skin'?'selected':''}>Broken skin</option>
+                </select>
+                <input type="text" placeholder="Sacrum notes" value="${d.amysSacrumNotes || ''}" oninput="updateData('${bed}', 'amysSacrumNotes', this.value)">
+              </div>
+              <div class="area-grid">
+                <strong>Left Heel</strong>
+                <select onchange="updateData('${bed}', 'amysLeftHeelStatus', this.value)">
+                  <option ${d.amysLeftHeelStatus==='Skin intact'?'selected':''}>Skin intact</option>
+                  <option ${d.amysLeftHeelStatus==='Blanching redness'?'selected':''}>Blanching redness</option>
+                  <option ${d.amysLeftHeelStatus==='Offloaded on pillow'?'selected':''}>Offloaded on pillow</option>
+                  <option ${d.amysLeftHeelStatus==='Broken skin'?'selected':''}>Broken skin</option>
+                </select>
+                <input type="text" placeholder="Left heel notes" value="${d.amysLeftHeelNotes || ''}" oninput="updateData('${bed}', 'amysLeftHeelNotes', this.value)">
+              </div>
+              <div class="area-grid">
+                <strong>Right Heel</strong>
+                <select onchange="updateData('${bed}', 'amysRightHeelStatus', this.value)">
+                  <option ${d.amysRightHeelStatus==='Skin intact'?'selected':''}>Skin intact</option>
+                  <option ${d.amysRightHeelStatus==='Blanching redness'?'selected':''}>Blanching redness</option>
+                  <option ${d.amysRightHeelStatus==='Offloaded on pillow'?'selected':''}>Offloaded on pillow</option>
+                  <option ${d.amysRightHeelStatus==='Broken skin'?'selected':''}>Broken skin</option>
+                </select>
+                <input type="text" placeholder="Right heel notes" value="${d.amysRightHeelNotes || ''}" oninput="updateData('${bed}', 'amysRightHeelNotes', this.value)">
+              </div>
+              <div class="area-grid">
+                <strong>Other/Buttocks</strong>
+                <select onchange="updateData('${bed}', 'amysOtherStatus', this.value)">
+                  <option ${d.amysOtherStatus==='Skin intact'?'selected':''}>Skin intact</option>
+                  <option ${d.amysOtherStatus==='Blanching redness'?'selected':''}>Blanching redness</option>
+                  <option ${d.amysOtherStatus==='Moisture lesion'?'selected':''}>Moisture lesion</option>
+                  <option ${d.amysOtherStatus==='Broken skin'?'selected':''}>Broken skin</option>
+                </select>
+                <input type="text" placeholder="Details" value="${d.amysOtherNotes || ''}" oninput="updateData('${bed}', 'amysOtherNotes', this.value)">
+              </div>
+            </div>
+
+            <div class="field-row">
+              <label>Turning & Repositioning Chart</label>
+              <div class="btn-row">
+                <button type="button" class="action-chip" onclick="addTurn('${bed}', 'Left side')">+ Left Side</button>
+                <button type="button" class="action-chip" onclick="addTurn('${bed}', 'Right side')">+ Right Side</button>
+                <button type="button" class="action-chip" onclick="addTurn('${bed}', 'Supine')">+ Supine</button>
+                <button type="button" class="action-chip" onclick="addTurn('${bed}', 'Sitting in chair')">+ Sitting in chair</button>
+              </div>
+              <textarea rows="3" id="turn-${safeId}" placeholder="Tapping position stamps time..." oninput="updateData('${bed}', 'turning', this.value)">${d.turning || ''}</textarea>
+            </div>
+
+            <div class="field-row">
+              <label>Lying & Standing Blood Pressure</label>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                <div><small style="font-weight:700;color:var(--grey);">Lying BP</small><input type="text" placeholder="e.g. 132/78" value="${d.lyingBP || ''}" oninput="updateData('${bed}', 'lyingBP', this.value)"></div>
+                <div><small style="font-weight:700;color:var(--grey);">Standing BP</small><input type="text" placeholder="e.g. 118/72" value="${d.standingBP || ''}" oninput="updateData('${bed}', 'standingBP', this.value)"></div>
+              </div>
+            </div>
+
+            <div class="field-row">
+              <label>Weight (kg)</label>
+              <input type="text" placeholder="e.g. 68.4 kg" value="${d.weight || ''}" oninput="updateData('${bed}', 'weight', this.value)">
+            </div>
+
+            <div class="field-row">
+              <label>Fluid Intake (ml)</label>
+              <div class="btn-row">
+                <button type="button" class="action-chip" onclick="addFluidIn('${bed}', 150)">+150ml (Cup)</button>
+                <button type="button" class="action-chip" onclick="addFluidIn('${bed}', 200)">+200ml (Mug)</button>
+                <button type="button" class="action-chip" onclick="addFluidIn('${bed}', 500)">+500ml (Jug)</button>
+              </div>
+              <input type="text" id="fluidin-${safeId}" placeholder="e.g. 650ml oral fluids" value="${d.fluidIn || ''}" oninput="updateData('${bed}', 'fluidIn', this.value)">
+              <label style="margin-top:8px;">Fluid Output / Urine</label>
+              <div class="btn-row">
+                <button type="button" class="action-chip" onclick="addFluidOut('${bed}', 'Pad wet x1')">+ Pad Wet</button>
+                <button type="button" class="action-chip" onclick="addFluidOut('${bed}', 'PU urinal 250ml')">+ 250ml Urinal</button>
+                <button type="button" class="action-chip" onclick="addFluidOut('${bed}', 'Catheter emptied 400ml')">+ 400ml Catheter</button>
+              </div>
+              <input type="text" id="fluidout-${safeId}" placeholder="e.g. Catheter 500ml clear amber" value="${d.fluidOut || ''}" oninput="updateData('${bed}', 'fluidOut', this.value)">
+            </div>
+
+            <div class="field-row">
+              <label>Food & Diet Intake</label>
+              <div class="btn-row">
+                <button type="button" class="action-chip" onclick="addDiet('${bed}', 'Breakfast 100%')">Breakfast 100%</button>
+                <button type="button" class="action-chip" onclick="addDiet('${bed}', 'Lunch 50%')">Lunch 50%</button>
+                <button type="button" class="action-chip" onclick="addDiet('${bed}', 'Refused meal')">Refused</button>
+              </div>
+              <input type="text" id="diet-${safeId}" placeholder="e.g. Lunch 75% taken well" value="${d.diet || ''}" oninput="updateData('${bed}', 'diet', this.value)">
+            </div>
+
+            <div class="field-row">
+              <label>Blood Glucose (BM)</label>
+              <input type="text" placeholder="e.g. 07:45 BM: 6.8 mmol/L" value="${d.bm || ''}" oninput="updateData('${bed}', 'bm', this.value)">
+            </div>
+
+            <div class="field-row">
+              <label>General Notes, Specimens & Events</label>
+              <button type="button" class="sec-btn" style="margin-bottom:6px;" onclick="insertTime('${bed}')">+ Insert Time</button>
+              <textarea rows="3" id="events-${safeId}" placeholder="Click + Insert Time to stamp quick notes..." oninput="updateData('${bed}', 'events', this.value)">${d.events || ''}</textarea>
+            </div>
+          </div>
+        `;
+        container.appendChild(tabDiv);
+      });
+
+      // Add Summary Tab Button
+      var summaryBtn = document.createElement("button");
+      summaryBtn.id = "btn-tab-summary";
+      summaryBtn.textContent = "Summary";
+      summaryBtn.onclick = function() { switchTab('summary'); };
+      nav.appendChild(summaryBtn);
+
+      // Re-apply active tab
+      var targetTab = document.getElementById(activeTabId) ? activeTabId : "tab-allocation";
+      switchTab(targetTab.replace("tab-", ""));
+    }
+
+    function switchTab(tabId) {
+      document.querySelectorAll(".tab-content").forEach(function(v){ v.classList.remove("active"); });
+      document.querySelectorAll("nav button").forEach(function(b){ b.classList.remove("active"); });
+
+      var target = document.getElementById("tab- " + tabId) || document.getElementById("tab-" + tabId);
+      var btn = document.getElementById("btn-tab-" + tabId);
+
+      if (target) target.classList.add("active");
+      if (btn) btn.classList.add("active");
+
+      if (tabId === "summary") {
         renderSummary();
-      } else if (viewId === "bed") {
-        var vb = document.getElementById("view-bed");
-        if (vb) vb.classList.add("active");
       }
       window.scrollTo(0, 0);
     }
 
-    function openBed(bed) {
-      state.activeBed = bed;
-      if (!state.data[bed]) {
-        state.data[bed] = { amysSacrumStatus: 'Skin intact', amysLeftHeelStatus: 'Skin intact', amysRightHeelStatus: 'Skin intact', amysOtherStatus: 'Skin intact' };
-      }
-      var title = document.getElementById("bedTitle");
-      if (title) title.textContent = bed + " Entry Log";
-
-      populateForm();
-      showView("bed");
-      renderNavBeds();
-    }
-
-    function populateForm() {
-      if (!state.activeBed) return;
-      var d = state.data[state.activeBed] || {};
-      var keys = ['news', 'bowels', 'amysSacrumStatus', 'amysSacrumNotes', 'amysLeftHeelStatus', 'amysLeftHeelNotes', 
-                  'amysRightHeelStatus', 'amysRightHeelNotes', 'amysOtherStatus', 'amysOtherNotes', 'turning', 
-                  'lyingBP', 'standingBP', 'weight', 'fluidIn', 'fluidOut', 'diet', 'bm', 'events'];
-      keys.forEach(function(k) {
-        var inp = document.getElementById("f-" + k);
-        if (inp) {
-          inp.value = d[k] || (k.indexOf('Status') > -1 ? 'Skin intact' : '');
-        }
-      });
-    }
-
-    function updateBedData(field, val) {
-      if (!state.activeBed) return;
-      if (!state.data[state.activeBed]) state.data[state.activeBed] = {};
-      state.data[state.activeBed][field] = val;
+    function updateData(bed, field, val) {
+      if (!state.data[bed]) state.data[bed] = {};
+      state.data[bed][field] = val;
       saveState();
     }
 
@@ -172,236 +322,17 @@
       return "[" + String(d.getHours()).padStart(2, '0') + ":" + String(d.getMinutes()).padStart(2, '0') + "]";
     }
 
-    function addTurn(pos) {
-      if (!state.activeBed) return;
-      var cur = (state.data[state.activeBed] && state.data[state.activeBed].turning) || "";
+    function addTurn(bed, pos) {
+      var safeId = bed.replace(/[^a-zA-Z0-9]/g, '');
+      var cur = (state.data[bed] && state.data[bed].turning) || "";
       var val = (cur ? cur + "\n" : "") + getTime() + " " + pos;
-      updateBedData('turning', val);
-      var el = document.getElementById("f-turning");
+      updateData(bed, 'turning', val);
+      var el = document.getElementById("turn-" + safeId);
       if (el) el.value = val;
     }
 
-    function addBristol(type) {
-      if (!type || !state.activeBed) return;
-      var cur = (state.data[state.activeBed] && state.data[state.activeBed].bowels) || "";
-      var val = (cur ? cur + "; " : "") + "BO " + type;
-      updateBedData('bowels', val);
-      var el = document.getElementById("f-bowels");
-      if (el) el.value = val;
-    }
-
-    function setBowel(text) {
-      updateBedData('bowels', text);
-      var el = document.getElementById("f-bowels");
-      if (el) el.value = text;
-    }
-
-    function addFluidIn(amt) {
-      if (!state.activeBed) return;
-      var cur = (state.data[state.activeBed] && state.data[state.activeBed].fluidIn) || "";
-      var m = cur.match(/(\d+)\s*ml/);
-      var val = m ? cur.replace(m[1] + "ml", (parseInt(m[1], 10) + amt) + "ml") : (cur.trim() ? cur + " + " + amt + "ml" : amt + "ml");
-      updateBedData('fluidIn', val);
-      var el = document.getElementById("f-fluidIn");
-      if (el) el.value = val;
-    }
-
-    function addFluidOut(text) {
-      if (!state.activeBed) return;
-      var cur = (state.data[state.activeBed] && state.data[state.activeBed].fluidOut) || "";
-      var val = (cur ? cur + "; " : "") + text;
-      updateBedData('fluidOut', val);
-      var el = document.getElementById("f-fluidOut");
-      if (el) el.value = val;
-    }
-
-    function addDiet(text) {
-      if (!state.activeBed) return;
-      var cur = (state.data[state.activeBed] && state.data[state.activeBed].diet) || "";
-      var val = (cur ? cur + "; " : "") + text;
-      updateBedData('diet', val);
-      var el = document.getElementById("f-diet");
-      if (el) el.value = val;
-    }
-
-    function insertTime() {
-      if (!state.activeBed) return;
-      var cur = (state.data[state.activeBed] && state.data[state.activeBed].events) || "";
-      var val = (cur ? cur + "\n" : "") + getTime() + " ";
-      updateBedData('events', val);
-      var el = document.getElementById("f-events");
-      if (el) {
-        el.value = val;
-        el.focus();
-      }
-    }
-
-    function renderSummary() {
-      var div = document.getElementById("summary-cards");
-      if (!div) return;
-      div.innerHTML = "";
-      if (!state.allocated || !state.allocated.length) {
-        div.innerHTML = "<p style='font-size:0.85rem;color:var(--grey);'>No beds allocated. Select beds on the Beds tab.</p>";
-        return;
-      }
-      state.allocated.forEach(function(bed) {
-        var d = state.data[bed] || {};
-        var t = "--- " + bed + " SHIFT SUMMARY ---\n";
-        var has = false;
-        if (d.news) { t += "NEWS2: " + d.news + "\n"; has = true; }
-        if (d.bm) { t += "Blood Glucose: " + d.bm + "\n"; has = true; }
-        if (d.lyingBP || d.standingBP) { t += "Lying & Standing BP: Lying: " + (d.lyingBP||'N/R') + " | Standing: " + (d.standingBP||'N/R') + "\n"; has = true; }
-        if (d.weight) { t += "Weight: " + d.weight + "\n"; has = true; }
-        if (d.bowels) { t += "Bowels: " + d.bowels + "\n"; has = true; }
-        if (d.fluidIn || d.fluidOut) { t += "Fluid Balance: In: " + (d.fluidIn||'Nil') + " | Out: " + (d.fluidOut||'Nil') + "\n"; has = true; }
-        if (d.diet) { t += "Food & Diet: " + d.diet + "\n"; has = true; }
-        if (d.turning) { t += "Turning Chart:\n" + d.turning + "\n"; has = true; }
-        if (d.amysSacrumStatus && d.amysSacrumStatus !== 'Skin intact' || d.amysLeftHeelStatus && d.amysLeftHeelStatus !== 'Skin intact' || d.amysRightHeelStatus && d.amysRightHeelStatus !== 'Skin intact') {
-          t += "Amy's Round:\n- Sacrum: " + (d.amysSacrumStatus||'Skin intact') + (d.amysSacrumNotes ? ' ('+d.amysSacrumNotes+')' : '') + "\n- Left Heel: " + (d.amysLeftHeelStatus||'Skin intact') + (d.amysLeftHeelNotes ? ' ('+d.amysLeftHeelNotes+')' : '') + "\n- Right Heel: " + (d.amysRightHeelStatus||'Skin intact') + (d.amysRightHeelNotes ? ' ('+d.amysRightHeelNotes+')' : '') + "\n";
-          has = true;
-        }
-        if (d.events) { t += "Notes:\n" + d.events + "\n"; has = true; }
-        if (!has) t += "No active entries recorded.\n";
-
-        var card = document.createElement("div");
-        card.style.marginBottom = "14px";
-        card.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;"><strong>' + bed + '</strong><button type="button" class="sec-btn" onclick="copyText(this)">Copy Note</button></div><div class="copy-block">' + t + '</div>';
-        div.appendChild(card);
-      });
-    }
-
-    function copyText(btn) {
-      var block = btn.parentElement.nextElementSibling;
-      if (!block) return;
-      navigator.clipboard.writeText(block.innerText).then(function() {
-        var orig = btn.innerText;
-        btn.innerText = "Copied!";
-        setTimeout(function() { btn.innerText = orig; }, 1200);
-      });
-    }
-
-    function clearShift() {
-      if (confirm("Clear all shift data?")) {
-        state = { allocated: [], activeBed: null, data: {} };
-        saveState();
-        refreshGridUI();
-        renderNavBeds();
-        showView("allocation");
-      }
-    }
-
-    window.addEventListener("DOMContentLoaded", function() {
-      loadState();
-      var grid = document.getElementById("mainBedGrid");
-      if (grid) {
-        grid.innerHTML = "";
-        var BEDS = [
-          "Bay 1 Bed 1", "Bay 1 Bed 2", "Bay 2 Bed 1", "Bay 2 Bed 2", "Bay 2 Bed 3", "Bay 2 Bed 4",
-          "Bay 3 Bed 1", "Bay 3 Bed 2", "Bay 3 Bed 3", "Bay 3 Bed 4", "Bay 4 Bed 1", "Bay 4 Bed 2",
-          "Bay 4 Bed 3", "Bay 4 Bed 4", "Bay 5 Bed 1", "Bay 5 Bed 2", "Bay 5 Bed 3", "Bay 5 Bed 4",
-          "Side Room 1", "Side Room 2", "Side Room 3", "Side Room 4", "Side Room 5", "Side Room 6", "Side Room 7"
-        ];
-        BEDS.forEach(function(bedName) {
-          var btn = document.createElement("button");
-          btn.type = "button";
-          btn.className = "bed-btn";
-          btn.setAttribute("data-bed", bedName);
-          btn.textContent = bedName;
-          btn.onclick = function() { toggleBed(bedName); };
-          grid.appendChild(btn);
-        });
-      }
-      refreshGridUI();
-      renderNavBeds();
-    });
-  </script>
-</head>
-<body>
-
-  <header>
-    <div>
-      <h1>Thorndon Ward ICA Log</h1>
-      <p>Offline Shift Notepad • SystmOne Staging (v2.10)</p>
-    </div>
-    <span class="badge" id="save-status">Auto-Saved</span>
-  </header>
-
-  <nav id="navbar">
-    <button class="active" id="nav-beds" onclick="showView('allocation')">Beds</button>
-    <div id="nav-dynamic-beds" style="display:inline-flex;"></div>
-    <button id="nav-summary" onclick="showView('summary')">Summary</button>
-  </nav>
-
-  <div class="container">
-    <div id="view-allocation" class="view active">
-      <p style="font-size:0.85rem;color:var(--grey);">Tap beds to select your shift allocation. Use top bar tabs to enter notes.</p>
-      <div style="font-size:0.9rem;font-weight:700;margin-top:4px;" id="allocated-text">Allocated (0): None selected</div>
-      
-      <div class="bed-grid" id="mainBedGrid"></div>
-    </div>
-
-    <div id="view-bed" class="view">
-      <div class="card">
-        <h2>
-          <span id="bedTitle">Bed Entry Log</span>
-          <button type="button" class="sec-btn" onclick="showView('allocation')">Back to Beds</button>
-        </h2>
-
-        <div class="field-row">
-          <label>NEWS2 / Observations & Time</label>
-          <input type="text" id="f-news" placeholder="e.g. 08:30 NEWS: 1 (Pulse 96)" oninput="updateBedData('news', this.value)">
-        </div>
-
-        <div class="field-row">
-          <label>Bowel Movement & Bristol Stool Scale</label>
-          <div style="display:flex;gap:6px;margin-bottom:6px;">
-            <select id="sel-bristol" onchange="addBristol(this.value); this.value='';">
-              <option value="">+ Add Bristol Type...</option>
-              <option value="Type 1">Type 1 (Hard lumps)</option>
-              <option value="Type 2">Type 2 (Lumpy sausage)</option>
-              <option value="Type 3">Type 3 (Cracked sausage)</option>
-              <option value="Type 4">Type 4 (Smooth, soft)</option>
-              <option value="Type 5">Type 5 (Soft blobs)</option>
-              <option value="Type 6">Type 6 (Mushy)</option>
-              <option value="Type 7">Type 7 (Liquid)</option>
-            </select>
-            <button type="button" class="sec-btn" onclick="setBowel('Not opened this shift')">BO Not Opened</button>
-          </div>
-          <input type="text" id="f-bowels" placeholder="e.g. BO x1 Type 4" oninput="updateBedData('bowels', this.value)">
-        </div>
-
-        <div class="field-row">
-          <label>Amy's Round (Pressure Areas)</label>
-          <div class="area-grid">
-            <strong>Sacrum</strong>
-            <select id="f-amysSacrumStatus" onchange="updateBedData('amysSacrumStatus', this.value)">
-              <option>Skin intact</option><option>Blanching redness</option><option>Non-blanching redness</option><option>Moisture lesion</option><option>Dressing intact</option><option>Broken skin</option>
-            </select>
-            <input type="text" id="f-amysSacrumNotes" placeholder="Sacrum notes" oninput="updateBedData('amysSacrumNotes', this.value)">
-          </div>
-          <div class="area-grid">
-            <strong>Left Heel</strong>
-            <select id="f-amysLeftHeelStatus" onchange="updateBedData('amysLeftHeelStatus', this.value)">
-              <option>Skin intact</option><option>Blanching redness</option><option>Offloaded on pillow</option><option>Dressing intact</option><option>Broken skin</option>
-            </select>
-            <input type="text" id="f-amysLeftHeelNotes" placeholder="Left heel notes" oninput="updateBedData('amysLeftHeelNotes', this.value)">
-          </div>
-          <div class="area-grid">
-            <strong>Right Heel</strong>
-            <select id="f-amysRightHeelStatus" onchange="updateBedData('amysRightHeelStatus', this.value)">
-              <option>Skin intact</option><option>Blanching redness</option><option>Offloaded on pillow</option><option>Dressing intact</option><option>Broken skin</option>
-            </select>
-            <input type="text" id="f-amysRightHeelNotes" placeholder="Right heel notes" oninput="updateBedData('amysRightHeelNotes', this.value)">
-          </div>
-          <div class="area-grid">
-            <strong>Other/Buttocks</strong>
-            <select id="f-amysOtherStatus" onchange="updateBedData('amysOtherStatus', this.value)">
-              <option>Skin intact</option><option>Blanching redness</option><option>Moisture lesion</option><option>Broken skin</option>
-            </select>
-            <input type="text" id="f-amysOtherNotes" placeholder="Details" oninput="updateBedData('amysOtherNotes', this.value)">
-          </div>
-        </div>
-
-        <div class="field-row">
-          <label>Turning & Repositioning Chart</label>
-          <div
+    function addBristol(bed, type) {
+      if (!type) return;
+      var safeId = bed.replace(/[^a-zA-Z0-9]/g, '');
+      var cur = (state.data[bed] && state.data[bed].bowels) || "";
+  
