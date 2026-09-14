@@ -25,6 +25,9 @@ label{display:block;font-size:11px;font-weight:600;color:#64748B;margin:8px 0 3p
 input,select{width:100%;padding:8px;border:1px solid #CBD5E1;border-radius:6px;font-size:13px;background:#fff}
 .row{display:flex;gap:8px}
 .row>div{flex:1}
+.bp-pair{display:flex;align-items:center;gap:4px}
+.bp-pair span{font-weight:bold;color:#64748B;font-size:14px}
+.bp-pair input{text-align:center}
 .btn{display:inline-block;padding:6px 12px;border-radius:6px;font-size:12px;font-weight:600;border:none;cursor:pointer}
 .btn-del{background:#FEE2E2;color:var(--red)}
 .btn-primary{background:var(--navy);color:#fff}
@@ -82,12 +85,12 @@ function ensureBed(b){
   if(!records[b]) records[b]={};
   const r=records[b];
   if(!r.amy) r.amy={sacrum:"",groin:"",heels:"",elbows:"",other:"",dress:"",band:"Yes",turn:"No",food:"Yes"};
-  if(!r.news2) r.news2={time:"",rr:"",spo2:"",o2:"Air",bp:"",hr:"",acvpu:"Alert",t:""};
+  if(!r.news2) r.news2={time:"",rr:"",spo2:"",o2:"Air",sys:"",dia:"",hr:"",acvpu:"Alert",t:""};
   if(!r.fluid||!Array.isArray(r.fluid.h)) r.fluid={h:Array(12).fill(null).map(()=>({i:"",o:""}))};
   if(!r.food) r.food={b:"",l:"",d:"",note:""};
   if(!r.bowel) r.bowel={time:"",amt:"",type:""};
   if(!r.turn) r.turn={t1:"",t2:"",t3:"",t4:"",t5:"",t6:""};
-  if(!r.bp) r.bp={lying:"",standing:""};
+  if(!r.bp) r.bp={lsys:"",ldia:"",ssys:"",sdia:""};
   if(!r.bm) r.bm={time:"",val:""};
   if(!r.must) r.must={ht:"",wt:""};
 }
@@ -112,11 +115,11 @@ function setVal(b,sec,k,v){
 
 function getNEWS2(r){
   let sc=0, reasons=[];
-  const rr=+r.rr, sp=+r.spo2, bp=+(r.bp||"").split("/")[0], hr=+r.hr, t=+r.t;
+  const rr=+r.rr, sp=+r.spo2, sys=+r.sys, hr=+r.hr, t=+r.t;
   if(r.rr!==""){if(rr<=8||rr>=25){sc+=3;reasons.push("RR "+rr+" [+3]");}else if(rr>=21){sc+=2;reasons.push("RR "+rr+" [+2]");}else if(rr<=11){sc+=1;reasons.push("RR "+rr+" [+1]");}}
   if(r.spo2!==""){if(sp<=91){sc+=3;reasons.push("SpO2 "+sp+"% [+3]");}else if(sp<=93){sc+=2;reasons.push("SpO2 "+sp+"% [+2]");}else if(sp<=95){sc+=1;reasons.push("SpO2 "+sp+"% [+1]");}}
   if(r.o2==="O2"){sc+=2;reasons.push("O2 [+2]");}
-  if(!isNaN(bp)&&r.bp){if(bp<=90||bp>=220){sc+=3;reasons.push("BP "+r.bp+" [+3]");}else if(bp<=100){sc+=2;reasons.push("BP "+r.bp+" [+2]");}else if(bp<=110){sc+=1;reasons.push("BP "+r.bp+" [+1]");}}
+  if(!isNaN(sys)&&r.sys!==""){if(sys<=90||sys>=220){sc+=3;reasons.push("BP "+sys+(r.dia?'/'+r.dia:'')+" [+3]");}else if(sys<=100){sc+=2;reasons.push("BP "+sys+(r.dia?'/'+r.dia:'')+" [+2]");}else if(sys<=110){sc+=1;reasons.push("BP "+sys+(r.dia?'/'+r.dia:'')+" [+1]");}}
   if(r.hr!==""){if(hr<=40||hr>=131){sc+=3;reasons.push("HR "+hr+" [+3]");}else if(hr>=111){sc+=2;reasons.push("HR "+hr+" [+2]");}else if(hr<=50||hr>=91){sc+=1;reasons.push("HR "+hr+" [+1]");}}
   if(r.acvpu&&r.acvpu!=="Alert"){sc+=3;reasons.push(r.acvpu+" [+3]");}
   if(r.t!==""){if(t<=35){sc+=3;reasons.push("T "+t+"°C [+3]");}else if(t>=39.1){sc+=2;reasons.push("T "+t+"°C [+2]");}else if((t>=35.1&&t<=36)||(t>=38.1&&t<=39)){sc+=1;reasons.push("T "+t+"°C [+1]");}}
@@ -135,7 +138,7 @@ function calcBP(b){
   const el=document.getElementById("bdg-p-"+b.replace(/\s+/g,""));
   if(!el) return;
   const r=records[b]?.bp||{};
-  const l=+(r.lying||"").split("/")[0]||0, s=+(r.standing||"").split("/")[0]||0;
+  const l=+r.lsys||0, s=+r.ssys||0;
   if(!l||!s){el.className="badge b-green";el.innerText="Normal";return;}
   const d=l-s;
   el.className="badge "+(d>=20?"b-red":"b-green");
@@ -185,7 +188,11 @@ function renderTabContent(b, sb, rec){
   if(curTab==="news2"){
     return `<div style="margin-bottom:8px"><span id="bdg-n-${sb}" class="badge b-green">Score: 0</span></div>`
     +`<div class="row">${inp(b,'news2','time','Time',rec.news2.time,'time')}${inp(b,'news2','rr','RR',rec.news2.rr,'text','','numeric')}${inp(b,'news2','spo2','SpO2%',rec.news2.spo2,'text','','numeric')}</div>`
-    +`<div class="row">${sel(b,'news2','o2','Air/O2',rec.news2.o2,['Air','O2'])}${inp(b,'news2','bp','BP',rec.news2.bp,'text','120/80','numeric')}${inp(b,'news2','hr','HR',rec.news2.hr,'text','','numeric')}</div>`
+    +`<div class="row">`
+    +sel(b,'news2','o2','Air/O2',rec.news2.o2,['Air','O2'])
+    +`<div><label>BP (Sys / Dia)</label><div class="bp-pair"><input type="text" inputmode="numeric" placeholder="120" value="${rec.news2.sys||''}" oninput="setVal('${b}','news2','sys',this.value)"><span>/</span><input type="text" inputmode="numeric" placeholder="80" value="${rec.news2.dia||''}" oninput="setVal('${b}','news2','dia',this.value)"></div></div>`
+    +inp(b,'news2','hr','HR',rec.news2.hr,'text','','numeric')
+    +`</div>`
     +`<div class="row">${sel(b,'news2','acvpu','ACVPU',rec.news2.acvpu,['Alert','CVPU'])}${inp(b,'news2','t','Temp',rec.news2.t,'text','37.0','decimal')}</div>`;
   }
   if(curTab==="fluid"){
@@ -205,7 +212,11 @@ function renderTabContent(b, sb, rec){
     return `<div class="row">${inp(b,'turn','t1','08:00',rec.turn.t1)}${inp(b,'turn','t2','10:00',rec.turn.t2)}${inp(b,'turn','t3','12:00',rec.turn.t3)}</div><div class="row">${inp(b,'turn','t4','14:00',rec.turn.t4)}${inp(b,'turn','t5','16:00',rec.turn.t5)}${inp(b,'turn','t6','18:00',rec.turn.t6)}</div>`;
   }
   if(curTab==="bp"){
-    return `<div style="margin-bottom:6px"><span id="bdg-p-${sb}" class="badge b-green">Normal</span></div><div class="row">${inp(b,'bp','lying','Lying BP',rec.bp.lying,'text','120/80','numeric')}${inp(b,'bp','standing','Standing BP',rec.bp.standing,'text','118/78','numeric')}</div>`;
+    return `<div style="margin-bottom:6px"><span id="bdg-p-${sb}" class="badge b-green">Normal</span></div>`
+    +`<div class="row">`
+    +`<div><label>Lying BP (Sys / Dia)</label><div class="bp-pair"><input type="text" inputmode="numeric" placeholder="120" value="${rec.bp.lsys||''}" oninput="setVal('${b}','bp','lsys',this.value)"><span>/</span><input type="text" inputmode="numeric" placeholder="80" value="${rec.bp.ldia||''}" oninput="setVal('${b}','bp','ldia',this.value)"></div></div>`
+    +`<div><label>Standing BP (Sys / Dia)</label><div class="bp-pair"><input type="text" inputmode="numeric" placeholder="118" value="${rec.bp.ssys||''}" oninput="setVal('${b}','bp','ssys',this.value)"><span>/</span><input type="text" inputmode="numeric" placeholder="78" value="${rec.bp.sdia||''}" oninput="setVal('${b}','bp','sdia',this.value)"></div></div>`
+    +`</div>`;
   }
   if(curTab==="bm"){
     return `<div style="margin-bottom:6px"><span id="bdg-m-${sb}" class="badge b-green">Pending</span></div><div class="row">${inp(b,'bm','time','Time',rec.bm.time,'time')}${inp(b,'bm','val','BM mmol/L',rec.bm.val,'text','','decimal')}</div>`;
@@ -243,7 +254,8 @@ function renderApp(){
       if(r.amy?.dress) sp.push("Dress: "+r.amy.dress);
       if(sp.length) secs.push("<b>Skin:</b> "+sp.join(' | '));
 
-      if(r.news2&&(r.news2.rr||r.news2.spo2||r.news2.bp||r.news2.hr||r.news2.t)){
+      const bpFormatted = (r.news2?.sys ? r.news2.sys + (r.news2.dia ? '/' + r.news2.dia : '') : '');
+      if(r.news2&&(r.news2.rr||r.news2.spo2||bpFormatted||r.news2.hr||r.news2.t)){
         const {sc,reasons}=getNEWS2(r.news2);
         if(sc===0) secs.push("<b>NEWS2:</b> 0"+(r.news2.time ? ' ('+r.news2.time+')' : ''));
         else secs.push(`<b>NEWS2:</b> <span class="${sc>=7?'b-red':(sc>=5?'b-amber':'b-green')} badge">Score ${sc}</span>${r.news2.time ? ' at '+r.news2.time : ''} &bull; ${reasons.join(', ')}`);
@@ -264,7 +276,10 @@ function renderApp(){
         secs.push(`<b>Bowels:</b> ${(r.bowel.time ? r.bowel.time+' - ' : '')}${r.bowel.amt||''} ${(r.bowel.type ? '('+r.bowel.type+')' : '')}`);
       }
       if(r.bm?.val) secs.push(`<b>Blood Glucose:</b> ${r.bm.val} mmol/L${r.bm.time ? ' ('+r.bm.time+')' : ''}`);
-      if(r.bp?.lying||r.bp?.standing) secs.push(`<b>L/S BP:</b> Lying: ${r.bp.lying||'-'} | Standing: ${r.bp.standing||'-'}`);
+      
+      const lBp = (r.bp?.lsys ? r.bp.lsys + (r.bp.ldia ? '/' + r.bp.ldia : '') : '');
+      const sBp = (r.bp?.ssys ? r.bp.ssys + (r.bp.sdia ? '/' + r.bp.sdia : '') : '');
+      if(lBp||sBp) secs.push(`<b>L/S BP:</b> Lying: ${lBp||'-'} | Standing: ${sBp||'-'}`);
 
       h+=`<div class="card"><div class="card-title">${b}</div>`;
       if(secs.length) for(let s of secs) h+=`<div class="summary-sec">${s}</div>`;
@@ -312,7 +327,8 @@ function copyHandover(){
     if(r.amy?.dress) sp.push("Dress: "+r.amy.dress);
     if(sp.length) lines.push("Skin: "+sp.join(', '));
 
-    if(r.news2&&(r.news2.rr||r.news2.spo2||r.news2.bp||r.news2.hr||r.news2.t)){
+    const bpFormatted = (r.news2?.sys ? r.news2.sys + (r.news2.dia ? '/' + r.news2.dia : '') : '');
+    if(r.news2&&(r.news2.rr||r.news2.spo2||bpFormatted||r.news2.hr||r.news2.t)){
       const {sc,reasons}=getNEWS2(r.news2);
       lines.push(sc===0 ? "NEWS2: 0" : `NEWS2: ${sc} (${reasons.join(', ')})`);
     }
@@ -322,28 +338,4 @@ function copyHandover(){
     if(ti>0||to>0) lines.push(`Fluids: In ${ti}ml / Out ${to}ml (Net ${ti-to}ml)`);
 
     let fp=[];
-    if(r.food?.b) fp.push("B:"+r.food.b);
-    if(r.food?.l) fp.push("L:"+r.food.l);
-    if(r.food?.d) fp.push("D:"+r.food.d);
-    if(r.food?.note) fp.push("Note:"+r.food.note);
-    if(fp.length) lines.push("Food: "+fp.join(' '));
-
-    if(r.bowel?.amt||r.bowel?.type) lines.push(`Bowels: ${r.bowel.time||''} ${r.bowel.amt||''} (${r.bowel.type||''})`);
-    if(r.bm?.val) lines.push("BM: "+r.bm.val+" mmol/L");
-
-    s+=`[${b}]\n` + (lines.length ? lines.join('\n') : 'No entries recorded.') + `\n------------------------------------\n`;
-  });
-  navigator.clipboard.writeText(s).then(()=>alert("Handover copied.")).catch(()=>prompt("Copy handover:",s));
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-  loadDB();
-  renderApp();
-});
-if(document.readyState === "complete" || document.readyState === "interactive"){
-  loadDB();
-  renderApp();
-}
-</script>
-</body>
-</html>
+    if(r.food?.b) fp.p
