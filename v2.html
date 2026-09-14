@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Thorndon Ward ICA Log - v2.4</title>
+  <title>Thorndon Ward ICA Log - v2.5</title>
   <style>
     :root {
       --ward: #0b4d7a;
@@ -14,7 +14,7 @@
       --text: #212b32;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-    body { background: #fff; color: var(--text); padding-bottom: 90px; }
+    body { background: #fff; color: var(--text); padding-bottom: 85px; }
     header { background: var(--ward); color: #fff; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
     header h1 { font-size: 1.05rem; font-weight: 700; }
     header p { font-size: 0.72rem; opacity: 0.85; margin-top: 2px; }
@@ -32,7 +32,8 @@
     .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
     .chip { background: #fff; border: 1px solid var(--border); border-radius: 16px; padding: 6px 10px; font-size: 0.78rem; cursor: pointer; }
     .chip.active { background: var(--ward); color: #fff; border-color: var(--ward); font-weight: 600; }
-    .field-row { margin-bottom: 12px; background: #fff; border: 1px solid var(--border); padding: 12px; border-radius: 6px; }
+    .field-row { margin-bottom: 12px; background: #fff; border: 1px solid var(--border); padding: 12px; border-radius: 6px; display: none; }
+    .field-row.active { display: block; }
     label { display: block; font-size: 0.78rem; font-weight: 700; margin-bottom: 6px; color: var(--grey); text-transform: uppercase; }
     input, select, textarea { width: 100%; padding: 9px; border: 1px solid var(--border); border-radius: 4px; font-size: 0.9rem; background: #fff; }
     .area-grid { display: grid; grid-template-columns: 110px 1fr 1fr; gap: 6px; align-items: center; margin-bottom: 8px; }
@@ -73,14 +74,14 @@
     var state = { allocated: [], activeBed: null, configs: {}, data: {} };
 
     function saveState() {
-      try { localStorage.setItem("thorndon_v24", JSON.stringify(state)); } catch(e){}
+      try { localStorage.setItem("thorndon_v25", JSON.stringify(state)); } catch(e){}
       var s = document.getElementById("save-status");
       if (s) { s.textContent = "Saved"; setTimeout(function(){ s.textContent = "Auto-Saved"; }, 600); }
     }
 
     function loadState() {
       try {
-        var raw = localStorage.getItem("thorndon_v24");
+        var raw = localStorage.getItem("thorndon_v25");
         if (raw) {
           var parsed = JSON.parse(raw);
           if (parsed && typeof parsed === "object") {
@@ -94,34 +95,32 @@
       }
     }
 
-    function handleBedClick(bedName) {
+    function toggleBed(btn, bedName) {
       if (!Array.isArray(state.allocated)) state.allocated = [];
       var idx = state.allocated.indexOf(bedName);
-      if (idx === -1) {
+      if (idx > -1) {
+        state.allocated.splice(idx, 1);
+        if (btn) {
+          btn.classList.remove("selected");
+          btn.textContent = bedName;
+        }
+        if (state.activeBed === bedName) state.activeBed = null;
+      } else {
         state.allocated.push(bedName);
+        if (btn) {
+          btn.classList.add("selected");
+          btn.textContent = "✓ " + bedName;
+        }
       }
       saveState();
-      refreshGridUI();
+      updateAllocatedText();
       renderNavBeds();
-      openBed(bedName);
     }
 
-    function refreshGridUI() {
-      var buttons = document.querySelectorAll(".bed-btn");
-      buttons.forEach(function(b) {
-        var name = b.getAttribute("data-bed");
-        if (state.allocated.indexOf(name) > -1) {
-          b.className = "bed-btn selected";
-          b.textContent = "✓ " + name;
-        } else {
-          b.className = "bed-btn";
-          b.textContent = name;
-        }
-      });
+    function updateAllocatedText() {
       var el = document.getElementById("allocated-text");
-      if (el) {
-        el.textContent = state.allocated.length ? "Allocated (" + state.allocated.length + "): " + state.allocated.join(", ") : "Allocated (0): None selected";
-      }
+      if (!el) return;
+      el.textContent = state.allocated.length ? "Allocated (" + state.allocated.length + "): " + state.allocated.join(", ") : "Allocated (0): None selected";
     }
 
     function renderNavBeds() {
@@ -172,7 +171,12 @@
       updateChipsUI();
       populateForm();
       showView("bed");
-      renderNavBeds();
+
+      var navBtns = document.querySelectorAll("#nav-dynamic-beds button");
+      navBtns.forEach(function(b){
+        if (b.textContent === bed) b.classList.add("active");
+        else b.classList.remove("active");
+      });
     }
 
     function updateChipsUI() {
@@ -189,7 +193,8 @@
           chip.textContent = (isActive ? "✓ " : "+ ") + c.label;
         }
         if (sec) {
-          sec.style.display = isActive ? "block" : "none";
+          if (isActive) sec.classList.add("active");
+          else sec.classList.remove("active");
         }
       });
     }
@@ -343,7 +348,11 @@
       if (confirm("Clear all shift data?")) {
         state = { allocated: [], activeBed: null, configs: {}, data: {} };
         saveState();
-        refreshGridUI();
+        document.querySelectorAll(".bed-btn").forEach(function(b){
+          b.classList.remove("selected");
+          b.textContent = b.getAttribute("data-bed");
+        });
+        updateAllocatedText();
         renderNavBeds();
         showView("allocation");
       }
@@ -351,7 +360,14 @@
 
     window.addEventListener("DOMContentLoaded", function() {
       loadState();
-      refreshGridUI();
+      document.querySelectorAll(".bed-btn").forEach(function(b) {
+        var name = b.getAttribute("data-bed");
+        if (state.allocated.indexOf(name) > -1) {
+          b.classList.add("selected");
+          b.textContent = "✓ " + name;
+        }
+      });
+      updateAllocatedText();
       renderNavBeds();
     });
   </script>
@@ -361,7 +377,7 @@
   <header>
     <div>
       <h1>Thorndon Ward ICA Log</h1>
-      <p>Offline Shift Notepad • SystmOne Staging (v2.4)</p>
+      <p>Offline Shift Notepad • SystmOne Staging (v2.5)</p>
     </div>
     <span class="badge" id="save-status">Auto-Saved</span>
   </header>
@@ -374,49 +390,20 @@
 
   <div class="container">
     <div id="view-allocation" class="view active">
-      <p style="font-size:0.85rem;color:var(--grey);">Tap any bed to allocate and open its entry log.</p>
+      <p style="font-size:0.85rem;color:var(--grey);">Tap beds to select your shift allocation. Use top bar tabs to enter notes.</p>
       <div style="font-size:0.9rem;font-weight:700;margin-top:4px;" id="allocated-text">Allocated (0): None selected</div>
       
-      <div class="bed-grid" id="mainBedGrid">
-        <script>
-          document.addEventListener("DOMContentLoaded", function() {
-            var grid = document.getElementById("mainBedGrid");
-            if (!grid) return;
-            grid.innerHTML = "";
-            BEDS.forEach(function(bedName) {
-              var btn = document.createElement("button");
-              btn.type = "button";
-              btn.className = "bed-btn";
-              btn.setAttribute("data-bed", bedName);
-              btn.textContent = bedName;
-              btn.onclick = function() { handleBedClick(bedName); };
-              grid.appendChild(btn);
-            });
-            refreshGridUI();
-          });
-        </script>
-      </div>
-    </div>
-
-    <div id="view-bed" class="view">
-      <div class="card">
-        <h2>
-          <span id="bedTitle">Bed Entry Log</span>
-          <button type="button" class="sec-btn" onclick="showView('allocation')">Back to Beds</button>
-        </h2>
-
-        <div class="tracking-box">
-          <small style="font-size:0.72rem;font-weight:700;color:var(--grey);text-transform:uppercase;">Active Charts for this Bed</small>
-          <div class="chips">
-            <button type="button" class="chip" id="chip-news" onclick="toggleChart('news')">✓ NEWS2</button>
-            <button type="button" class="chip" id="chip-bowels" onclick="toggleChart('bowels')">✓ Bowels</button>
-            <button type="button" class="chip" id="chip-amys" onclick="toggleChart('amys')">+ Amy's Round</button>
-            <button type="button" class="chip" id="chip-turning" onclick="toggleChart('turning')">+ Turning</button>
-            <button type="button" class="chip" id="chip-lsbp" onclick="toggleChart('lsbp')">+ Lying/Standing BP</button>
-            <button type="button" class="chip" id="chip-weight" onclick="toggleChart('weight')">+ Weight</button>
-            <button type="button" class="chip" id="chip-fluids" onclick="toggleChart('fluids')">+ Fluid Balance</button>
-            <button type="button" class="chip" id="chip-diet" onclick="toggleChart('diet')">+ Food & Diet</button>
-            <button type="button" class="chip" id="chip-bm" onclick="toggleChart('bm')">+ BM (Glucose)</button>
-            <button type="button" class="chip" id="chip-events" onclick="toggleChart('events')">+ Notes</button>
-          </div>
-     
+      <div class="bed-grid">
+        <button type="button" class="bed-btn" data-bed="Bay 1 Bed 1" onclick="toggleBed(this, 'Bay 1 Bed 1')">Bay 1 Bed 1</button>
+        <button type="button" class="bed-btn" data-bed="Bay 1 Bed 2" onclick="toggleBed(this, 'Bay 1 Bed 2')">Bay 1 Bed 2</button>
+        <button type="button" class="bed-btn" data-bed="Bay 2 Bed 1" onclick="toggleBed(this, 'Bay 2 Bed 1')">Bay 2 Bed 1</button>
+        <button type="button" class="bed-btn" data-bed="Bay 2 Bed 2" onclick="toggleBed(this, 'Bay 2 Bed 2')">Bay 2 Bed 2</button>
+        <button type="button" class="bed-btn" data-bed="Bay 2 Bed 3" onclick="toggleBed(this, 'Bay 2 Bed 3')">Bay 2 Bed 3</button>
+        <button type="button" class="bed-btn" data-bed="Bay 2 Bed 4" onclick="toggleBed(this, 'Bay 2 Bed 4')">Bay 2 Bed 4</button>
+        <button type="button" class="bed-btn" data-bed="Bay 3 Bed 1" onclick="toggleBed(this, 'Bay 3 Bed 1')">Bay 3 Bed 1</button>
+        <button type="button" class="bed-btn" data-bed="Bay 3 Bed 2" onclick="toggleBed(this, 'Bay 3 Bed 2')">Bay 3 Bed 2</button>
+        <button type="button" class="bed-btn" data-bed="Bay 3 Bed 3" onclick="toggleBed(this, 'Bay 3 Bed 3')">Bay 3 Bed 3</button>
+        <button type="button" class="bed-btn" data-bed="Bay 3 Bed 4" onclick="toggleBed(this, 'Bay 3 Bed 4')">Bay 3 Bed 4</button>
+        <button type="button" class="bed-btn" data-bed="Bay 4 Bed 1" onclick="toggleBed(this, 'Bay 4 Bed 1')">Bay 4 Bed 1</button>
+        <button type="button" class="bed-btn" data-bed="Bay 4 Bed 2" onclick="toggleBed(this, 'Bay 4 Bed 2')">Bay 4 Bed 2</button>
+        <button type="button" class
