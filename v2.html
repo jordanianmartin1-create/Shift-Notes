@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Thorndon Ward ICA Log - v2.12</title>
+  <title>Thorndon Ward ICA Log - v2.13</title>
   <style>
     :root {
       --ward: #0b4d7a;
@@ -54,14 +54,14 @@
     var state = { allocated: [], data: {} };
 
     function saveState() {
-      try { localStorage.setItem("thorndon_v212", JSON.stringify(state)); } catch(e){}
+      try { localStorage.setItem("thorndon_v213", JSON.stringify(state)); } catch(e){}
       var s = document.getElementById("save-status");
       if (s) { s.textContent = "Saved"; setTimeout(function(){ s.textContent = "Auto-Saved"; }, 600); }
     }
 
     function loadState() {
       try {
-        var raw = localStorage.getItem("thorndon_v212");
+        var raw = localStorage.getItem("thorndon_v213");
         if (raw) {
           var parsed = JSON.parse(raw);
           if (parsed && typeof parsed === "object") {
@@ -119,6 +119,7 @@
 
       nav.innerHTML = '<button class="active" id="btn-tab-allocation" onclick="switchTab(\'allocation\')">Beds</button>';
       
+      // Keep static allocation view wrapper in container, rebuild bed tabs
       var allocationHTML = document.getElementById("tab-allocation") ? document.getElementById("tab-allocation").outerHTML : '';
       var summaryHTML = document.getElementById("tab-summary") ? document.getElementById("tab-summary").outerHTML : '';
       
@@ -131,7 +132,6 @@
 
       container.innerHTML = allocationHTML + summaryHTML;
 
-      // Re-populate grid buttons inside allocation tab
       var grid = document.getElementById("mainBedGrid");
       if (grid && grid.children.length === 0) {
         BEDS.forEach(function(bedName) {
@@ -307,18 +307,20 @@
       nav.appendChild(summaryBtn);
 
       var checkTarget = document.getElementById(activeTabId);
-      switchTab(checkTarget ? activeTabId.replace("tab-", "") : "allocation");
-      refreshUI();
+      switchTab(checkTarget ? activeTabId : "tab-allocation");
+      refreshUIOnly();
     }
 
-    function switchTab(tabId) {
-      document.querySelectorAll(".tab-content").forEach(function(v){ v.classList.remove("active"); });
-      document.querySelectorAll("nav button").forEach(function(b){ b.classList.remove("active"); });
-
-      var target = document.getElementById("tab-" + tabId);
-      var btn = document.getElementById("btn-tab-" + tabId);
-
-      if (target) target.classList.add("active");
-      if (btn) btn.classList.add("active");
-
-      if (tabId 
+    function refreshUIOnly() {
+      var buttons = document.querySelectorAll(".bed-btn");
+      buttons.forEach(function(b) {
+        var name = b.getAttribute("data-bed");
+        if (state.allocated.indexOf(name) > -1) {
+          b.className = "bed-btn selected";
+          b.textContent = "✓ " + name;
+        } else {
+          b.className = "bed-btn";
+          b.textContent = name;
+        }
+      });
+      var el = document.getElementById("allocated-te
