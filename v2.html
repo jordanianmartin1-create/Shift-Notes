@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Thorndon Ward ICA Log - v2.1</title>
+  <title>Thorndon Ward ICA Log - v2.2</title>
   <style>
     :root {
       --ward: #0b4d7a;
@@ -23,8 +23,8 @@
     nav button { background: none; border: none; padding: 12px 14px; font-size: 0.85rem; font-weight: 600; color: var(--grey); cursor: pointer; border-bottom: 3px solid transparent; flex-shrink: 0; }
     nav button.active { color: var(--ward); border-bottom-color: var(--ward); }
     .container { padding: 16px; max-width: 760px; margin: 0 auto; }
-    .bed-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
-    .bed-btn { background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 14px 6px; font-size: 0.88rem; font-weight: 600; color: var(--text); cursor: pointer; text-align: center; }
+    .bed-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+    .bed-btn { background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 12px 4px; font-size: 0.82rem; font-weight: 600; color: var(--text); cursor: pointer; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .bed-btn.selected { background: var(--blue) !important; color: #fff !important; border-color: var(--blue) !important; }
     .card { background: #fff; border: 1px solid var(--border); border-radius: 6px; padding: 16px; margin-bottom: 16px; }
     .card h2 { font-size: 1.05rem; margin-bottom: 12px; color: var(--ward); display: flex; justify-content: space-between; align-items: center; }
@@ -63,14 +63,14 @@
     var state = { allocated: [], activeBed: null, configs: {}, data: {} };
 
     function saveState() {
-      try { localStorage.setItem("thorndon_v21", JSON.stringify(state)); } catch(e){}
+      try { localStorage.setItem("thorndon_v22", JSON.stringify(state)); } catch(e){}
       var s = document.getElementById("save-status");
       if (s) { s.textContent = "Saved"; setTimeout(function(){ s.textContent = "Auto-Saved"; }, 600); }
     }
 
     function loadState() {
       try {
-        var raw = localStorage.getItem("thorndon_v21");
+        var raw = localStorage.getItem("thorndon_v22");
         if (raw) state = JSON.parse(raw);
       } catch(e){}
       if (!Array.isArray(state.allocated)) state.allocated = [];
@@ -78,16 +78,9 @@
       if (!state.data) state.data = {};
     }
 
-    function toggleBed(btn, bedName) {
+    function handleBedClick(btn, bedName) {
       var idx = state.allocated.indexOf(bedName);
-      if (idx > -1) {
-        state.allocated.splice(idx, 1);
-        if (btn) {
-          btn.classList.remove("selected");
-          btn.textContent = bedName;
-        }
-        if (state.activeBed === bedName) state.activeBed = null;
-      } else {
+      if (idx === -1) {
         state.allocated.push(bedName);
         if (btn) {
           btn.classList.add("selected");
@@ -97,6 +90,7 @@
       saveState();
       updateAllocatedText();
       renderNavBeds();
+      openBed(bedName);
     }
 
     function updateAllocatedText() {
@@ -357,8 +351,8 @@
 
   <header>
     <div>
-      <h1>Thorndon Ward ICA Log (v2.1)</h1>
-      <p>Offline Shift Notepad • SystmOne Staging</p>
+      <h1>Thorndon Ward ICA Log</h1>
+      <p>Offline Shift Notepad • SystmOne Staging (v2.2)</p>
     </div>
     <span class="badge" id="save-status">Auto-Saved</span>
   </header>
@@ -371,26 +365,27 @@
 
   <div class="container">
     <div id="view-allocation" class="view active">
-      <p style="font-size:0.85rem;color:var(--grey);">Tap beds to allocate to your shift. Tapping opens their tab in the top bar.</p>
+      <p style="font-size:0.85rem;color:var(--grey);">Tap beds to allocate and open their entry log.</p>
       <div style="font-size:0.9rem;font-weight:700;margin-top:4px;" id="allocated-text">Allocated (0): None selected</div>
       
       <div class="bed-grid">
-        <button type="button" class="bed-btn" data-bed="Bay 1 Bed 1" onclick="toggleBed(this, 'Bay 1 Bed 1')">Bay 1 Bed 1</button>
-        <button type="button" class="bed-btn" data-bed="Bay 1 Bed 2" onclick="toggleBed(this, 'Bay 1 Bed 2')">Bay 1 Bed 2</button>
-        <button type="button" class="bed-btn" data-bed="Bay 2 Bed 1" onclick="toggleBed(this, 'Bay 2 Bed 1')">Bay 2 Bed 1</button>
-        <button type="button" class="bed-btn" data-bed="Bay 2 Bed 2" onclick="toggleBed(this, 'Bay 2 Bed 2')">Bay 2 Bed 2</button>
-        <button type="button" class="bed-btn" data-bed="Bay 2 Bed 3" onclick="toggleBed(this, 'Bay 2 Bed 3')">Bay 2 Bed 3</button>
-        <button type="button" class="bed-btn" data-bed="Bay 2 Bed 4" onclick="toggleBed(this, 'Bay 2 Bed 4')">Bay 2 Bed 4</button>
-        <button type="button" class="bed-btn" data-bed="Bay 3 Bed 1" onclick="toggleBed(this, 'Bay 3 Bed 1')">Bay 3 Bed 1</button>
-        <button type="button" class="bed-btn" data-bed="Bay 3 Bed 2" onclick="toggleBed(this, 'Bay 3 Bed 2')">Bay 3 Bed 2</button>
-        <button type="button" class="bed-btn" data-bed="Bay 3 Bed 3" onclick="toggleBed(this, 'Bay 3 Bed 3')">Bay 3 Bed 3</button>
-        <button type="button" class="bed-btn" data-bed="Bay 3 Bed 4" onclick="toggleBed(this, 'Bay 3 Bed 4')">Bay 3 Bed 4</button>
-        <button type="button" class="bed-btn" data-bed="Bay 4 Bed 1" onclick="toggleBed(this, 'Bay 4 Bed 1')">Bay 4 Bed 1</button>
-        <button type="button" class="bed-btn" data-bed="Bay 4 Bed 2" onclick="toggleBed(this, 'Bay 4 Bed 2')">Bay 4 Bed 2</button>
-        <button type="button" class="bed-btn" data-bed="Bay 4 Bed 3" onclick="toggleBed(this, 'Bay 4 Bed 3')">Bay 4 Bed 3</button>
-        <button type="button" class="bed-btn" data-bed="Bay 4 Bed 4" onclick="toggleBed(this, 'Bay 4 Bed 4')">Bay 4 Bed 4</button>
-        <button type="button" class="bed-btn" data-bed="Bay 5 Bed 1" onclick="toggleBed(this, 'Bay 5 Bed 1')">Bay 5 Bed 1</button>
-        <button type="button" class="bed-btn" data-bed="Bay 5 Bed 2" onclick="toggleBed(this, 'Bay 5 Bed 2')">Bay 5 Bed 2</button>
-        <button type="button" class="bed-btn" data-bed="Bay 5 Bed 3" onclick="toggleBed(this, 'Bay 5 Bed 3')">Bay 5 Bed 3</button>
-        <button type="button" class="bed-btn" data-bed="Bay 5 Bed 4" onclick="toggleBed(this, 'Bay 5 Bed 4')">Bay 5 Bed 4</button>
-        <button type="button" class="bed-btn" data-bed="Side Room 1" onclick="toggleBed(this, 'Side Room 1')">Side Room 
+        <button type="button" class="bed-btn" data-bed="Bay 1 Bed 1" onclick="handleBedClick(this, 'Bay 1 Bed 1')">Bay 1 Bed 1</button>
+        <button type="button" class="bed-btn" data-bed="Bay 1 Bed 2" onclick="handleBedClick(this, 'Bay 1 Bed 2')">Bay 1 Bed 2</button>
+        <button type="button" class="bed-btn" data-bed="Bay 2 Bed 1" onclick="handleBedClick(this, 'Bay 2 Bed 1')">Bay 2 Bed 1</button>
+        <button type="button" class="bed-btn" data-bed="Bay 2 Bed 2" onclick="handleBedClick(this, 'Bay 2 Bed 2')">Bay 2 Bed 2</button>
+        <button type="button" class="bed-btn" data-bed="Bay 2 Bed 3" onclick="handleBedClick(this, 'Bay 2 Bed 3')">Bay 2 Bed 3</button>
+        <button type="button" class="bed-btn" data-bed="Bay 2 Bed 4" onclick="handleBedClick(this, 'Bay 2 Bed 4')">Bay 2 Bed 4</button>
+        <button type="button" class="bed-btn" data-bed="Bay 3 Bed 1" onclick="handleBedClick(this, 'Bay 3 Bed 1')">Bay 3 Bed 1</button>
+        <button type="button" class="bed-btn" data-bed="Bay 3 Bed 2" onclick="handleBedClick(this, 'Bay 3 Bed 2')">Bay 3 Bed 2</button>
+        <button type="button" class="bed-btn" data-bed="Bay 3 Bed 3" onclick="handleBedClick(this, 'Bay 3 Bed 3')">Bay 3 Bed 3</button>
+        <button type="button" class="bed-btn" data-bed="Bay 3 Bed 4" onclick="handleBedClick(this, 'Bay 3 Bed 4')">Bay 3 Bed 4</button>
+        <button type="button" class="bed-btn" data-bed="Bay 4 Bed 1" onclick="handleBedClick(this, 'Bay 4 Bed 1')">Bay 4 Bed 1</button>
+        <button type="button" class="bed-btn" data-bed="Bay 4 Bed 2" onclick="handleBedClick(this, 'Bay 4 Bed 2')">Bay 4 Bed 2</button>
+        <button type="button" class="bed-btn" data-bed="Bay 4 Bed 3" onclick="handleBedClick(this, 'Bay 4 Bed 3')">Bay 4 Bed 3</button>
+        <button type="button" class="bed-btn" data-bed="Bay 4 Bed 4" onclick="handleBedClick(this, 'Bay 4 Bed 4')">Bay 4 Bed 4</button>
+        <button type="button" class="bed-btn" data-bed="Bay 5 Bed 1" onclick="handleBedClick(this, 'Bay 5 Bed 1')">Bay 5 Bed 1</button>
+        <button type="button" class="bed-btn" data-bed="Bay 5 Bed 2" onclick="handleBedClick(this, 'Bay 5 Bed 2')">Bay 5 Bed 2</button>
+        <button type="button" class="bed-btn" data-bed="Bay 5 Bed 3" onclick="handleBedClick(this, 'Bay 5 Bed 3')">Bay 5 Bed 3</button>
+        <button type="button" class="bed-btn" data-bed="Bay 5 Bed 4" onclick="handleBedClick(this, 'Bay 5 Bed 4')">Bay 5 Bed 4</button>
+        <button type="button" class="bed-btn" data-bed="Side Room 1" onclick="handleBedClick(this, 'Side Room 1')">Side Room 1</button>
+        <button type="button" class="bed-btn" data-bed="Sid
