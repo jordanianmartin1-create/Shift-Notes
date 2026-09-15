@@ -163,8 +163,9 @@ function startShift(auto = false) {
     if(!db[b].events) db[b].events = [];
     if(!db[b].admit) db[b].admit = [];
     if(!db[b].bowel) db[b].bowel = [];
+    if(!db[b].dressings) db[b].dressings = [];
     if(!db[b].bp) db[b].bp = {lsys:'', ldia:'', ssys:'', sdia:''};
-    if(!db[b].amy) db[b].amy = {sac:'', groin:'', heels:'', elbows:'', dressLoc:'', dressDate:'', noDate:false};
+    if(!db[b].amy) db[b].amy = {sac:'', groin:'', heels:'', elbows:''};
     if(!db[b].food) db[b].food = {b:'', l:'', d:''};
     if(!db[b].turn) db[b].turn = Array(6).fill('');
     if(!db[b].fluid) db[b].fluid = Array(13).fill(null).map(()=>({i:'', o:''}));
@@ -260,14 +261,16 @@ function refreshFluid() {
       ftxt = net <= -500 ? `<b style="color:var(--red)">Net: ${net}ml</b>` : `Net: ${net}ml`;
       if(net <= -500) hasAlerts = true;
       
-      if (d.amy.dressLoc) skintxt = `${d.amy.dressLoc} (Due: <b>${calcDue(d.amy.dressDate)}</b>)`;
+      if (d.dressings && d.dressings.length > 0) {
+        skintxt = d.dressings.map(dr => `${dr.val || 'Unnamed'} (Due: <b>${calcDue(dr.date)}</b>)`).join('<br>');
+      }
 
       h += `<div class="card" ${hasAlerts ? 'style="border-left:4px solid var(--red);"' : 'style="border-left:4px solid var(--green);"'} >
         <h2 style="color:var(--navy); margin-bottom:12px; font-size:1.2rem;">${b}</h2>
         <div class="summary-sec"><b>NEWS2:</b> ${n2txt}</div>
         <div class="summary-sec"><b>Glucose:</b> ${bmtxt}</div>
         <div class="summary-sec"><b>Fluids:</b> ${ftxt}</div>
-        <div class="summary-sec"><b>Dressings:</b> ${skintxt}</div>
+        <div class="summary-sec"><b>Dressings:</b><br>${skintxt}</div>
       </div>`;
     });
     area.innerHTML = h || '<p style="text-align:center; padding:20px; color:var(--text-sub);">No active patients.</p>';
@@ -383,17 +386,25 @@ function refreshFluid() {
       <div><label>Heels</label><select class="skin-sel" onchange="updateField('${curBed}','amy',null,'heels',this.value)">${opts(['','Fine','Red','Broken'], d.amy.heels)}</select></div>
       <div><label>Elbows</label><select class="skin-sel" onchange="updateField('${curBed}','amy',null,'elbows',this.value)">${opts(['','Fine','Red','Broken'], d.amy.elbows)}</select></div>
     </div>
-    <hr style="border:0; border-top:1px solid var(--border); margin:16px 0;">
-    <h3 style="font-size:1rem; margin-bottom:12px;">Dressings</h3>
-    <div class="row">
-      <div><label>Location</label><input type="text" value="${d.amy.dressLoc}" oninput="updateField('${curBed}','amy',null,'dressLoc',this.value)"></div>
-    </div>
-    <div class="row" style="align-items:center;">
-      <div><label>Written Date</label><input type="date" value="${d.amy.dressDate}" onchange="updateField('${curBed}','amy',null,'dressDate',this.value); updateField('${curBed}','amy',null,'noDate',false); renderContent()"></div>
-      <div style="flex:0 0 auto;"><button class="btn btn-sm ${d.amy.noDate?'btn-danger':''}" style="border:1px solid var(--border);" onclick="setNoDate()">No Date</button></div>
-    </div>
-    <div style="font-size:0.85rem; color:var(--text-sub);">Next Due: <b>${calcDue(d.amy.dressDate)}</b></div>
     </div>`;
+
+    h += `<button class="btn btn-primary" style="margin-bottom:16px;" onclick="addArr('dressings')">+ Add Dressing</button>`;
+    d.dressings.forEach((r, i) => {
+      h += `<div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+          <b>Dressing ${i+1}</b><button class="btn btn-danger btn-sm" onclick="rmArr('dressings', ${i})">X</button>
+        </div>
+        <div class="row">
+          <div><label>Location</label><input type="text" placeholder="e.g. Sacrum" value="${r.val||''}" oninput="updateField('${curBed}','dressings',${i},'val',this.value)"></div>
+        </div>
+        <div class="row" style="align-items:center;">
+          <div><label>Written Date</label><input type="date" value="${r.date||''}" onchange="updateField('${curBed}','dressings',${i},'date',this.value); renderContent()"></div>
+          <div style="flex:0 0 auto;"><button class="btn btn-sm" style="border:1px solid var(--border);" onclick="setNoDateArr(${i})">No Date</button></div>
+        </div>
+        <div style="font-size:0.85rem; color:var(--text-sub);">Next Due: <b>${calcDue(r.date)}</b></div>
+      </div>`;
+    });
+    if (d.dressings.length === 0) h += `<p style="color:var(--text-sub); text-align:center; padding-bottom:12px;">No dressings recorded.</p>`;
   }
 
   if (curSec === 'food') {
@@ -460,10 +471,9 @@ function tNow() { const d = new Date(); return String(d.getHours()).padStart(2,'
 function addArr(k) { db[curBed][k].push({time: tNow(), val: ''}); saveDB(); renderContent(); }
 function rmArr(k, i) { db[curBed][k].splice(i, 1); saveDB(); renderContent(); }
 
-function setNoDate() {
+function setNoDateArr(i) {
   const d = new Date();
-  db[curBed].amy.dressDate = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-  db[curBed].amy.noDate = true;
+  db[curBed].dressings[i].date = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
   saveDB(); renderContent();
 }
 
