@@ -54,7 +54,7 @@
     .score-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-weight: 700; font-size: 0.82rem; }
     .total-banner { background: #f8fafc; border: 1px solid var(--border); border-radius: 6px; padding: 8px 12px; margin-bottom: 8px; font-size: 0.82rem; font-weight: 600; display: flex; justify-content: space-between; }
     
-    /* Screenshot Handover Card Styles */
+    /* Handover Summary Cards */
     .summary-title { font-size: 0.95rem; font-weight: 700; color: var(--primary-dark); margin-bottom: 12px; }
     .handover-card { background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
     .handover-card h2 { font-size: 0.95rem; font-weight: 700; color: var(--primary-dark); margin-bottom: 8px; }
@@ -73,19 +73,50 @@
     <span class="badge">Auto-Saved</span>
   </header>
 
-  <nav id="tabBar"></nav>
+  <!-- Navigation Tab Bar -->
+  <nav id="tabBar">
+    <button class="tab-btn active" id="btnWardMap">Ward Map</button>
+    <div id="patientTabsContainer" style="display:flex; gap:6px;"></div>
+    <button class="tab-btn" id="btnSummary">Summary</button>
+  </nav>
 
   <main>
-    <!-- Ward Grid Panel -->
+    <!-- Hardcoded Ward Allocation Grid -->
     <div id="viewWard" class="view active">
       <div class="card">
         <h3>Ward Allocation</h3>
         <p style="font-size:0.8rem; color:var(--sub); margin-bottom:12px;">Tap beds to manage. Selected beds pin as tabs above.</p>
-        <div class="grid" id="bedGrid"></div>
+        <div class="grid" id="bedGrid">
+          <div class="bed-card" data-bed="Bay 1 Bed 1">Bay 1 Bed 1</div>
+          <div class="bed-card" data-bed="Bay 1 Bed 2">Bay 1 Bed 2</div>
+          <div class="bed-card" data-bed="Bay 1 Bed 3">Bay 1 Bed 3</div>
+          <div class="bed-card" data-bed="Bay 1 Bed 4">Bay 1 Bed 4</div>
+          <div class="bed-card" data-bed="Bay 2 Bed 1">Bay 2 Bed 1</div>
+          <div class="bed-card" data-bed="Bay 2 Bed 2">Bay 2 Bed 2</div>
+          <div class="bed-card" data-bed="Bay 2 Bed 3">Bay 2 Bed 3</div>
+          <div class="bed-card" data-bed="Bay 2 Bed 4">Bay 2 Bed 4</div>
+          <div class="bed-card" data-bed="Bay 3 Bed 1">Bay 3 Bed 1</div>
+          <div class="bed-card" data-bed="Bay 3 Bed 2">Bay 3 Bed 2</div>
+          <div class="bed-card" data-bed="Bay 3 Bed 3">Bay 3 Bed 3</div>
+          <div class="bed-card" data-bed="Bay 3 Bed 4">Bay 3 Bed 4</div>
+          <div class="bed-card" data-bed="Bay 4 Bed 1">Bay 4 Bed 1</div>
+          <div class="bed-card" data-bed="Bay 4 Bed 2">Bay 4 Bed 2</div>
+          <div class="bed-card" data-bed="Bay 4 Bed 3">Bay 4 Bed 3</div>
+          <div class="bed-card" data-bed="Bay 4 Bed 4">Bay 4 Bed 4</div>
+          <div class="bed-card" data-bed="Bay 5 Bed 1">Bay 5 Bed 1</div>
+          <div class="bed-card" data-bed="Bay 5 Bed 2">Bay 5 Bed 2</div>
+          <div class="bed-card" data-bed="Bay 5 Bed 3">Bay 5 Bed 3</div>
+          <div class="bed-card" data-bed="Bay 5 Bed 4">Bay 5 Bed 4</div>
+          <div class="bed-card" data-bed="Side Room 1">Side Room 1</div>
+          <div class="bed-card" data-bed="Side Room 2">Side Room 2</div>
+          <div class="bed-card" data-bed="Side Room 3">Side Room 3</div>
+          <div class="bed-card" data-bed="Side Room 4">Side Room 4</div>
+          <div class="bed-card" data-bed="Side Room 5">Side Room 5</div>
+        </div>
       </div>
     </div>
 
-    <!-- Patient Observation Form -->
+    <!-- Observations Form -->
     <div id="viewForm" class="view">
       <div class="card">
         <h3>
@@ -197,11 +228,11 @@
       <div class="card">
         <h3>Turning & Repositioning</h3>
         <div class="chips">
-          <button class="chip" onclick="app.addRepo('Left Tilt')">Left Tilt</button>
-          <button class="chip" onclick="app.addRepo('Right Tilt')">Right Tilt</button>
-          <button class="chip" onclick="app.addRepo('Back')">Back</button>
-          <button class="chip" onclick="app.addRepo('Chair')">Chair</button>
-          <button class="chip" onclick="app.addRepo('Mobilised')">Mobilised</button>
+          <button class="chip" data-repo="Left Tilt">Left Tilt</button>
+          <button class="chip" data-repo="Right Tilt">Right Tilt</button>
+          <button class="chip" data-repo="Back">Back</button>
+          <button class="chip" data-repo="Chair">Chair</button>
+          <button class="chip" data-repo="Mobilised">Mobilised</button>
         </div>
         <textarea readonly id="f_repositioningLogs"></textarea>
       </div>
@@ -215,19 +246,19 @@
         </div>
         <label>Quick Intake:</label>
         <div class="chips">
-          <button class="chip" onclick="app.addFluid('in', 100, 'Water')">+100ml Water</button>
-          <button class="chip" onclick="app.addFluid('in', 150, 'Tea')">+150ml Tea</button>
-          <button class="chip" onclick="app.addFluid('in', 200, 'Fortisip')">+200ml Fortisip</button>
-          <button class="chip" onclick="app.addFluid('in', 500, 'IV')">+500ml IV</button>
+          <button class="chip" data-fluid="in" data-ml="100" data-label="Water">+100ml Water</button>
+          <button class="chip" data-fluid="in" data-ml="150" data-label="Tea">+150ml Tea</button>
+          <button class="chip" data-fluid="in" data-ml="200" data-label="Fortisip">+200ml Fortisip</button>
+          <button class="chip" data-fluid="in" data-ml="500" data-label="IV">+500ml IV</button>
         </div>
         <textarea readonly id="f_intakeLogs"></textarea>
 
         <label style="margin-top:8px;">Quick Output:</label>
         <div class="chips">
-          <button class="chip" onclick="app.addFluid('out', 200, 'Urinal')">+200ml Urine</button>
-          <button class="chip" onclick="app.addFluid('out', 400, 'Urinal')">+400ml Urine</button>
-          <button class="chip" onclick="app.addFluid('out', 0, 'Catheter Emptied')">Catheter Emptied</button>
-          <button class="chip" onclick="app.addFluid('out', 0, 'Pad Wet')">Pad Wet</button>
+          <button class="chip" data-fluid="out" data-ml="200" data-label="Urinal">+200ml Urine</button>
+          <button class="chip" data-fluid="out" data-ml="400" data-label="Urinal">+400ml Urine</button>
+          <button class="chip" data-fluid="out" data-ml="0" data-label="Catheter Emptied">Catheter Emptied</button>
+          <button class="chip" data-fluid="out" data-ml="0" data-label="Pad Wet">Pad Wet</button>
         </div>
         <textarea readonly id="f_outputLogs"></textarea>
       </div>
@@ -280,7 +311,7 @@
       <div class="card">
         <h3>General Notes & Events</h3>
         <textarea id="f_generalNotes" placeholder="Events, updates..."></textarea>
-        <button class="btn" onclick="app.addTimestamp()" style="margin-top:6px;">Add Timestamp Note</button>
+        <button class="btn" id="btnTimestamp" style="margin-top:6px;">Add Timestamp Note</button>
       </div>
     </div>
 
@@ -296,118 +327,77 @@
   </main>
 
   <script>
-    const BEDS = [
-      "Bay 1 Bed 1", "Bay 1 Bed 2", "Bay 1 Bed 3", "Bay 1 Bed 4",
-      "Bay 2 Bed 1", "Bay 2 Bed 2", "Bay 2 Bed 3", "Bay 2 Bed 4",
-      "Bay 3 Bed 1", "Bay 3 Bed 2", "Bay 3 Bed 3", "Bay 3 Bed 4",
-      "Bay 4 Bed 1", "Bay 4 Bed 2", "Bay 4 Bed 3", "Bay 4 Bed 4",
-      "Bay 5 Bed 1", "Bay 5 Bed 2", "Bay 5 Bed 3", "Bay 5 Bed 4",
-      "Side Room 1", "Side Room 2", "Side Room 3", "Side Room 4", "Side Room 5"
-    ];
+    document.addEventListener("DOMContentLoaded", function () {
+      const FIELDS = [
+        "rr", "sats", "o2", "bpSys", "bpDia", "hr", "temp",
+        "bm", "weight", "lyingSys", "lyingDia", "standingSys", "standingDia",
+        "bowelOpen", "stoolType", "bowelNotes",
+        "sacrum", "sacrumNotes", "lHeel", "lHeelNotes", "rHeel", "rHeelNotes", "other", "otherNotes",
+        "repositioningLogs", "intakeLogs", "outputLogs", "intakeTotal", "outputTotal",
+        "dietB", "dietL", "dietD", "generalNotes"
+      ];
 
-    const FIELDS = [
-      "rr", "sats", "o2", "bpSys", "bpDia", "hr", "temp", "newsTime",
-      "bm", "bmTime", "weight", "lyingSys", "lyingDia", "standingSys", "standingDia",
-      "bowelOpen", "stoolType", "bowelNotes", "bowelTime",
-      "sacrum", "sacrumNotes", "lHeel", "lHeelNotes", "rHeel", "rHeelNotes", "other", "otherNotes",
-      "repositioningLogs", "intakeLogs", "outputLogs", "intakeTotal", "outputTotal",
-      "dietB", "dietL", "dietD", "generalNotes"
-    ];
+      let selectedBeds = [];
+      let logs = {};
+      let activeTab = "ward";
 
-    let selectedBeds = JSON.parse(localStorage.getItem("th_beds_v3") || "[]");
-    let logs = JSON.parse(localStorage.getItem("th_logs_v3") || "{}");
-    let activeTab = "ward";
-
-    function getTime() {
-      const d = new Date();
-      return String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
-    }
-
-    function save() {
-      localStorage.setItem("th_beds_v3", JSON.stringify(selectedBeds));
-      localStorage.setItem("th_logs_v3", JSON.stringify(logs));
-    }
-
-    // Official RCP NEWS2 score calculation
-    function calculateNews(d) {
-      let score = 0;
-      const rr = parseInt(d.rr, 10);
-      if (!isNaN(rr)) {
-        if (rr <= 8 || rr >= 25) score += 3;
-        else if (rr >= 21) score += 2;
-        else if (rr >= 9 && rr <= 11) score += 1;
+      try {
+        selectedBeds = JSON.parse(localStorage.getItem("th_beds_v4") || "[]");
+        logs = JSON.parse(localStorage.getItem("th_logs_v4") || "{}");
+      } catch (e) {
+        selectedBeds = [];
+        logs = {};
       }
-      const sats = parseInt(d.sats, 10);
-      if (!isNaN(sats)) {
-        if (sats <= 91) score += 3;
-        else if (sats <= 93) score += 2;
-        else if (sats <= 95) score += 1;
+
+      function getTime() {
+        const d = new Date();
+        return String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
       }
-      if (d.o2 === "Oxygen") score += 2;
-      const sys = parseInt(d.bpSys, 10);
-      if (!isNaN(sys)) {
-        if (sys <= 90 || sys >= 220) score += 3;
-        else if (sys <= 100) score += 2;
-        else if (sys <= 110) score += 1;
+
+      function save() {
+        localStorage.setItem("th_beds_v4", JSON.stringify(selectedBeds));
+        localStorage.setItem("th_logs_v4", JSON.stringify(logs));
       }
-      const hr = parseInt(d.hr, 10);
-      if (!isNaN(hr)) {
-        if (hr <= 40 || hr >= 131) score += 3;
-        else if (hr >= 111) score += 2;
-        else if ((hr >= 41 && hr <= 50) || (hr >= 91 && hr <= 110)) score += 1;
+
+      function calculateNews(d) {
+        let score = 0;
+        const rr = parseInt(d.rr, 10);
+        if (!isNaN(rr)) {
+          if (rr <= 8 || rr >= 25) score += 3;
+          else if (rr >= 21) score += 2;
+          else if (rr >= 9 && rr <= 11) score += 1;
+        }
+        const sats = parseInt(d.sats, 10);
+        if (!isNaN(sats)) {
+          if (sats <= 91) score += 3;
+          else if (sats <= 93) score += 2;
+          else if (sats <= 95) score += 1;
+        }
+        if (d.o2 === "Oxygen") score += 2;
+        const sys = parseInt(d.bpSys, 10);
+        if (!isNaN(sys)) {
+          if (sys <= 90 || sys >= 220) score += 3;
+          else if (sys <= 100) score += 2;
+          else if (sys <= 110) score += 1;
+        }
+        const hr = parseInt(d.hr, 10);
+        if (!isNaN(hr)) {
+          if (hr <= 40 || hr >= 131) score += 3;
+          else if (hr >= 111) score += 2;
+          else if ((hr >= 41 && hr <= 50) || (hr >= 91 && hr <= 110)) score += 1;
+        }
+        const temp = parseFloat(d.temp);
+        if (!isNaN(temp)) {
+          if (temp <= 35.0) score += 3;
+          else if (temp >= 39.1) score += 2;
+          else if ((temp >= 35.1 && temp <= 36.0) || (temp >= 38.1 && temp <= 39.0)) score += 1;
+        }
+        return score;
       }
-      const temp = parseFloat(d.temp);
-      if (!isNaN(temp)) {
-        if (temp <= 35.0) score += 3;
-        else if (temp >= 39.1) score += 2;
-        else if ((temp >= 35.1 && temp <= 36.0) || (temp >= 38.1 && temp <= 39.0)) score += 1;
-      }
-      return score;
-    }
 
-    function renderTabs() {
-      const bar = document.getElementById("tabBar");
-      bar.innerHTML = `<button class="tab-btn ${activeTab === 'ward' ? 'active' : ''}" onclick="app.setTab('ward')">Ward Map</button>`;
-      selectedBeds.forEach(b => {
-        bar.innerHTML += `<button class="tab-btn ${activeTab === b ? 'active' : ''}" onclick="app.setTab('${b}')">${b}</button>`;
-      });
-      bar.innerHTML += `<button class="tab-btn ${activeTab === 'summary' ? 'active' : ''}" onclick="app.setTab('summary')">Summary</button>`;
-    }
-
-    function renderGrid() {
-      const grid = document.getElementById("bedGrid");
-      grid.innerHTML = "";
-      BEDS.forEach(bed => {
-        const div = document.createElement("div");
-        div.className = "bed-card" + (selectedBeds.includes(bed) ? " selected" : "");
-        div.textContent = bed;
-        div.onclick = () => app.toggleBed(bed);
-        grid.appendChild(div);
-      });
-    }
-
-    function updateFluidTotalsDisplay(inTotal, outTotal) {
-      const i = parseInt(inTotal, 10) || 0;
-      const o = parseInt(outTotal, 10) || 0;
-      document.getElementById("dispIntakeTotal").textContent = i;
-      document.getElementById("dispOutputTotal").textContent = o;
-      document.getElementById("dispNetTotal").textContent = (i - o);
-    }
-
-    function loadForm(bed) {
-      document.getElementById("formTitle").textContent = bed;
-      const data = logs[bed] || {};
-      FIELDS.forEach(f => {
-        const el = document.getElementById("f_" + f);
-        if (el) el.value = data[f] || (el.tagName === "SELECT" && el.options[0] ? el.options[0].value : "");
-      });
-      updateFluidTotalsDisplay(data.intakeTotal || 0, data.outputTotal || 0);
-      refreshNewsBadge(data);
-    }
-
-    function refreshNewsBadge(data) {
-      const score = calculateNews(data);
-      const badge = document.getElementById("newsScoreBadge");
-      badge.textContent = "NEWS2: Score " + score;
-      if (score >= 7) { badge.style.background = "var(--news-3)"; badge.style.color = "var(--news-3-text)"; }
-      else if (score >= 5) { badge.style.backgrou
+      function syncGridUI() {
+        const cards = document.querySelectorAll(".bed-card");
+        cards.forEach(function (c) {
+          const bed = c.getAttribute("data-bed");
+          if (selectedBeds.indexOf(bed) !== -1) {
+            c.classList.add("selec
