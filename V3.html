@@ -1,1 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Care Digipad</title>
+<style>
+  :root {
+    --bg-color: #f4f6f8;
+    --card-bg: #ffffff;
+    --text-main: #202124;
+    --text-sub: #5f6368;
+    --border: #dadce0;
+    --accent-teal: #007b83;
+    --accent-amber: #d97706;
+    --accent-slate: #64748b;
+    --btn-primary: #0f172a;
+    --btn-text: #ffffff;
+  }
+  
+  [data-theme="night"] {
+    --bg-color: #000000;
+    --card-bg: #121212;
+    --text-main: #e8eaed;
+    --text-sub: #9aa0a6;
+    --border: #3c4043;
+    --accent-teal: #4fd1c5;
+    --accent-amber: #fbbf24;
+    --accent-slate: #94a3b8;
+    --btn-primary: #e8eaed;
+    --btn-text: #000000;
+  }
 
+  * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  
+  body { 
+    margin: 0; 
+    padding: 0; 
+    background-color: var(--bg-color); 
+    color: var(--text-main);
+    transition: background-color 0.3s, color 0.3s;
+    overscroll-behavior-y: none;
+  }
+
+  /* Screen Dimmer */
+  #dimmer {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0);
+    pointer-events: none;
+    z-index: 9999;
+    transition: background 0.3s;
+  }
+  [data-theme="night"] #dimmer {
+    background: rgba(0, 0, 0, 0.4);
+  }
+
+  /* Header */
+  header {
+    background-color: var(--card-bg);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  header h1 { margin: 0; font-size: 1.2rem; font-weight: 600; }
+  
+  .shift-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+  
+  .switch {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+  }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: var(--border);
+    transition: .4s;
+    border-radius: 24px;
+  }
+  .slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+  }
+  input:checked + .slider { background-color: var(--accent-slate); }
+  input:checked + .slider:before { transform: translateX(20px); }
+
+  /* App Containers */
+  .container { padding: 16px; max-width: 600px; margin: 0 auto; }
+  .hidden { display: none !important; }
+
+  /* Cards */
+  .card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  }
+  
+  .card h2 { 
+    margin: 0 0 16px 0; 
+    font-size: 1.1rem; 
+    display: flex; 
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  /* Form Elements */
+  input, select, button {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 12px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background-color: var(--card-bg);
+    color: var(--text-main);
+    font-size: 1rem;
+  }
+  
+  button {
+    background-color: var(--btn-primary);
+    color: var(--btn-text);
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+  }
+  
+  button.secondary {
+    background-color: transparent;
+    color: var(--text-main);
+    border: 1px solid var(--border);
+  }
+
+  button.danger {
+    background-color: #dc2626;
+    color: white;
+    border: none;
+  }
+
+  button.clear-btn {
+    background-color: transparent;
+    color: var(--accent-slate);
+    border: 1px solid var(--border);
+    font-size: 0.85rem;
+    padding: 8px;
+    margin-top: 8px;
+  }
+
+  /* Sub-Navigation */
+  .sub-nav {
+    display: flex;
+    overflow-x: auto;
+    gap: 8px;
+    padding-bottom: 12px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+    position: sticky;
+    top: 53px;
+    background: var(--bg-color);
+    z-index: 90;
+    padding-top: 8px;
+  }
+  
+  .sub-nav span {
+    padding: 6px 12px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    font-size: 0.85rem;
+    cursor: pointer;
+  }
+
+  /* Bed Navigation Swipe Area */
+  .bed-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    font-weight: 600;
+    font-size: 1.2rem;
+  }
+  .bed-nav button { width: auto; padding: 8px 16px; margin: 0; }
+
+  /* Timeline Logs */
+  .log-entry {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.95rem;
+  }
+  .log-entry:last-child { border-bottom: none; }
+  .delete-btn {
+    color: #dc2626;
+    font-weight: bold;
+    cursor: pointer;
+    padding: 4px 8px;
+  }
+
+  /* Accents */
+  .accent-teal { border-left: 4px solid var(--accent-teal); }
+  .accent-amber { border-left: 4px solid var(--accent-amber); }
+  .accent-slate { border-left: 4px solid var(--accent-slate); }
+</style>
+</head>
+<body>
+
+<div id="dimmer"></div>
+
+<header>
+  <h1>Care Digipad</h1>
+  <div class="shift-toggle">
+    <span>Day</span>
+    <label class="switch">
+      <input type="checkbox" id="shiftToggle">
+      <span class="slider"></span>
+    </label>
+    <span>Night</span>
+  </div>
+</header>
+
+<div id="appContainer" class="container">
+  <!-- View 1: Setup & Ward Selection -->
+  <div id="setupView">
+    <div class="card">
+      <h2>Start Shift</h2>
+      <p style="font-size: 0.9rem; color: var(--text-sub); margin-top: 0;">Select a saved ward to load your allocated beds.</p>
+      <div id="savedWardsList"></div>
+    </div>
+    
+    <div class="card">
+      <h2>Create New Ward Profile</h2>
+      <label>Ward Name</label>
+      <input type="text" id="newWardName" placeholder="e.g. Assessment Unit">
+      
+      <label>Number of Bays</label>
+      <input type="number" id="numBays" placeholder="e.g. 4" min="0">
+      
+      <label>Beds per Bay</label>
+      <input type="number" id="bedsPerBay" placeholder="e.g. 6" min="0">
+      
+      <label>Number of Side Rooms</label>
+      <input type="number" id="numSideRooms" placeholder="e.g. 4" min="0">
+      
+      <button onclick="generateWard()">Save & Generate Ward</button>
+    </div>
+  </div>
+
+  <!-- View 2: Active Shift View (Bed Selection) -->
+  <div id="shiftView" class="hidden">
+    <div class="card">
+      <h2 id="activeWardName">Ward Name</h2>
+      <p style="font-size: 0.9rem; color: var(--text-sub); margin-top: 0;">Tap the beds you are allocated to today.</p>
+      <div id="bedGrid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;"></div>
+      <button onclick="startPatientCare()" style="margin-top: 16px;">Begin Care Round</button>
+    </div>
+    <button class="danger" onclick="clearShift()">End & Clear Shift</button>
+  </div>
+
+  <!-- View 3: Patient Care View -->
+  <div id="patientView" class="hidden">
+    <div class="bed-nav">
+      <button class="secondary" onclick="prevBed()">&#8592; Prev</button>
+      <span id="currentBedLabel">Bay 1 Bed 1</span>
+      <button class="secondary" onclick="nextBed()">Next &#8594;</button>
+    </div>
+    
+    <div class="sub-nav" id="patientSubNav">
+      <span onclick="scrollToSection('newsSection')">NEWS2</span>
+      <span onclick="scrollToSection('bmSection')">Glucose</span>
+      <span onclick="scrollToSection('fluidsSection')">Fluids</span>
+      <span onclick="scrollToSection('bowelsSection')">Bowels</span>
+      <span onclick="scrollToSection('skinSection')">Skin</span>
+      <span onclick="scrollToSection('foodSection')">Food</span>
+      <span onclick="scrollToSection('turnSection')">Turning</span>
+      <span onclick="scrollToSection('eventsSection')">Events</span>
+    </div>
+
+    <div id="patientFormsContainer">
+      <!-- Forms dynamically injected here by JavaScript -->
+    </div>
+    
+    <button class="secondary" onclick="returnToBedGrid()" style="margin-top: 24px;">Back to Bed Layout</button>
+  </div>
+</div>
+
+<script>
+// JavaScript will be pasted here in Part 2
+</script>
+</body>
+</html>
+
+// State Management
+let savedWards = JSON.parse(localStorage.getItem('wardProfiles')) || [];
+let currentBeds = [];
+let currentBedIndex = 0;
+let isNightShift = false;
+
+// DOM Elements
+const shiftToggle = document.getElementById('shiftToggle');
+const dimmer = document.getElementById('dimmer');
+
+// Shift Toggle & Theme Control
+shiftToggle.addEventListener('change', (e) => {
+  isNightShift = e.target.checked;
+  document.body.setAttribute('data-theme', isNightShift ? 'night' : 'day');
+  updateTimeSlots();
+});
+
+function updateTimeSlots() {
+  const fluidSlots = document.querySelectorAll('.fluid-time');
+  const turnSlots = document.querySelectorAll('.turn-time');
+  
+  const dayFluids = ['07:00', '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00'];
+  const nightFluids = ['19:00', '20:00', '21:00', '22:00', '23:00', '00:00', '01:00', '02:00', '03:00', '04:00', '05:00', '06:00', '07:00'];
+  
+  const dayTurns = ['08:00', '10:00', '12:00', '14:00', '16:00', '18:00'];
+  const nightTurns = ['20:00', '22:00', '00:00', '02:00', '04:00', '06:00'];
+  
+  const activeFluids = isNightShift ? nightFluids : dayFluids;
+  const activeTurns = isNightShift ? nightTurns : dayTurns;
+
+  fluidSlots.forEach((slot, index) => { if (activeFluids[index]) slot.textContent = activeFluids[index]; });
+  turnSlots.forEach((slot, index) => { if (activeTurns[index]) slot.textContent = activeTurns[index]; });
+}
+
+// Ward Profile Generator
+function generateWard() {
+  const name = document.getElementById('newWardName').value.trim();
+  const bays = parseInt(document.getElementById('numBays').value) || 0;
+  const bedsPerBay = parseInt(document.getElementById('bedsPerBay').value) || 0;
+  const sideRooms = parseInt(document.getElementById('numSideRooms').value) || 0;
+
+  if (!name) return alert('Enter a ward name');
+
+  let beds = [];
+  for (let i = 1; i <= bays; i++) {
+    for (let j = 1; j <= bedsPerBay; j++) {
+      beds.push(`Bay ${i} Bed ${j}`);
+    }
+  }
+  for (let k = 1; k <= sideRooms; k++) {
+    beds.push(`Side Room ${k}`);
+  }
+
+  savedWards.push({ name, beds });
+  localStorage.setItem('wardProfiles', JSON.stringify(savedWards));
+  document.getElementById('newWardName').value = '';
+  document.getElementById('numBays').value = '';
+  document.getElementById('bedsPerBay').value = '';
+  document.getElementById('numSideRooms').value = '';
+  renderWards();
+}
+
+function renderWards() {
+  const container = document.getElementById('savedWardsList');
+  container.innerHTML = '';
+  savedWards.forEach((ward, index) => {
+    const btn = document.createElement('button');
+    btn.textContent = ward.name;
+    btn.onclick = () => loadWard(index);
+    container.appendChild(btn);
+  });
+}
+
+// Shift Start & Bed Selection
+function loadWard(index) {
+  const ward = savedWards[index];
+  document.getElementById('activeWardName').textContent = ward.name;
+  
+  const grid = document.getElementById('bedGrid');
+  grid.innerHTML = '';
+  ward.beds.forEach(bed => {
+    const btn = document.createElement('button');
+    btn.className = 'secondary';
+    btn.textContent = bed;
+    btn.onclick = () => {
+      btn.classList.toggle('secondary');
+      btn.style.backgroundColor = btn.classList.contains('secondary') ? 'transparent' : 'var(--accent-teal)';
+      btn.style.color = btn.classList.contains('secondary') ? 'var(--text-main)' : '#ffffff';
+    };
+    grid.appendChild(btn);
+  });
+
+  document.getElementById('setupView').classList.add('hidden');
+  document.getElementById('shiftView').classList.remove('hidden');
+}
+
+function startPatientCare() {
+  const grid = document.getElementById('bedGrid');
+  currentBeds = Array.from(grid.querySelectorAll('button:not(.secondary)')).map(b => b.textContent);
+  
+  if (currentBeds.length === 0) return alert('Select at least one allocated bed to begin');
+  
+  currentBedIndex = 0;
+  loadPatientView();
+}
+
+// Navigation & Swipe Logic
+function loadPatientView() {
+  document.getElementById('shiftView').classList.add('hidden');
+  document.getElementById('patientView').classList.remove('hidden');
+  document.getElementById('currentBedLabel').textContent = currentBeds[currentBedIndex];
+  renderPatientForms();
+  updateTimeSlots();
+  window.scrollTo(0, 0);
+}
+
+function prevBed() {
+  if (currentBedIndex > 0) {
+    currentBedIndex--;
+    loadPatientView();
+  }
+}
+
+function nextBed() {
+  if (currentBedIndex < currentBeds.length - 1) {
+    currentBedIndex++;
+    loadPatientView();
+  }
+}
+
+function returnToBedGrid() {
+  document.getElementById('patientView').classList.add('hidden');
+  document.getElementById('shiftView').classList.remove('hidden');
+}
+
+let touchStartX = 0;
+document.addEventListener('touchstart', e => touchStartX = e.changedTouches[0].screenX);
+document.addEventListener('touchend', e => {
+  if (document.getElementById('patientView').classList.contains('hidden')) return;
+  const touchEndX = e.changedTouches[0].screenX;
+  if (touchEndX < touchStartX - 50) nextBed(); // Swipe left
+  if (touchEndX > touchStartX + 50) prevBed(); // Swipe right
+});
+
+// Data Clearing
+function clearShift() {
+  if(confirm('Are you sure you want to end your shift and clear all patient data? Saved ward layouts will remain untouched.')) {
+    location.reload();
+  }
+}
+
+function clearContainer(id) {
+  document.getElementById(id).innerHTML = '';
+}
+
+function clearInputs(id) {
+  const container = document.getElementById(id);
+  container.querySelectorAll('input').forEach(i => i.value = '');
+  container.querySelectorAll('select').forEach(s => s.value = '');
+  container.querySelectorAll('textarea').forEach(t => t.value = '');
+}
+
+// Dynamic Form Rendering
+function renderPatientForms() {
+  const container = document.getElementById('patientFormsContainer');
+  container.innerHTML = `
+    <!-- NEWS2 Section -->
+    <div id="newsSection" class="card accent-amber">
+      <h2>NEWS2 Observations <button class="clear-btn" onclick="clearContainer('newsList')">Clear</button></h2>
+      <div id="newsList"></div>
+      <button onclick="addLogEntry('newsList', 'NEWS2 Check')">+ Add NEWS2</button>
+    </div>
+
+    <!-- Glucose Section -->
+    <div id="bmSection" class="card accent-slate">
+      <h2>Blood Glucose (BM) <button class="clear-btn" onclick="clearContainer('bmList')">Clear</button></h2>
+      <div id="bmList"></div>
+      <button onclick="addLogEntry('bmList', 'BM Check')">+ Add BM Check</button>
+    </div>
+
+    <!-- Fluids Section -->
+    <div id="fluidsSection" class="card accent-teal">
+      <h2>Fluids <button class="clear-btn" onclick="clearInputs('fluidsSection')">Clear</button></h2>
+      ${Array(13).fill(0).map(() => `
+        <div style="display:flex; gap:8px; margin-bottom:8px;">
+          <span class="fluid-time" style="width:50px; padding-top:12px; font-weight:600;">00:00</span>
+          <input type="number" placeholder="In (ml)" style="margin:0;">
+          <input type="number" placeholder="Out (ml)" style="margin:0;">
+        </div>
+      `).join('')}
+    </div>
+
+    <!-- Bowels Section -->
+    <div id="bowelsSection" class="card accent-amber">
+      <h2>Bowel Movements <button class="clear-btn" onclick="clearContainer('bowelsList')">Clear</button></h2>
+      <div id="bowelsList"></div>
+      <button onclick="addLogEntry('bowelsList', 'Bowel Record')">+ Add Bowel Record</button>
+    </div>
+
+    <!-- Skin & Amy's Round Section -->
+    <div id="skinSection" class="card accent-teal">
+      <h2>Skin & Dressings <button class="clear-btn" onclick="clearInputs('skinSection')">Clear</button></h2>
+      <button class="secondary" onclick="markAllFine()" style="margin-bottom:16px;">Mark All Fine</button>
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+        <div><label>Sacrum</label><select class="skin-select"><option></option><option>Fine</option><option>Red</option><option>Broken</option></select></div>
+        <div><label>Groin</label><select class="skin-select"><option></option><option>Fine</option><option>Red</option><option>Broken</option></select></div>
+        <div><label>Heels</label><select class="skin-select"><option></option><option>Fine</option><option>Red</option><option>Broken</option></select></div>
+        <div><label>Elbows</label><select class="skin-select"><option></option><option>Fine</option><option>Red</option><option>Broken</option></select></div>
+      </div>
+      <hr style="border:0; border-top:1px solid var(--border); margin:16px 0;">
+      <h3>Dressings</h3>
+      <div id="dressingsList"></div>
+      <button class="secondary" onclick="addDressing()">+ Add Dressing</button>
+    </div>
+
+    <!-- Food Section -->
+    <div id="foodSection" class="card accent-slate">
+      <h2>Food Intake <button class="clear-btn" onclick="clearInputs('foodSection')">Clear</button></h2>
+      ${['Breakfast', 'Lunch', 'Dinner'].map(meal => `
+        <label>${meal}</label>
+        <select><option></option><option>100%</option><option>75%</option><option>50%</option><option>25%</option><option>0%</option><option>Refused</option><option>NBM</option></select>
+      `).join('')}
+    </div>
+
+    <!-- Turning Section -->
+    <div id="turnSection" class="card accent-teal">
+      <h2>Turning Chart <button class="clear-btn" onclick="clearInputs('turnSection')">Clear</button></h2>
+      <div style="display:grid; grid-template-columns: auto 1fr; gap:8px; align-items:center;">
+      ${Array(6).fill(0).map(() => `
+        <span class="turn-time" style="font-weight:600;">00:00</span>
+        <input type="text" placeholder="Position / Skin Checked" style="margin:0;">
+      `).join('')}
+      </div>
+    </div>
+
+    <!-- Events Section -->
+    <div id="eventsSection" class="card accent-slate">
+      <h2>Ad-Hoc Events <button class="clear-btn" onclick="clearContainer('eventsList')">Clear</button></h2>
+      <div id="eventsList"></div>
+      <button onclick="addLogEntry('eventsList', 'Event')">+ Add Event</button>
+    </div>
+
+    <!-- Admission Property Section -->
+    <div id="propertySection" class="card accent-amber">
+      <h2>Admission Property <button class="clear-btn" onclick="clearInputs('propertySection')">Clear</button></h2>
+      <textarea placeholder="List valuables (e.g. rings, phone, dentures)..." style="width:100%; height:80px; padding:8px; border:1px solid var(--border); border-radius:6px; background:var(--card-bg); color:var(--text-main); font-family:inherit; margin-top:8px;"></textarea>
+    </div>
+  `;
+}
+
+// Utility Functions
+function scrollToSection(id) {
+  const yOffset = -100; 
+  const element = document.getElementById(id);
+  const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
+  window.scrollTo({ top: y, behavior: 'smooth' });
+}
+
+function markAllFine() {
+  document.querySelectorAll('.skin-select').forEach(s => s.value = 'Fine');
+}
+
+function addLogEntry(containerId, type) {
+  const container = document.getElementById(containerId);
+  const now = new Date();
+  const time = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+  
+  const div = document.createElement('div');
+  div.className = 'log-entry';
+  div.innerHTML = `
+    <span style="flex-shrink:0; margin-right:8px;"><strong>${time}</strong> - ${type}</span>
+    <div style="display:flex; align-items:center; width:100%;">
+      <input type="text" placeholder="Details" style="padding:6px; margin:0; flex-grow:1;">
+      <span class="delete-btn" onclick="this.parentElement.parentElement.remove()">X</span>
+    </div>
+  `;
+  container.appendChild(div);
+}
+
+function addDressing() {
+  const container = document.getElementById('dressingsList');
+  const div = document.createElement('div');
+  div.style.marginBottom = '12px';
+  div.innerHTML = `
+    <input type="text" placeholder="Location (e.g. Sacrum)">
+    <div style="display:flex; gap:8px;">
+      <input type="date" onchange="calculateDue(this)" style="margin:0;">
+      <button class="secondary" onclick="setNoDate(this)" style="margin:0; width:auto; white-space:nowrap;">No Date</button>
+    </div>
+    <div class="due-label" style="font-size:0.9rem; color:var(--text-sub); margin-top:4px;">Next Due: -</div>
+  `;
+  container.appendChild(div);
+}
+
+function calculateDue(dateInput) {
+  const val = dateInput.value;
+  const label = dateInput.parentElement.nextElementSibling;
+  
+  if (!val) {
+    label.textContent = 'Next Due: -';
+    return;
+  }
+  
+  const date = new Date(val);
+  date.setDate(date.getDate() + 3);
+  
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = date.getFullYear();
+  
+  label.textContent = `Next Due: ${day}/${month}/${year}`;
+}
+
+function setNoDate(btn) {
+  const dateInput = btn.previousElementSibling;
+  const today = new Date();
+  
+  const yyyy = today.getFullYear();
+  const mm = String(today.getMonth() + 1).padStart(2, '0');
+  const dd = String(today.getDate()).padStart(2, '0');
+  
+  dateInput.value = `${yyyy}-${mm}-${dd}`;
+  calculateDue(dateInput);
+}
+
+// Initialize setup view
+renderWards();
+    
