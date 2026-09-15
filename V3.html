@@ -101,7 +101,7 @@
     <div class="scroll-row" id="bedTabs" style="background:var(--card);"></div>
     <div class="scroll-row" id="subNav"></div>
   </div>
-  <div class="container" id="contentArea" ontouchstart="handleTouchStart(event)" ontouchend="handleTouchEnd(event)"></div>
+  <div class="container" id="contentArea"></div>
   <div class="footer">
     <button class="btn btn-subtle" onclick="clearShift()">End Shift / Clear Data</button>
   </div>
@@ -142,7 +142,20 @@ let curBed = alloc[0] || '';
 let curSec = 'news2';
 let isNight = false;
 let touchStartX = 0;
+let touchStartY = 0;
 let touchEndX = 0;
+let touchEndY = 0;
+
+document.addEventListener('touchstart', e => {
+  touchStartX = e.changedTouches[0].screenX;
+  touchStartY = e.changedTouches[0].screenY;
+}, {passive: true});
+
+document.addEventListener('touchend', e => {
+  touchEndX = e.changedTouches[0].screenX;
+  touchEndY = e.changedTouches[0].screenY;
+  handleSwipe();
+}, {passive: true});
 
 function initSetup() {
   const grid = document.getElementById('bedGrid');
@@ -234,7 +247,8 @@ function refreshFluid() {
   const el = document.getElementById('fluid-totals');
   if (el) el.innerHTML = `<span>In: ${inT}</span><span>Out: ${outT}</span><span>Net: ${inT-outT}</span>`;
 }
-function renderContent() {
+
+  function renderContent() {
   const area = document.getElementById('contentArea');
   
   if (showSummary) {
@@ -243,7 +257,7 @@ function renderContent() {
       const d = db[b];
       if (!d) return;
       let hasAlerts = false;
-      let n2txt = 'No entries', bmtxt = 'No entries', ftxt = 'Net: 0ml', skintxt = 'None recorded';
+      let n2txt = 'No entries', skintxt = 'None recorded';
       
       if (d.news2.length > 0) {
         n2txt = d.news2.map(l => {
@@ -254,18 +268,21 @@ function renderContent() {
         }).join('<br>');
       }
       
+      let obsSec = `<b>Observations:</b><br>${n2txt}`;
+      
       if (d.bm.length > 0) {
-        bmtxt = d.bm.map(l => {
+        let bmtxt = d.bm.map(l => {
           const v = parseFloat(l.val);
           if (v < 4 || v > 11) hasAlerts = true;
           let txt = `${l.time||'--:--'} - Glucose: ${l.val||'-'} mmol/L (${l.meal||'Unspecified'})`;
           return (v < 4 || v > 11) ? `<b style="color:var(--red)">${txt}</b>` : txt;
         }).join('<br>');
+        obsSec += `<br><br>${bmtxt}`;
       }
       
       let iT=0, oT=0; d.fluid.forEach(f=>{ iT+=parseFloat(f.i)||0; oT+=parseFloat(f.o)||0; });
       const net = iT-oT;
-      ftxt = `In: ${iT}ml | Out: ${oT}ml | Net: ${net}ml`;
+      let ftxt = `In: ${iT}ml | Out: ${oT}ml | Net: ${net}ml`;
       if (net <= -500) {
         hasAlerts = true;
         ftxt = `<b style="color:var(--red)">${ftxt}</b>`;
@@ -290,16 +307,21 @@ function renderContent() {
       }
 
       let eventTxt = d.events.map(r => `${r.time||'--:--'} - ${r.val||''}`).join('<br>') || 'No entries';
-      let admitTxt = d.admit.map(r => `- ${r.val||''}`).join('<br>') || 'No entries';
+      
+      let admitSec = '';
+      if (d.admit.length > 0) {
+        let admitTxt = d.admit.map(r => `- ${r.val||''}`).join('<br>');
+        admitSec = `<div class="summary-sec"><b>Admissions Property:</b><br>${admitTxt}</div>`;
+      }
 
       h += `<div class="card" ${hasAlerts ? 'style="border-left:4px solid var(--red);"' : 'style="border-left:4px solid var(--green);"'} >
         <h2 style="color:var(--navy); margin-bottom:12px; font-size:1.2rem;">${b}</h2>
-        <div class="summary-sec"><b>Observations:</b><br>${n2txt}<br><br>${bmtxt}</div>
+        <div class="summary-sec">${obsSec}</div>
         <div class="summary-sec"><b>Fluid Balance:</b><br>${ftxt}</div>
         <div class="summary-sec"><b>Diet & Bowels:</b><br>${dietTxt}<br>Bowels:<br>${bowelTxt}</div>
         <div class="summary-sec"><b>Skin & Repositioning:</b><br>Checks: ${skinSummary}<br><br>Turns:<br>${turnDetails}<br><br>Dressings:<br>${skintxt}</div>
         <div class="summary-sec"><b>Narrative Notes:</b><br>${eventTxt}</div>
-        <div class="summary-sec"><b>Admissions Property:</b><br>${admitTxt}</div>
+        ${admitSec}
       </div>`;
     });
     area.innerHTML = h || '<p style="text-align:center; padding:20px; color:var(--text-sub);">No active patients.</p>';
@@ -524,20 +546,16 @@ function clearShift() {
   }
 }
 
-function handleTouchStart(e) {
-  touchStartX = e.changedTouches[0].screenX;
-}
-
-function handleTouchEnd(e) {
-  touchEndX = e.changedTouches[0].screenX;
-  handleSwipe();
-}
-
 function handleSwipe() {
   if (showSummary || alloc.length <= 1) return;
   const swipeThreshold = 50;
-  if (touchEndX < touchStartX - swipeThreshold) cycleBed(1);
-  if (touchEndX > touchStartX + swipeThreshold) cycleBed(-1);
+  const diffX = touchEndX - touchStartX;
+  const diffY = touchEndY - touchStartY;
+  
+  if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > swipeThreshold) {
+    if (diffX < 0) cycleBed(1);
+    else cycleBed(-1);
+  }
 }
 
 function cycleBed(dir) {
