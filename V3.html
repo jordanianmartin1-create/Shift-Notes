@@ -101,7 +101,7 @@
     <div class="scroll-row" id="bedTabs" style="background:var(--card);"></div>
     <div class="scroll-row" id="subNav"></div>
   </div>
-  <div class="container" id="contentArea"></div>
+  <div class="container" id="contentArea" ontouchstart="handleTouchStart(event)" ontouchend="handleTouchEnd(event)"></div>
   <div class="footer">
     <button class="btn btn-subtle" onclick="clearShift()">End Shift / Clear Data</button>
   </div>
@@ -141,6 +141,8 @@ try {
 let curBed = alloc[0] || '';
 let curSec = 'news2';
 let isNight = false;
+let touchStartX = 0;
+let touchEndX = 0;
 
 function initSetup() {
   const grid = document.getElementById('bedGrid');
@@ -232,8 +234,7 @@ function refreshFluid() {
   const el = document.getElementById('fluid-totals');
   if (el) el.innerHTML = `<span>In: ${inT}</span><span>Out: ${outT}</span><span>Net: ${inT-outT}</span>`;
 }
-
-  function renderContent() {
+function renderContent() {
   const area = document.getElementById('contentArea');
   
   if (showSummary) {
@@ -280,7 +281,9 @@ function refreshFluid() {
       if (d.amy.elbows) skinParts.push(`Elbows (${d.amy.elbows})`);
       let skinSummary = skinParts.length > 0 ? skinParts.join(', ') : 'Not checked';
       
-      let turnCnt = d.turn.filter(t => t !== '').length;
+      const tTimes = isNight ? ['20:00','22:00','00:00','02:00','04:00','06:00'] : ['08:00','10:00','12:00','14:00','16:00','18:00'];
+      let turnDetails = d.turn.map((t, i) => t !== '' ? `${tTimes[i]} - ${t}` : null).filter(Boolean).join('<br>');
+      if (!turnDetails) turnDetails = 'No turns logged';
       
       if (d.dressings && d.dressings.length > 0) {
         skintxt = d.dressings.map(dr => `${dr.val || 'Unnamed'} (Due: <b>${calcDue(dr.date)}</b>)`).join('<br>');
@@ -294,7 +297,7 @@ function refreshFluid() {
         <div class="summary-sec"><b>Observations:</b><br>${n2txt}<br><br>${bmtxt}</div>
         <div class="summary-sec"><b>Fluid Balance:</b><br>${ftxt}</div>
         <div class="summary-sec"><b>Diet & Bowels:</b><br>${dietTxt}<br>Bowels:<br>${bowelTxt}</div>
-        <div class="summary-sec"><b>Skin & Repositioning:</b><br>Checks: ${skinSummary}<br>Turns logged: ${turnCnt}<br><br>Dressings:<br>${skintxt}</div>
+        <div class="summary-sec"><b>Skin & Repositioning:</b><br>Checks: ${skinSummary}<br><br>Turns:<br>${turnDetails}<br><br>Dressings:<br>${skintxt}</div>
         <div class="summary-sec"><b>Narrative Notes:</b><br>${eventTxt}</div>
         <div class="summary-sec"><b>Admissions Property:</b><br>${admitTxt}</div>
       </div>`;
@@ -519,6 +522,30 @@ function clearShift() {
   if (confirm("Are you sure you want to clear all data and end the shift?")) {
     localStorage.clear(); location.reload();
   }
+}
+
+function handleTouchStart(e) {
+  touchStartX = e.changedTouches[0].screenX;
+}
+
+function handleTouchEnd(e) {
+  touchEndX = e.changedTouches[0].screenX;
+  handleSwipe();
+}
+
+function handleSwipe() {
+  if (showSummary || alloc.length <= 1) return;
+  const swipeThreshold = 50;
+  if (touchEndX < touchStartX - swipeThreshold) cycleBed(1);
+  if (touchEndX > touchStartX + swipeThreshold) cycleBed(-1);
+}
+
+function cycleBed(dir) {
+  let idx = alloc.indexOf(curBed);
+  idx += dir;
+  if (idx >= alloc.length) idx = 0;
+  if (idx < 0) idx = alloc.length - 1;
+  setBed(alloc[idx]);
 }
 
 initSetup();
