@@ -61,15 +61,20 @@
       color: #fff;
       border-color: var(--primary);
     }
+    
+    /* Pre-rendered Bed Tabs: Hidden by default, unhidden via class or style */
     .bed-tab {
-      display: none; /* hidden until selected */
+      display: none;
+    }
+    .bed-tab.is-visible {
+      display: inline-block !important;
     }
     
     main { padding: 12px; max-width: 800px; margin: 0 auto; }
     .view { display: none; }
     .view.active { display: block; }
     
-    /* Native Checkbox Grid */
+    /* Checkbox Grid */
     .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
     .bed-item { position: relative; width: 100%; }
     .bed-item input[type="checkbox"] {
@@ -140,11 +145,11 @@
     <span class="badge">Auto-Saved</span>
   </header>
 
-  <!-- Static Hardcoded Tab Navigation -->
+  <!-- Hardcoded Tab Bar -->
   <nav id="tabBar">
     <button type="button" class="tab-btn active" id="tab_ward" onclick="switchView('ward')">Ward Map</button>
     
-    <!-- All 27 Patient Tabs (pre-rendered) -->
+    <!-- All 27 Ward Beds (Bay 1 to 5 + Side Rooms 1 to 7) -->
     <button type="button" class="tab-btn bed-tab" id="tab_b1b1" onclick="switchView('Bay 1 Bed 1')">Bay 1 Bed 1</button>
     <button type="button" class="tab-btn bed-tab" id="tab_b1b2" onclick="switchView('Bay 1 Bed 2')">Bay 1 Bed 2</button>
     <button type="button" class="tab-btn bed-tab" id="tab_b1b3" onclick="switchView('Bay 1 Bed 3')">Bay 1 Bed 3</button>
@@ -189,43 +194,43 @@
         <p style="font-size:0.8rem; color:var(--sub); margin-bottom:12px;">Tap beds to select or deselect. Active beds will pin as tabs above.</p>
         <div class="grid" id="bedGrid">
           <!-- Bay 1 -->
-          <div class="bed-item"><input type="checkbox" id="b_b1b1" value="Bay 1 Bed 1" data-tab="tab_b1b1" onchange="toggleBedTab(this)"><label class="bed-label" for="b_b1b1">Bay 1 Bed 1</label></div>
-          <div class="bed-item"><input type="checkbox" id="b_b1b2" value="Bay 1 Bed 2" data-tab="tab_b1b2" onchange="toggleBedTab(this)"><label class="bed-label" for="b_b1b2">Bay 1 Bed 2</label></div>
-          <div class="bed-item"><input type="checkbox" id="b_b1b3" value="Bay 1 Bed 3" data-tab="tab_b1b3" onchange="toggleBedTab(this)"><label class="bed-label" for="b_b1b3">Bay 1 Bed 3</label></div>
-          <div class="bed-item"><input type="checkbox" id="b_b1b4" value="Bay 1 Bed 4" data-tab="tab_b1b4" onchange="toggleBedTab(this)"><label class="bed-label" for="b_b1b4">Bay 1 Bed 4</label></div>
+          <div class="bed-item"><input type="checkbox" id="b_b1b1" value="Bay 1 Bed 1" data-tab="tab_b1b1" onchange="bedToggled(this)"><label class="bed-label" for="b_b1b1">Bay 1 Bed 1</label></div>
+          <div class="bed-item"><input type="checkbox" id="b_b1b2" value="Bay 1 Bed 2" data-tab="tab_b1b2" onchange="bedToggled(this)"><label class="bed-label" for="b_b1b2">Bay 1 Bed 2</label></div>
+          <div class="bed-item"><input type="checkbox" id="b_b1b3" value="Bay 1 Bed 3" data-tab="tab_b1b3" onchange="bedToggled(this)"><label class="bed-label" for="b_b1b3">Bay 1 Bed 3</label></div>
+          <div class="bed-item"><input type="checkbox" id="b_b1b4" value="Bay 1 Bed 4" data-tab="tab_b1b4" onchange="bedToggled(this)"><label class="bed-label" for="b_b1b4">Bay 1 Bed 4</label></div>
           <!-- Bay 2 -->
-          <div class="bed-item"><input type="checkbox" id="b_b2b1" value="Bay 2 Bed 1" data-tab="tab_b2b1" onchange="toggleBedTab(this)"><label class="bed-label" for="b_b2b1">Bay 2 Bed 1</label></div>
-          <div class="bed-item"><input type="checkbox" id="b_b2b2" value="Bay 2 Bed 2" data-tab="tab_b2b2" onchange="toggleBedTab(this)"><label class="bed-label" for="b_b2b2">Bay 2 Bed 2</label></div>
-          <div class="bed-item"><input type="checkbox" id="b_b2b3" value="Bay 2 Bed 3" data-tab="tab_b2b3" onchange="toggleBedTab(this)"><label class="bed-label" for="b_b2b3">Bay 2 Bed 3</label></div>
-          <div class="bed-item"><input type="checkbox" id="b_b2b4" value="Bay 2 Bed 4" data-tab="tab_b2b4" onchange="toggleBedTab(this)"><label class="bed-label" for="b_b2b4">Bay 2 Bed 4</label></div>
+          <div class="bed-item"><input type="checkbox" id="b_b2b1" value="Bay 2 Bed 1" data-tab="tab_b2b1" onchange="bedToggled(this)"><label class="bed-label" for="b_b2b1">Bay 2 Bed 1</label></div>
+          <div class="bed-item"><input type="checkbox" id="b_b2b2" value="Bay 2 Bed 2" data-tab="tab_b2b2" onchange="bedToggled(this)"><label class="bed-label" for="b_b2b2">Bay 2 Bed 2</label></div>
+          <div class="bed-item"><input type="checkbox" id="b_b2b3" value="Bay 2 Bed 3" data-tab="tab_b2b3" onchange="bedToggled(this)"><label class="bed-label" for="b_b2b3">Bay 2 Bed 3</label></div>
+          <div class="bed-item"><input type="checkbox" id="b_b2b4" value="Bay 2 Bed 4" data-tab="tab_b2b4" onchange="bedToggled(this)"><label class="bed-label" for="b_b2b4">Bay 2 Bed 4</label></div>
           <!-- Bay 3 -->
-          <div class="bed-item"><input type="checkbox" id="b_b3b1" value="Bay 3 Bed 1" data-tab="tab_b3b1" onchange="toggleBedTab(this)"><label class="bed-label" for="b_b3b1">Bay 3 Bed 1</label></div>
-          <div class="bed-item"><input type="checkbox" id="b_b3b2" value="Bay 3 Bed 2" data-tab="tab_b3b2" onchange="toggleBedTab(this)"><label class="bed-label" for="b_b3b2">Bay 3 Bed 2</label></div>
-          <div class="bed-item"><input type="checkbox" id="b_b3b3" value="Bay 3 Bed 3" data-tab="tab_b3b3" onchange="toggleBedTab(this)"><label class="bed-label" for="b_b3b3">Bay 3 Bed 3</label></div>
-          <div class="bed-item"><input type="checkbox" id="b_b3b4" value="Bay 3 Bed 4" data-tab="tab_b3b4" onchange="toggleBedTab(this)"><label class="bed-label" for="b_b3b4">Bay 3 Bed 4</label></div>
+          <div class="bed-item"><input type="checkbox" id="b_b3b1" value="Bay 3 Bed 1" data-tab="tab_b3b1" onchange="bedToggled(this)"><label class="bed-label" for="b_b3b1">Bay 3 Bed 1</label></div>
+          <div class="bed-item"><input type="checkbox" id="b_b3b2" value="Bay 3 Bed 2" data-tab="tab_b3b2" onchange="bedToggled(this)"><label class="bed-label" for="b_b3b2">Bay 3 Bed 2</label></div>
+          <div class="bed-item"><input type="checkbox" id="b_b3b3" value="Bay 3 Bed 3" data-tab="tab_b3b3" onchange="bedToggled(this)"><label class="bed-label" for="b_b3b3">Bay 3 Bed 3</label></div>
+          <div class="bed-item"><input type="checkbox" id="b_b3b4" value="Bay 3 Bed 4" data-tab="tab_b3b4" onchange="bedToggled(this)"><label class="bed-label" for="b_b3b4">Bay 3 Bed 4</label></div>
           <!-- Bay 4 -->
-          <div class="bed-item"><input type="checkbox" id="b_b4b1" value="Bay 4 Bed 1" data-tab="tab_b4b1" onchange="toggleBedTab(this)"><label class="bed-label" for="b_b4b1">Bay 4 Bed 1</label></div>
-          <div class="bed-item"><input type="checkbox" id="b_b4b2" value="Bay 4 Bed 2" data-tab="tab_b4b2" onchange="toggleBedTab(this)"><label class="bed-label" for="b_b4b2">Bay 4 Bed 2</label></div>
-          <div class="bed-item"><input type="checkbox" id="b_b4b3" value="Bay 4 Bed 3" data-tab="tab_b4b3" onchange="toggleBedTab(this)"><label class="bed-label" for="b_b4b3">Bay 4 Bed 3</label></div>
-          <div class="bed-item"><input type="checkbox" id="b_b4b4" value="Bay 4 Bed 4" data-tab="tab_b4b4" onchange="toggleBedTab(this)"><label class="bed-label" for="b_b4b4">Bay 4 Bed 4</label></div>
+          <div class="bed-item"><input type="checkbox" id="b_b4b1" value="Bay 4 Bed 1" data-tab="tab_b4b1" onchange="bedToggled(this)"><label class="bed-label" for="b_b4b1">Bay 4 Bed 1</label></div>
+          <div class="bed-item"><input type="checkbox" id="b_b4b2" value="Bay 4 Bed 2" data-tab="tab_b4b2" onchange="bedToggled(this)"><label class="bed-label" for="b_b4b2">Bay 4 Bed 2</label></div>
+          <div class="bed-item"><input type="checkbox" id="b_b4b3" value="Bay 4 Bed 3" data-tab="tab_b4b3" onchange="bedToggled(this)"><label class="bed-label" for="b_b4b3">Bay 4 Bed 3</label></div>
+          <div class="bed-item"><input type="checkbox" id="b_b4b4" value="Bay 4 Bed 4" data-tab="tab_b4b4" onchange="bedToggled(this)"><label class="bed-label" for="b_b4b4">Bay 4 Bed 4</label></div>
           <!-- Bay 5 -->
-          <div class="bed-item"><input type="checkbox" id="b_b5b1" value="Bay 5 Bed 1" data-tab="tab_b5b1" onchange="toggleBedTab(this)"><label class="bed-label" for="b_b5b1">Bay 5 Bed 1</label></div>
-          <div class="bed-item"><input type="checkbox" id="b_b5b2" value="Bay 5 Bed 2" data-tab="tab_b5b2" onchange="toggleBedTab(this)"><label class="bed-label" for="b_b5b2">Bay 5 Bed 2</label></div>
-          <div class="bed-item"><input type="checkbox" id="b_b5b3" value="Bay 5 Bed 3" data-tab="tab_b5b3" onchange="toggleBedTab(this)"><label class="bed-label" for="b_b5b3">Bay 5 Bed 3</label></div>
-          <div class="bed-item"><input type="checkbox" id="b_b5b4" value="Bay 5 Bed 4" data-tab="tab_b5b4" onchange="toggleBedTab(this)"><label class="bed-label" for="b_b5b4">Bay 5 Bed 4</label></div>
+          <div class="bed-item"><input type="checkbox" id="b_b5b1" value="Bay 5 Bed 1" data-tab="tab_b5b1" onchange="bedToggled(this)"><label class="bed-label" for="b_b5b1">Bay 5 Bed 1</label></div>
+          <div class="bed-item"><input type="checkbox" id="b_b5b2" value="Bay 5 Bed 2" data-tab="tab_b5b2" onchange="bedToggled(this)"><label class="bed-label" for="b_b5b2">Bay 5 Bed 2</label></div>
+          <div class="bed-item"><input type="checkbox" id="b_b5b3" value="Bay 5 Bed 3" data-tab="tab_b5b3" onchange="bedToggled(this)"><label class="bed-label" for="b_b5b3">Bay 5 Bed 3</label></div>
+          <div class="bed-item"><input type="checkbox" id="b_b5b4" value="Bay 5 Bed 4" data-tab="tab_b5b4" onchange="bedToggled(this)"><label class="bed-label" for="b_b5b4">Bay 5 Bed 4</label></div>
           <!-- Side Rooms 1 to 7 -->
-          <div class="bed-item"><input type="checkbox" id="b_sr1" value="Side Room 1" data-tab="tab_sr1" onchange="toggleBedTab(this)"><label class="bed-label" for="b_sr1">Side Room 1</label></div>
-          <div class="bed-item"><input type="checkbox" id="b_sr2" value="Side Room 2" data-tab="tab_sr2" onchange="toggleBedTab(this)"><label class="bed-label" for="b_sr2">Side Room 2</label></div>
-          <div class="bed-item"><input type="checkbox" id="b_sr3" value="Side Room 3" data-tab="tab_sr3" onchange="toggleBedTab(this)"><label class="bed-label" for="b_sr3">Side Room 3</label></div>
-          <div class="bed-item"><input type="checkbox" id="b_sr4" value="Side Room 4" data-tab="tab_sr4" onchange="toggleBedTab(this)"><label class="bed-label" for="b_sr4">Side Room 4</label></div>
-          <div class="bed-item"><input type="checkbox" id="b_sr5" value="Side Room 5" data-tab="tab_sr5" onchange="toggleBedTab(this)"><label class="bed-label" for="b_sr5">Side Room 5</label></div>
-          <div class="bed-item"><input type="checkbox" id="b_sr6" value="Side Room 6" data-tab="tab_sr6" onchange="toggleBedTab(this)"><label class="bed-label" for="b_sr6">Side Room 6</label></div>
-          <div class="bed-item"><input type="checkbox" id="b_sr7" value="Side Room 7" data-tab="tab_sr7" onchange="toggleBedTab(this)"><label class="bed-label" for="b_sr7">Side Room 7</label></div>
+          <div class="bed-item"><input type="checkbox" id="b_sr1" value="Side Room 1" data-tab="tab_sr1" onchange="bedToggled(this)"><label class="bed-label" for="b_sr1">Side Room 1</label></div>
+          <div class="bed-item"><input type="checkbox" id="b_sr2" value="Side Room 2" data-tab="tab_sr2" onchange="bedToggled(this)"><label class="bed-label" for="b_sr2">Side Room 2</label></div>
+          <div class="bed-item"><input type="checkbox" id="b_sr3" value="Side Room 3" data-tab="tab_sr3" onchange="bedToggled(this)"><label class="bed-label" for="b_sr3">Side Room 3</label></div>
+          <div class="bed-item"><input type="checkbox" id="b_sr4" value="Side Room 4" data-tab="tab_sr4" onchange="bedToggled(this)"><label class="bed-label" for="b_sr4">Side Room 4</label></div>
+          <div class="bed-item"><input type="checkbox" id="b_sr5" value="Side Room 5" data-tab="tab_sr5" onchange="bedToggled(this)"><label class="bed-label" for="b_sr5">Side Room 5</label></div>
+          <div class="bed-item"><input type="checkbox" id="b_sr6" value="Side Room 6" data-tab="tab_sr6" onchange="bedToggled(this)"><label class="bed-label" for="b_sr6">Side Room 6</label></div>
+          <div class="bed-item"><input type="checkbox" id="b_sr7" value="Side Room 7" data-tab="tab_sr7" onchange="bedToggled(this)"><label class="bed-label" for="b_sr7">Side Room 7</label></div>
         </div>
       </div>
     </div>
 
-    <!-- Observation Entry Form -->
+    <!-- Observation Form -->
     <div id="viewForm" class="view">
       <div class="card">
         <h3>
@@ -307,5 +312,4 @@
               <option value="Intact">Intact</option>
               <option value="Red">Red</option>
               <option value="Broken/Sore">Broken/Sore</option>
-              <option value="Dressing">Dressing</option>
-            </select
+              
