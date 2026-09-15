@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Thorndon Ward ICA Log - v12.0</title>
+  <title>Thorndon Ward ICA Log - v13.0</title>
   <style>
     :root {
       --primary: #005eb8;
@@ -31,7 +31,7 @@
     header .sub { font-size: 0.72rem; opacity: 0.85; }
     .ver-badge { font-size: 0.7rem; font-weight: 700; padding: 3px 8px; border-radius: 12px; background: rgba(255,255,255,0.25); }
 
-    /* Top Navigation Tab Bar */
+    /* Sticky Top Navigation Bar */
     nav#tabBar {
       display: flex;
       gap: 6px;
@@ -56,17 +56,11 @@
       font-size: 0.82rem;
       font-weight: 600;
       flex-shrink: 0;
-      cursor: pointer;
+      text-decoration: none;
       display: inline-block;
-      outline: none;
     }
-    .tab-btn.active {
-      background: var(--primary) !important;
-      color: #fff !important;
-      border-color: var(--primary) !important;
-    }
-
-    /* Bed tabs hidden by default until checked below */
+    
+    /* Bed tabs hidden by default until checked in grid */
     .b-tab { display: none; }
 
     /* CSS Tab Reveal when matching checkbox is checked */
@@ -81,13 +75,19 @@
     }
 
     /* Checkboxes kept off-screen */
-    .state-ck { position: absolute; left: -9999px; opacity: 0; pointer-events: none; }
+    .state-ck { display: none; }
 
     main { padding: 12px; max-width: 800px; margin: 0 auto; }
     
-    /* Plain Screen Panels */
+    /* Native Target Switching: By default, the form and summary are hidden, ward map is open */
     .view-panel { display: none; }
-    .view-panel.active { display: block; }
+    #panel_ward { display: block; }
+
+    /* When hash target is active in URL */
+    body:has(:target) #panel_ward { display: none; }
+    #panel_ward:target { display: block !important; }
+    #panel_form:target { display: block !important; }
+    #panel_summary:target { display: block !important; }
 
     /* Ward Grid */
     .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
@@ -105,7 +105,7 @@
       cursor: pointer;
     }
 
-    /* Bed Checkbox Selection */
+    /* Bed Checkbox Selection Styling */
     #ck_b1b1:checked ~ main #lbl_b1b1, #ck_b1b2:checked ~ main #lbl_b1b2, #ck_b1b3:checked ~ main #lbl_b1b3, #ck_b1b4:checked ~ main #lbl_b1b4,
     #ck_b2b1:checked ~ main #lbl_b2b1, #ck_b2b2:checked ~ main #lbl_b2b2, #ck_b2b3:checked ~ main #lbl_b2b3, #ck_b2b4:checked ~ main #lbl_b2b4,
     #ck_b3b1:checked ~ main #lbl_b3b1, #ck_b3b2:checked ~ main #lbl_b3b2, #ck_b3b3:checked ~ main #lbl_b3b3, #ck_b3b4:checked ~ main #lbl_b3b4,
@@ -129,7 +129,7 @@
       font-weight: 700;
     }
 
-    /* Cards & Controls */
+    /* Cards & Components */
     .card { background: var(--card); border-radius: 8px; border: 1px solid var(--border); padding: 14px; margin-bottom: 12px; }
     .card h3 { font-size: 0.92rem; color: var(--primary-dark); margin-bottom: 10px; border-bottom: 1px solid var(--border); padding-bottom: 4px; display: flex; justify-content: space-between; align-items: center; }
     .row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
@@ -140,7 +140,7 @@
     textarea { min-height: 60px; line-height: 1.3; }
     .chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0; }
     .chip { background: #e8edee; border: 1px solid #ced5d8; border-radius: 14px; padding: 6px 12px; font-size: 0.78rem; font-weight: 600; cursor: pointer; }
-    .btn { background: var(--primary); color: #fff; border: none; padding: 8px 14px; border-radius: 6px; font-size: 0.82rem; font-weight: 600; cursor: pointer; }
+    .btn { background: var(--primary); color: #fff; border: none; padding: 8px 14px; border-radius: 6px; font-size: 0.82rem; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-block; }
     .danger { background: var(--danger); }
     .score-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-weight: 700; font-size: 0.82rem; }
     .total-banner { background: #f8fafc; border: 1px solid var(--border); border-radius: 6px; padding: 8px 12px; margin-bottom: 8px; font-size: 0.82rem; font-weight: 600; display: flex; justify-content: space-between; }
@@ -156,7 +156,7 @@
 </head>
 <body>
 
-  <!-- Bed Checkboxes (Preceding nav and main for pure CSS toggling) -->
+  <!-- Bed Checkboxes -->
   <input type="checkbox" class="state-ck" id="ck_b1b1" value="Bay 1 Bed 1" onchange="bedCheckChanged()">
   <input type="checkbox" class="state-ck" id="ck_b1b2" value="Bay 1 Bed 2" onchange="bedCheckChanged()">
   <input type="checkbox" class="state-ck" id="ck_b1b3" value="Bay 1 Bed 3" onchange="bedCheckChanged()">
@@ -190,82 +190,76 @@
       <h1>Thorndon Ward ICA Log</h1>
       <div class="sub">Offline Shift Notepad • SystmOne Staging</div>
     </div>
-    <span class="ver-badge">v12.0 Active</span>
+    <span class="ver-badge">v13.0 Active</span>
   </header>
 
-  <!-- Sticky Top Navigation Bar -->
+  <!-- Navigation Tab Bar (Target Links) -->
   <nav id="tabBar">
-    <button type="button" class="tab-btn active" id="tab_ward" onclick="goTab('ward')">Ward Map</button>
+    <a href="#ward" class="tab-btn active" id="tab_ward">Ward Map</a>
 
-    <button type="button" class="tab-btn b-tab" id="tab_b1b1" onclick="goTab('Bay 1 Bed 1')">Bay 1 Bed 1</button>
-    <button type="button" class="tab-btn b-tab" id="tab_b1b2" onclick="goTab('Bay 1 Bed 2')">Bay 1 Bed 2</button>
-    <button type="button" class="tab-btn b-tab" id="tab_b1b3" onclick="goTab('Bay 1 Bed 3')">Bay 1 Bed 3</button>
-    <button type="button" class="tab-btn b-tab" id="tab_b1b4" onclick="goTab('Bay 1 Bed 4')">Bay 1 Bed 4</button>
+    <a href="#form" class="tab-btn b-tab" id="tab_b1b1" onclick="selectBedTab('Bay 1 Bed 1')">Bay 1 Bed 1</a>
+    <a href="#form" class="tab-btn b-tab" id="tab_b1b2" onclick="selectBedTab('Bay 1 Bed 2')">Bay 1 Bed 2</a>
+    <a href="#form" class="tab-btn b-tab" id="tab_b1b3" onclick="selectBedTab('Bay 1 Bed 3')">Bay 1 Bed 3</a>
+    <a href="#form" class="tab-btn b-tab" id="tab_b1b4" onclick="selectBedTab('Bay 1 Bed 4')">Bay 1 Bed 4</a>
 
-    <button type="button" class="tab-btn b-tab" id="tab_b2b1" onclick="goTab('Bay 2 Bed 1')">Bay 2 Bed 1</button>
-    <button type="button" class="tab-btn b-tab" id="tab_b2b2" onclick="goTab('Bay 2 Bed 2')">Bay 2 Bed 2</button>
-    <button type="button" class="tab-btn b-tab" id="tab_b2b3" onclick="goTab('Bay 2 Bed 3')">Bay 2 Bed 3</button>
-    <button type="button" class="tab-btn b-tab" id="tab_b2b4" onclick="goTab('Bay 2 Bed 4')">Bay 2 Bed 4</button>
+    <a href="#form" class="tab-btn b-tab" id="tab_b2b1" onclick="selectBedTab('Bay 2 Bed 1')">Bay 2 Bed 1</a>
+    <a href="#form" class="tab-btn b-tab" id="tab_b2b2" onclick="selectBedTab('Bay 2 Bed 2')">Bay 2 Bed 2</a>
+    <a href="#form" class="tab-btn b-tab" id="tab_b2b3" onclick="selectBedTab('Bay 2 Bed 3')">Bay 2 Bed 3</a>
+    <a href="#form" class="tab-btn b-tab" id="tab_b2b4" onclick="selectBedTab('Bay 2 Bed 4')">Bay 2 Bed 4</a>
 
-    <button type="button" class="tab-btn b-tab" id="tab_b3b1" onclick="goTab('Bay 3 Bed 1')">Bay 3 Bed 1</button>
-    <button type="button" class="tab-btn b-tab" id="tab_b3b2" onclick="goTab('Bay 3 Bed 2')">Bay 3 Bed 2</button>
-    <button type="button" class="tab-btn b-tab" id="tab_b3b3" onclick="goTab('Bay 3 Bed 3')">Bay 3 Bed 3</button>
-    <button type="button" class="tab-btn b-tab" id="tab_b3b4" onclick="goTab('Bay 3 Bed 4')">Bay 3 Bed 4</button>
+    <a href="#form" class="tab-btn b-tab" id="tab_b3b1" onclick="selectBedTab('Bay 3 Bed 1')">Bay 3 Bed 1</a>
+    <a href="#form" class="tab-btn b-tab" id="tab_b3b2" onclick="selectBedTab('Bay 3 Bed 2')">Bay 3 Bed 2</a>
+    <a href="#form" class="tab-btn b-tab" id="tab_b3b3" onclick="selectBedTab('Bay 3 Bed 3')">Bay 3 Bed 3</a>
+    <a href="#form" class="tab-btn b-tab" id="tab_b3b4" onclick="selectBedTab('Bay 3 Bed 4')">Bay 3 Bed 4</a>
 
-    <button type="button" class="tab-btn b-tab" id="tab_b4b1" onclick="goTab('Bay 4 Bed 1')">Bay 4 Bed 1</button>
-    <button type="button" class="tab-btn b-tab" id="tab_b4b2" onclick="goTab('Bay 4 Bed 2')">Bay 4 Bed 2</button>
-    <button type="button" class="tab-btn b-tab" id="tab_b4b3" onclick="goTab('Bay 4 Bed 3')">Bay 4 Bed 3</button>
-    <button type="button" class="tab-btn b-tab" id="tab_b4b4" onclick="goTab('Bay 4 Bed 4')">Bay 4 Bed 4</button>
+    <a href="#form" class="tab-btn b-tab" id="tab_b4b1" onclick="selectBedTab('Bay 4 Bed 1')">Bay 4 Bed 1</a>
+    <a href="#form" class="tab-btn b-tab" id="tab_b4b2" onclick="selectBedTab('Bay 4 Bed 2')">Bay 4 Bed 2</a>
+    <a href="#form" class="tab-btn b-tab" id="tab_b4b3" onclick="selectBedTab('Bay 4 Bed 3')">Bay 4 Bed 3</a>
+    <a href="#form" class="tab-btn b-tab" id="tab_b4b4" onclick="selectBedTab('Bay 4 Bed 4')">Bay 4 Bed 4</a>
 
-    <button type="button" class="tab-btn b-tab" id="tab_b5b1" onclick="goTab('Bay 5 Bed 1')">Bay 5 Bed 1</button>
-    <button type="button" class="tab-btn b-tab" id="tab_b5b2" onclick="goTab('Bay 5 Bed 2')">Bay 5 Bed 2</button>
-    <button type="button" class="tab-btn b-tab" id="tab_b5b3" onclick="goTab('Bay 5 Bed 3')">Bay 5 Bed 3</button>
-    <button type="button" class="tab-btn b-tab" id="tab_b5b4" onclick="goTab('Bay 5 Bed 4')">Bay 5 Bed 4</button>
+    <a href="#form" class="tab-btn b-tab" id="tab_b5b1" onclick="selectBedTab('Bay 5 Bed 1')">Bay 5 Bed 1</a>
+    <a href="#form" class="tab-btn b-tab" id="tab_b5b2" onclick="selectBedTab('Bay 5 Bed 2')">Bay 5 Bed 2</a>
+    <a href="#form" class="tab-btn b-tab" id="tab_b5b3" onclick="selectBedTab('Bay 5 Bed 3')">Bay 5 Bed 3</a>
+    <a href="#form" class="tab-btn b-tab" id="tab_b5b4" onclick="selectBedTab('Bay 5 Bed 4')">Bay 5 Bed 4</a>
 
-    <button type="button" class="tab-btn b-tab" id="tab_sr1" onclick="goTab('Side Room 1')">Side Room 1</button>
-    <button type="button" class="tab-btn b-tab" id="tab_sr2" onclick="goTab('Side Room 2')">Side Room 2</button>
-    <button type="button" class="tab-btn b-tab" id="tab_sr3" onclick="goTab('Side Room 3')">Side Room 3</button>
-    <button type="button" class="tab-btn b-tab" id="tab_sr4" onclick="goTab('Side Room 4')">Side Room 4</button>
-    <button type="button" class="tab-btn b-tab" id="tab_sr5" onclick="goTab('Side Room 5')">Side Room 5</button>
-    <button type="button" class="tab-btn b-tab" id="tab_sr6" onclick="goTab('Side Room 6')">Side Room 6</button>
-    <button type="button" class="tab-btn b-tab" id="tab_sr7" onclick="goTab('Side Room 7')">Side Room 7</button>
+    <a href="#form" class="tab-btn b-tab" id="tab_sr1" onclick="selectBedTab('Side Room 1')">Side Room 1</a>
+    <a href="#form" class="tab-btn b-tab" id="tab_sr2" onclick="selectBedTab('Side Room 2')">Side Room 2</a>
+    <a href="#form" class="tab-btn b-tab" id="tab_sr3" onclick="selectBedTab('Side Room 3')">Side Room 3</a>
+    <a href="#form" class="tab-btn b-tab" id="tab_sr4" onclick="selectBedTab('Side Room 4')">Side Room 4</a>
+    <a href="#form" class="tab-btn b-tab" id="tab_sr5" onclick="selectBedTab('Side Room 5')">Side Room 5</a>
+    <a href="#form" class="tab-btn b-tab" id="tab_sr6" onclick="selectBedTab('Side Room 6')">Side Room 6</a>
+    <a href="#form" class="tab-btn b-tab" id="tab_sr7" onclick="selectBedTab('Side Room 7')">Side Room 7</a>
 
-    <button type="button" class="tab-btn" id="tab_summary" onclick="goTab('summary')">Summary</button>
+    <a href="#summary" class="tab-btn" id="tab_summary" onclick="renderSummary()">Summary</a>
   </nav>
 
   <main>
-    <!-- View 1: Ward Allocation Screen (Visible by default) -->
-    <div id="panel_ward" class="view-panel active">
+    <!-- Target View 1: Ward Grid -->
+    <div id="panel_ward" class="view-panel">
       <div class="card">
         <h3>Ward Allocation (27 Beds)</h3>
         <p style="font-size:0.8rem; color:var(--sub); margin-bottom:12px;">Tap beds to select or deselect. Active beds will pin as tabs above.</p>
         <div class="grid">
-          <!-- Bay 1 -->
           <div><label class="bed-label" id="lbl_b1b1" for="ck_b1b1">Bay 1 Bed 1</label></div>
           <div><label class="bed-label" id="lbl_b1b2" for="ck_b1b2">Bay 1 Bed 2</label></div>
           <div><label class="bed-label" id="lbl_b1b3" for="ck_b1b3">Bay 1 Bed 3</label></div>
           <div><label class="bed-label" id="lbl_b1b4" for="ck_b1b4">Bay 1 Bed 4</label></div>
-          <!-- Bay 2 -->
           <div><label class="bed-label" id="lbl_b2b1" for="ck_b2b1">Bay 2 Bed 1</label></div>
           <div><label class="bed-label" id="lbl_b2b2" for="ck_b2b2">Bay 2 Bed 2</label></div>
           <div><label class="bed-label" id="lbl_b2b3" for="ck_b2b3">Bay 2 Bed 3</label></div>
           <div><label class="bed-label" id="lbl_b2b4" for="ck_b2b4">Bay 2 Bed 4</label></div>
-          <!-- Bay 3 -->
           <div><label class="bed-label" id="lbl_b3b1" for="ck_b3b1">Bay 3 Bed 1</label></div>
           <div><label class="bed-label" id="lbl_b3b2" for="ck_b3b2">Bay 3 Bed 2</label></div>
           <div><label class="bed-label" id="lbl_b3b3" for="ck_b3b3">Bay 3 Bed 3</label></div>
           <div><label class="bed-label" id="lbl_b3b4" for="ck_b3b4">Bay 3 Bed 4</label></div>
-          <!-- Bay 4 -->
           <div><label class="bed-label" id="lbl_b4b1" for="ck_b4b1">Bay 4 Bed 1</label></div>
           <div><label class="bed-label" id="lbl_b4b2" for="ck_b4b2">Bay 4 Bed 2</label></div>
           <div><label class="bed-label" id="lbl_b4b3" for="ck_b4b3">Bay 4 Bed 3</label></div>
           <div><label class="bed-label" id="lbl_b4b4" for="ck_b4b4">Bay 4 Bed 4</label></div>
-          <!-- Bay 5 -->
           <div><label class="bed-label" id="lbl_b5b1" for="ck_b5b1">Bay 5 Bed 1</label></div>
           <div><label class="bed-label" id="lbl_b5b2" for="ck_b5b2">Bay 5 Bed 2</label></div>
           <div><label class="bed-label" id="lbl_b5b3" for="ck_b5b3">Bay 5 Bed 3</label></div>
           <div><label class="bed-label" id="lbl_b5b4" for="ck_b5b4">Bay 5 Bed 4</label></div>
-          <!-- Side Rooms 1 to 7 -->
           <div><label class="bed-label" id="lbl_sr1" for="ck_sr1">Side Room 1</label></div>
           <div><label class="bed-label" id="lbl_sr2" for="ck_sr2">Side Room 2</label></div>
           <div><label class="bed-label" id="lbl_sr3" for="ck_sr3">Side Room 3</label></div>
@@ -277,7 +271,7 @@
       </div>
     </div>
 
-    <!-- View 2: Observation Entry Form -->
+    <!-- Target View 2: Observation Sheet (Loaded when you click #form) -->
     <div id="panel_form" class="view-panel">
       <div class="card">
         <h3>
@@ -304,4 +298,5 @@
       <div class="card">
         <h3>Metabolic & Orthostatic</h3>
         <div class="row">
-          <div class="col"
+          <div class="col"><label class="field-lbl">BM Glucose (mmol/L)</label><input type="text" inputmode="decimal" id="f_bm"></div>
+          <div class="col"><label class="field-lbl">Weight (kg)</label><input
