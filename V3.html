@@ -122,8 +122,23 @@ const sections = [
   {id:'food', lbl:'Food'}, {id:'turn', lbl:'Turning'}, {id:'events', lbl:'Events'}, {id:'summary', lbl:'Summary'}
 ];
 
-let alloc = JSON.parse(localStorage.getItem('cd_alloc')) || [];
-let db = JSON.parse(localStorage.getItem('cd_db')) || {};
+let alloc = [];
+let db = {};
+
+// Safe LocalStorage Loading
+try {
+  const savedAlloc = localStorage.getItem('cd_alloc');
+  if (savedAlloc) alloc = JSON.parse(savedAlloc);
+  if (!Array.isArray(alloc)) alloc = [];
+  
+  const savedDb = localStorage.getItem('cd_db');
+  if (savedDb) db = JSON.parse(savedDb);
+  if (typeof db !== 'object' || db === null) db = {};
+} catch(e) {
+  alloc = [];
+  db = {};
+}
+
 let curBed = alloc[0] || '';
 let curSec = 'news2';
 let isNight = false;
@@ -142,13 +157,18 @@ function startShift(auto = false) {
     localStorage.setItem('cd_alloc', JSON.stringify(alloc));
   }
   
+  // Ensure every selected bed has the correct data structure
   alloc.forEach(b => {
-    if(!db[b]) db[b] = {
-      news2: [], bm: [], events: [], bowel: [],
-      bp: {lsys:'', ldia:'', ssys:'', sdia:''},
-      amy: {sac:'', groin:'', heels:'', elbows:'', dressLoc:'', dressDate:'', noDate:false},
-      food: {b:'', l:'', d:''}, turn: Array(6).fill(''), fluid: Array(13).fill().map(()=>({i:'', o:''}))
-    };
+    if(!db[b] || typeof db[b] !== 'object') db[b] = {};
+    if(!db[b].news2) db[b].news2 = [];
+    if(!db[b].bm) db[b].bm = [];
+    if(!db[b].events) db[b].events = [];
+    if(!db[b].bowel) db[b].bowel = [];
+    if(!db[b].bp) db[b].bp = {lsys:'', ldia:'', ssys:'', sdia:''};
+    if(!db[b].amy) db[b].amy = {sac:'', groin:'', heels:'', elbows:'', dressLoc:'', dressDate:'', noDate:false};
+    if(!db[b].food) db[b].food = {b:'', l:'', d:''};
+    if(!db[b].turn) db[b].turn = Array(6).fill('');
+    if(!db[b].fluid) db[b].fluid = Array(13).fill(null).map(()=>({i:'', o:''}));
   });
   saveDB();
   
@@ -171,6 +191,7 @@ function renderUI() {
 
 function renderContent() {
   const area = document.getElementById('contentArea');
+  if(!db[curBed]) return; // Failsafe
   const d = db[curBed];
   let h = '';
 
@@ -333,22 +354,4 @@ function renderContent() {
     else {
       const l = d.news2[d.news2.length-1]; const sc = calcN2(l);
       if(sc >= 5) h+=`<b style="color:var(--red)">Score ${sc} @ ${l.time}</b>`;
-      else h+=`Score ${sc} @ ${l.time}`;
-    }
-    h += `</div>`;
-
-    // BM
-    h += `<div class="summary-sec"><b>Glucose:</b> `;
-    if(d.bm.length===0) h+=`No entries.`;
-    else {
-      const bml = d.bm[d.bm.length-1]; const bmv = parseFloat(bml.val);
-      if(bmv<4 || bmv>11) h+=`<b style="color:var(--red)">${bmv} mmol/L @ ${bml.time}</b>`;
-      else h+=`${bmv} mmol/L @ ${bml.time}`;
-    }
-    h += `</div>`;
-
-    // Fluids
-    let iT=0, oT=0; d.fluid.forEach(f=>{ iT+=parseFloat(f.i)||0; oT+=parseFloat(f.o)||0; });
-    const net = iT-oT;
-    h += `<div class="summary-sec"><b>Fluids:</b> In ${iT}ml, Out ${oT}ml. Net: `;
-    if(net <= -500) 
+      else h+=`Score ${sc} 
