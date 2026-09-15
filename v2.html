@@ -6,52 +6,68 @@
   <title>Thorndon Ward ICA Log</title>
   <style>
     :root {
-      --primary: #1976d2;
-      --primary-light: #e3f2fd;
-      --border: #cfd8dc;
-      --bg: #f8f9fa;
-      --card-bg: #ffffff;
-      --text: #263238;
-      --danger: #d32f2f;
-      --success: #2e7d32;
+      --primary: #005eb8;
+      --primary-dark: #003087;
+      --primary-light: #e8edee;
+      --surface: #ffffff;
+      --bg: #f0f4f5;
+      --text: #212b32;
+      --text-subtle: #4c6272;
+      --border: #d8dde0;
+      --border-card: #e6eaec;
+      --focus: #ffeb3b;
+      --danger: #d5281b;
+      --success: #007f3b;
+      --chip-bg: #e8edee;
+      --chip-active: #005eb8;
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      -webkit-tap-highlight-color: transparent;
     }
 
     body {
       background-color: var(--bg);
       color: var(--text);
-      padding-bottom: 70px;
+      padding-bottom: 80px;
     }
 
     header {
       background-color: var(--primary);
-      color: white;
+      color: #ffffff;
       padding: 12px 16px;
-      position: sticky;
-      top: 0;
-      z-index: 1000;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
       display: flex;
       justify-content: space-between;
       align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.12);
     }
 
     header h1 {
-      font-size: 1.1rem;
-      font-weight: 600;
+      font-size: 1.05rem;
+      font-weight: 700;
+      letter-spacing: -0.2px;
     }
 
-    .save-indicator {
-      font-size: 0.75rem;
-      background: rgba(255,255,255,0.2);
-      padding: 3px 8px;
-      border-radius: 12px;
+    header .subtitle {
+      font-size: 0.72rem;
+      opacity: 0.85;
+      margin-top: 1px;
+    }
+
+    .badge-status {
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.2);
+      color: #ffffff;
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
@@ -59,38 +75,44 @@
     /* Top Tabs Navigation */
     nav#tabBar {
       display: flex;
-      overflow-x: auto;
-      background: #eceff1;
-      padding: 6px 8px;
       gap: 6px;
+      padding: 8px 12px;
+      background: #ffffff;
       border-bottom: 1px solid var(--border);
       position: sticky;
-      top: 48px;
+      top: 53px;
       z-index: 999;
+      overflow-x: auto;
       white-space: nowrap;
       -webkit-overflow-scrolling: touch;
     }
 
+    nav#tabBar::-webkit-scrollbar {
+      display: none;
+    }
+
     .tab-btn {
-      background: white;
+      background: var(--bg);
       border: 1px solid var(--border);
-      padding: 7px 14px;
-      border-radius: 16px;
-      font-size: 0.85rem;
-      font-weight: 500;
+      color: var(--text);
+      padding: 8px 14px;
+      border-radius: 20px;
+      font-size: 0.82rem;
+      font-weight: 600;
       cursor: pointer;
       flex-shrink: 0;
+      transition: all 0.15s ease;
     }
 
     .tab-btn.active {
       background: var(--primary);
-      color: white;
+      color: #ffffff;
       border-color: var(--primary);
     }
 
     main {
       padding: 12px;
-      max-width: 900px;
+      max-width: 820px;
       margin: 0 auto;
     }
 
@@ -102,47 +124,54 @@
       display: block;
     }
 
-    /* Bed Selection Grid */
+    /* Ward Allocation 2-Column Grid */
     .grid-2col {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 8px;
-      margin-bottom: 20px;
     }
 
     .bed-card {
-      background: var(--card-bg);
+      background: var(--surface);
       border: 2px solid var(--border);
-      padding: 14px 8px;
       border-radius: 8px;
+      padding: 14px 10px;
       text-align: center;
-      font-size: 0.9rem;
+      font-size: 0.88rem;
       font-weight: 600;
+      color: var(--text);
       cursor: pointer;
       user-select: none;
+      transition: all 0.15s ease;
+    }
+
+    .bed-card:active {
+      transform: scale(0.98);
     }
 
     .bed-card.selected {
-      background: var(--primary-light);
+      background: #edf5fc;
       border-color: var(--primary);
       color: var(--primary);
     }
 
-    /* Clinical Sections */
+    /* Clinical Cards */
     .section-card {
-      background: var(--card-bg);
+      background: var(--surface);
       border-radius: 8px;
-      border: 1px solid var(--border);
+      border: 1px solid var(--border-card);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
       padding: 14px;
       margin-bottom: 12px;
     }
 
     .section-card h3 {
-      font-size: 0.95rem;
-      color: var(--primary);
-      margin-bottom: 10px;
-      border-bottom: 1px solid #edf2f7;
-      padding-bottom: 4px;
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--primary-dark);
+      margin-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 6px;
     }
 
     .field-row {
@@ -156,7 +185,7 @@
       flex: 1 1 calc(50% - 10px);
       display: flex;
       flex-direction: column;
-      min-width: 120px;
+      min-width: 130px;
     }
 
     .field-group.full-width {
@@ -166,114 +195,164 @@
     label {
       font-size: 0.75rem;
       font-weight: 600;
+      color: var(--text-subtle);
       margin-bottom: 4px;
-      color: #455a64;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
     }
 
     input, select, textarea {
-      padding: 8px;
+      padding: 9px 10px;
       border: 1px solid var(--border);
       border-radius: 6px;
       font-size: 0.85rem;
-      background: #fafafa;
+      color: var(--text);
+      background: #ffffff;
+      transition: border-color 0.15s;
     }
 
     input:focus, select:focus, textarea:focus {
       outline: none;
       border-color: var(--primary);
-      background: #fff;
+      box-shadow: 0 0 0 2px rgba(0,94,184,0.15);
     }
 
     textarea {
       resize: vertical;
-      min-height: 60px;
+      min-height: 65px;
+      line-height: 1.4;
     }
 
-    /* Chips & Action Buttons */
+    /* Chips */
     .chip-group {
       display: flex;
       flex-wrap: wrap;
       gap: 6px;
-      margin-top: 6px;
-      margin-bottom: 6px;
+      margin: 6px 0 10px 0;
     }
 
     .chip-btn {
-      background: #f1f3f4;
-      border: 1px solid #dadce0;
-      border-radius: 14px;
-      padding: 5px 10px;
-      font-size: 0.75rem;
-      font-weight: 500;
+      background: var(--chip-bg);
+      border: 1px solid #ced5d8;
+      border-radius: 16px;
+      padding: 6px 12px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text);
       cursor: pointer;
     }
 
     .chip-btn:active {
-      background: #d2e3fc;
+      background: #d8dde0;
     }
 
     .action-btn {
       background: var(--primary);
-      color: white;
+      color: #ffffff;
       border: none;
-      padding: 7px 12px;
+      padding: 8px 14px;
       border-radius: 6px;
-      font-size: 0.8rem;
-      font-weight: 500;
+      font-size: 0.82rem;
+      font-weight: 600;
       cursor: pointer;
       margin-top: 6px;
     }
 
     .danger-btn {
       background: var(--danger);
-      color: white;
+      color: #ffffff;
       border: none;
-      padding: 10px 16px;
+      padding: 12px;
       border-radius: 6px;
-      font-size: 0.85rem;
-      font-weight: 600;
+      font-size: 0.88rem;
+      font-weight: 700;
       width: 100%;
       cursor: pointer;
-      margin-top: 20px;
+      margin-top: 16px;
     }
 
-    /* Summary Formatting */
     .summary-box {
-      background: white;
+      background: #ffffff;
       border: 1px solid var(--border);
-      border-radius: 8px;
+      border-radius: 6px;
       padding: 12px;
       margin-bottom: 12px;
-      white-space: pre-wrap;
-      font-family: monospace;
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
       font-size: 0.8rem;
-      line-height: 1.4;
+      line-height: 1.45;
+      white-space: pre-wrap;
     }
   </style>
 </head>
 <body>
 
   <header>
-    <h1>Thorndon Ward ICA Log</h1>
-    <span class="save-indicator">Saved</span>
+    <div>
+      <h1>Thorndon Ward ICA Log</h1>
+      <div class="subtitle">Offline Shift Notepad • SystmOne Staging</div>
+    </div>
+    <span class="badge-status" id="saveBadge">Saved</span>
   </header>
 
-  <nav id="tabBar"></nav>
+  <nav id="tabBar">
+    <button class="tab-btn active" id="wardMapTabBtn">Ward Map</button>
+    <button class="tab-btn" id="summaryTabBtn">Summary</button>
+  </nav>
 
   <main>
-    <!-- Ward Bed Selector -->
+    <!-- Ward Allocation: Exactly 25 Beds (Bay 1 to 5 + Side Rooms 1 to 5) -->
     <div id="viewWard" class="view-panel active">
       <div class="section-card">
         <h3>Ward Allocation</h3>
-        <p style="font-size:0.8rem; color:#607d8b; margin-bottom:12px;">Select beds to manage. Selected beds will appear in the top tab bar.</p>
-        <div id="bedGrid" class="grid-2col"></div>
+        <p style="font-size:0.8rem; color:var(--text-subtle); margin-bottom:12px;">
+          Tap a bed to select or deselect. Active beds will pin as tabs above for quick documentation.
+        </p>
+
+        <div class="grid-2col" id="bedGrid">
+          <!-- Bay 1 -->
+          <div class="bed-card" data-bed="Bay 1 Bed 1">Bay 1 Bed 1</div>
+          <div class="bed-card" data-bed="Bay 1 Bed 2">Bay 1 Bed 2</div>
+          <div class="bed-card" data-bed="Bay 1 Bed 3">Bay 1 Bed 3</div>
+          <div class="bed-card" data-bed="Bay 1 Bed 4">Bay 1 Bed 4</div>
+
+          <!-- Bay 2 -->
+          <div class="bed-card" data-bed="Bay 2 Bed 1">Bay 2 Bed 1</div>
+          <div class="bed-card" data-bed="Bay 2 Bed 2">Bay 2 Bed 2</div>
+          <div class="bed-card" data-bed="Bay 2 Bed 3">Bay 2 Bed 3</div>
+          <div class="bed-card" data-bed="Bay 2 Bed 4">Bay 2 Bed 4</div>
+
+          <!-- Bay 3 -->
+          <div class="bed-card" data-bed="Bay 3 Bed 1">Bay 3 Bed 1</div>
+          <div class="bed-card" data-bed="Bay 3 Bed 2">Bay 3 Bed 2</div>
+          <div class="bed-card" data-bed="Bay 3 Bed 3">Bay 3 Bed 3</div>
+          <div class="bed-card" data-bed="Bay 3 Bed 4">Bay 3 Bed 4</div>
+
+          <!-- Bay 4 -->
+          <div class="bed-card" data-bed="Bay 4 Bed 1">Bay 4 Bed 1</div>
+          <div class="bed-card" data-bed="Bay 4 Bed 2">Bay 4 Bed 2</div>
+          <div class="bed-card" data-bed="Bay 4 Bed 3">Bay 4 Bed 3</div>
+          <div class="bed-card" data-bed="Bay 4 Bed 4">Bay 4 Bed 4</div>
+
+          <!-- Bay 5 -->
+          <div class="bed-card" data-bed="Bay 5 Bed 1">Bay 5 Bed 1</div>
+          <div class="bed-card" data-bed="Bay 5 Bed 2">Bay 5 Bed 2</div>
+          <div class="bed-card" data-bed="Bay 5 Bed 3">Bay 5 Bed 3</div>
+          <div class="bed-card" data-bed="Bay 5 Bed 4">Bay 5 Bed 4</div>
+
+          <!-- Side Rooms 1 to 5 -->
+          <div class="bed-card" data-bed="Side Room 1">Side Room 1</div>
+          <div class="bed-card" data-bed="Side Room 2">Side Room 2</div>
+          <div class="bed-card" data-bed="Side Room 3">Side Room 3</div>
+          <div class="bed-card" data-bed="Side Room 4">Side Room 4</div>
+          <div class="bed-card" data-bed="Side Room 5">Side Room 5</div>
+        </div>
       </div>
     </div>
 
     <!-- Active Patient Forms Container -->
     <div id="viewPatientForms"></div>
 
-    <!-- Handover Summary Tab -->
+    <!-- Handover Summary Panel -->
     <div id="viewSummary" class="view-panel">
       <div class="section-card">
         <h3>Ward Handover Summary</h3>
@@ -288,31 +367,21 @@
     (function () {
       "use strict";
 
-      const BEDS = [
-        "Bay 1 Bed 1", "Bay 1 Bed 2", "Bay 1 Bed 3", "Bay 1 Bed 4",
-        "Bay 2 Bed 1", "Bay 2 Bed 2", "Bay 2 Bed 3", "Bay 2 Bed 4",
-        "Bay 3 Bed 1", "Bay 3 Bed 2", "Bay 3 Bed 3", "Bay 3 Bed 4",
-        "Bay 4 Bed 1", "Bay 4 Bed 2", "Bay 4 Bed 3", "Bay 4 Bed 4",
-        "Bay 5 Bed 1", "Bay 5 Bed 2", "Bay 5 Bed 3", "Bay 5 Bed 4",
-        "Side Room 1", "Side Room 2", "Side Room 3", "Side Room 4",
-        "Side Room 5", "Side Room 6", "Side Room 7"
-      ];
-
-      const STORAGE_KEY_SELECTIONS = "thorndon_bed_selections";
-      const STORAGE_KEY_LOGS = "thorndon_patient_logs";
+      const STORAGE_KEY_SELECTIONS = "thorndon_bed_selection_state";
+      const STORAGE_KEY_LOGS = "thorndon_bed_logs_state";
 
       let selectedBeds = [];
       let logs = {};
-      let currentTab = "ward";
+      let activeTab = "ward";
 
-      function getTimeString() {
+      function formatCurrentTime() {
         const now = new Date();
-        const hrs = String(now.getHours()).padStart(2, "0");
-        const mins = String(now.getMinutes()).padStart(2, "0");
-        return hrs + ":" + mins;
+        const hh = String(now.getHours()).padStart(2, "0");
+        const mm = String(now.getMinutes()).padStart(2, "0");
+        return hh + ":" + mm;
       }
 
-      function loadData() {
+      function loadSavedData() {
         try {
           const rawBeds = localStorage.getItem(STORAGE_KEY_SELECTIONS);
           selectedBeds = rawBeds ? JSON.parse(rawBeds) : [];
@@ -324,98 +393,77 @@
         }
       }
 
-      function saveData() {
+      function commitData() {
         try {
           localStorage.setItem(STORAGE_KEY_SELECTIONS, JSON.stringify(selectedBeds));
           localStorage.setItem(STORAGE_KEY_LOGS, JSON.stringify(logs));
         } catch (e) {
-          console.error("Storage save failed", e);
+          console.error("Storage write error", e);
         }
       }
 
-      function getCleanLogObject() {
+      function createEmptyRecord() {
         return {
           rr: "", sats: "", o2: "Air", bp: "", hr: "", temp: "", news2: "",
-          bm: "",
+          bm: "", weight: "", lyingBp: "", standingBp: "",
           bowelOpen: "No", stoolType: "None", bowelNotes: "",
-          lyingBp: "", standingBp: "",
-          weight: "",
           amySacrum: "Intact", amySacrumNotes: "",
           amyLHeel: "Intact", amyLHeelNotes: "",
           amyRHeel: "Intact", amyRHeelNotes: "",
           amyOther: "Intact", amyOtherNotes: "",
           repositioningLogs: "",
-          dietIntake: "",
-          intakeLogs: "",
-          outputLogs: "",
-          generalNotes: ""
+          intakeLogs: "", outputLogs: "",
+          dietIntake: "", generalNotes: ""
         };
       }
 
-      function renderBedGrid() {
-        const grid = document.getElementById("bedGrid");
-        if (!grid) return;
-        grid.innerHTML = "";
+      function escapeId(name) {
+        return name.replace(/[^a-zA-Z0-9]/g, "_");
+      }
 
-        BEDS.forEach(function (bed) {
-          const card = document.createElement("div");
-          card.className = "bed-card" + (selectedBeds.indexOf(bed) !== -1 ? " selected" : "");
-          card.textContent = bed;
-          card.addEventListener("click", function () {
-            toggleBedSelection(bed);
-          });
-          grid.appendChild(card);
+      function updateGridSelectionUI() {
+        const cards = document.querySelectorAll(".bed-card");
+        cards.forEach(function (card) {
+          const bedName = card.getAttribute("data-bed");
+          if (selectedBeds.indexOf(bedName) !== -1) {
+            card.classList.add("selected");
+          } else {
+            card.classList.remove("selected");
+          }
         });
       }
 
-      function toggleBedSelection(bed) {
-        const idx = selectedBeds.indexOf(bed);
-        if (idx === -1) {
-          selectedBeds.push(bed);
-          if (!logs[bed]) {
-            logs[bed] = getCleanLogObject();
-          }
-        } else {
-          selectedBeds.splice(idx, 1);
-          if (currentTab === bed) {
-            currentTab = "ward";
-          }
-        }
-        saveData();
-        renderBedGrid();
-        renderTabs();
-        renderPatientForms();
-        switchTab(currentTab);
-      }
-
-      function renderTabs() {
+      function renderTopTabs() {
         const tabBar = document.getElementById("tabBar");
         if (!tabBar) return;
         tabBar.innerHTML = "";
 
+        // Ward Map tab
         const wardBtn = document.createElement("button");
-        wardBtn.className = "tab-btn" + (currentTab === "ward" ? " active" : "");
+        wardBtn.className = "tab-btn" + (activeTab === "ward" ? " active" : "");
         wardBtn.textContent = "Ward Map";
-        wardBtn.addEventListener("click", function () { switchTab("ward"); });
+        wardBtn.addEventListener("click", function () { switchActiveTab("ward"); });
         tabBar.appendChild(wardBtn);
 
+        // Bed tabs
         selectedBeds.forEach(function (bed) {
-          const bedBtn = document.createElement("button");
-          bedBtn.className = "tab-btn" + (currentTab === bed ? " active" : "");
-          bedBtn.textContent = bed;
-          bedBtn.addEventListener("click", function () { switchTab(bed); });
-          tabBar.appendChild(bedBtn);
+          const btn = document.createElement("button");
+          btn.className = "tab-btn" + (activeTab === bed ? " active" : "");
+          btn.textContent = bed;
+          btn.addEventListener("click", function () { switchActiveTab(bed); });
+          tabBar.appendChild(btn);
         });
 
+        // Summary tab
         const summaryBtn = document.createElement("button");
-        summaryBtn.className = "tab-btn" + (currentTab === "summary" ? " active" : "");
+        summaryBtn.className = "tab-btn" + (activeTab === "summary" ? " active" : "");
         summaryBtn.textContent = "Summary";
-        summaryBtn.addEventListener("click", function () { switchTab("summary"); });
+        summaryBtn.addEventListener("click", function () { switchActiveTab("summary"); });
         tabBar.appendChild(summaryBtn);
       }
 
-      function switchTab(targetId) {
-        currentTab = targetId;
+      function switchActiveTab(target) {
+        activeTab = target;
 
         const wardPanel = document.getElementById("viewWard");
         const summaryPanel = document.getElementById("viewSummary");
@@ -423,161 +471,135 @@
         if (summaryPanel) summaryPanel.classList.remove("active");
 
         const allPatientPanels = document.querySelectorAll(".patient-panel");
-        allPatientPanels.forEach(function (panel) {
-          panel.classList.remove("active");
-        });
+        allPatientPanels.forEach(function (p) { p.classList.remove("active"); });
 
-        if (targetId === "ward") {
+        if (target === "ward") {
           if (wardPanel) wardPanel.classList.add("active");
-        } else if (targetId === "summary") {
+        } else if (target === "summary") {
           if (summaryPanel) {
             summaryPanel.classList.add("active");
-            renderSummary();
+            renderSummaryView();
           }
         } else {
-          const activePanel = document.getElementById("panel_" + sanitizeId(targetId));
+          const activePanel = document.getElementById("panel_" + escapeId(target));
           if (activePanel) activePanel.classList.add("active");
         }
 
-        renderTabs();
+        renderTopTabs();
       }
 
-      function sanitizeId(str) {
-        return str.replace(/[^a-zA-Z0-9]/g, "_");
+      function toggleBed(bedName) {
+        const index = selectedBeds.indexOf(bedName);
+        if (index === -1) {
+          selectedBeds.push(bedName);
+          if (!logs[bedName]) logs[bedName] = createEmptyRecord();
+        } else {
+          selectedBeds.splice(index, 1);
+          if (activeTab === bedName) activeTab = "ward";
+        }
+        commitData();
+        updateGridSelectionUI();
+        renderTopTabs();
+        buildPatientForms();
+        switchActiveTab(activeTab);
       }
 
-      function renderPatientForms() {
+      function buildPatientForms() {
         const container = document.getElementById("viewPatientForms");
         if (!container) return;
         container.innerHTML = "";
 
         selectedBeds.forEach(function (bed) {
-          if (!logs[bed]) {
-            logs[bed] = getCleanLogObject();
-          }
-          const patientData = logs[bed];
+          if (!logs[bed]) logs[bed] = createEmptyRecord();
+          const rec = logs[bed];
+
           const panel = document.createElement("div");
-          panel.id = "panel_" + sanitizeId(bed);
-          panel.className = "patient-panel view-panel" + (currentTab === bed ? " active" : "");
+          panel.id = "panel_" + escapeId(bed);
+          panel.className = "patient-panel view-panel" + (activeTab === bed ? " active" : "");
 
           panel.innerHTML = `
-            <!-- NEWS2 Observations -->
             <div class="section-card">
-              <h3>NEWS2 & Vital Signs</h3>
+              <h3>NEWS2 & Vital Signs (${bed})</h3>
               <div class="field-row">
                 <div class="field-group">
                   <label>Resp Rate (/min)</label>
-                  <input type="number" data-bed="${bed}" data-field="rr" value="${patientData.rr || ""}">
+                  <input type="number" data-bed="${bed}" data-field="rr" value="${rec.rr || ""}">
                 </div>
                 <div class="field-group">
                   <label>SpO2 (%)</label>
-                  <input type="number" data-bed="${bed}" data-field="sats" value="${patientData.sats || ""}">
+                  <input type="number" data-bed="${bed}" data-field="sats" value="${rec.sats || ""}">
                 </div>
                 <div class="field-group">
                   <label>O2 Therapy</label>
                   <select data-bed="${bed}" data-field="o2">
-                    <option value="Air" ${patientData.o2 === "Air" ? "selected" : ""}>Air</option>
-                    <option value="Oxygen" ${patientData.o2 === "Oxygen" ? "selected" : ""}>Oxygen</option>
+                    <option value="Air" ${rec.o2 === "Air" ? "selected" : ""}>Air</option>
+                    <option value="Oxygen" ${rec.o2 === "Oxygen" ? "selected" : ""}>Oxygen</option>
                   </select>
                 </div>
                 <div class="field-group">
                   <label>Blood Pressure</label>
-                  <input type="text" placeholder="120/80" data-bed="${bed}" data-field="bp" value="${patientData.bp || ""}">
+                  <input type="text" placeholder="120/80" data-bed="${bed}" data-field="bp" value="${rec.bp || ""}">
                 </div>
                 <div class="field-group">
                   <label>Heart Rate (bpm)</label>
-                  <input type="number" data-bed="${bed}" data-field="hr" value="${patientData.hr || ""}">
+                  <input type="number" data-bed="${bed}" data-field="hr" value="${rec.hr || ""}">
                 </div>
                 <div class="field-group">
                   <label>Temp (°C)</label>
-                  <input type="text" placeholder="36.8" data-bed="${bed}" data-field="temp" value="${patientData.temp || ""}">
+                  <input type="text" placeholder="36.8" data-bed="${bed}" data-field="temp" value="${rec.temp || ""}">
                 </div>
                 <div class="field-group full-width">
-                  <label>Overall NEWS2 Score</label>
-                  <input type="number" placeholder="Score" data-bed="${bed}" data-field="news2" value="${patientData.news2 || ""}">
+                  <label>Total NEWS2 Score</label>
+                  <input type="number" placeholder="Score" data-bed="${bed}" data-field="news2" value="${rec.news2 || ""}">
                 </div>
               </div>
             </div>
 
-            <!-- BM Glucose & Lying/Standing BP -->
             <div class="section-card">
               <h3>Metabolic & Orthostatic</h3>
               <div class="field-row">
                 <div class="field-group">
-                  <label>Blood Glucose (BM)</label>
-                  <input type="text" placeholder="mmol/L" data-bed="${bed}" data-field="bm" value="${patientData.bm || ""}">
+                  <label>BM Glucose (mmol/L)</label>
+                  <input type="text" data-bed="${bed}" data-field="bm" value="${rec.bm || ""}">
                 </div>
                 <div class="field-group">
                   <label>Weight (kg)</label>
-                  <input type="number" step="0.1" data-bed="${bed}" data-field="weight" value="${patientData.weight || ""}">
+                  <input type="number" step="0.1" data-bed="${bed}" data-field="weight" value="${rec.weight || ""}">
                 </div>
                 <div class="field-group">
                   <label>Lying BP</label>
-                  <input type="text" placeholder="mmHg" data-bed="${bed}" data-field="lyingBp" value="${patientData.lyingBp || ""}">
+                  <input type="text" data-bed="${bed}" data-field="lyingBp" value="${rec.lyingBp || ""}">
                 </div>
                 <div class="field-group">
                   <label>Standing BP</label>
-                  <input type="text" placeholder="mmHg" data-bed="${bed}" data-field="standingBp" value="${patientData.standingBp || ""}">
+                  <input type="text" data-bed="${bed}" data-field="standingBp" value="${rec.standingBp || ""}">
                 </div>
               </div>
             </div>
 
-            <!-- Bowel Movement & Bristol Stool -->
             <div class="section-card">
               <h3>Bowel Movement (Bristol Stool Scale)</h3>
               <div class="field-row">
                 <div class="field-group">
                   <label>Bowels Opened?</label>
                   <select data-bed="${bed}" data-field="bowelOpen">
-                    <option value="No" ${patientData.bowelOpen === "No" ? "selected" : ""}>No</option>
-                    <option value="Yes" ${patientData.bowelOpen === "Yes" ? "selected" : ""}>Yes</option>
+                    <option value="No" ${rec.bowelOpen === "No" ? "selected" : ""}>No</option>
+                    <option value="Yes" ${rec.bowelOpen === "Yes" ? "selected" : ""}>Yes</option>
                   </select>
                 </div>
                 <div class="field-group">
-                  <label>Stool Type</label>
+                  <label>Bristol Stool Type</label>
                   <select data-bed="${bed}" data-field="stoolType">
-                    <option value="None" ${patientData.stoolType === "None" ? "selected" : ""}>None</option>
-                    <option value="Type 1 (Hard lumps)" ${patientData.stoolType === "Type 1 (Hard lumps)" ? "selected" : ""}>Type 1 (Hard lumps)</option>
-                    <option value="Type 2 (Lumpy sausage)" ${patientData.stoolType === "Type 2 (Lumpy sausage)" ? "selected" : ""}>Type 2 (Lumpy sausage)</option>
-                    <option value="Type 3 (Cracked sausage)" ${patientData.stoolType === "Type 3 (Cracked sausage)" ? "selected" : ""}>Type 3 (Cracked sausage)</option>
-                    <option value="Type 4 (Smooth snake)" ${patientData.stoolType === "Type 4 (Smooth snake)" ? "selected" : ""}>Type 4 (Smooth snake)</option>
-                    <option value="Type 5 (Soft blobs)" ${patientData.stoolType === "Type 5 (Soft blobs)" ? "selected" : ""}>Type 5 (Soft blobs)</option>
-                    <option value="Type 6 (Mushy)" ${patientData.stoolType === "Type 6 (Mushy)" ? "selected" : ""}>Type 6 (Mushy)</option>
-                    <option value="Type 7 (Liquid)" ${patientData.stoolType === "Type 7 (Liquid)" ? "selected" : ""}>Type 7 (Liquid)</option>
+                    <option value="None" ${rec.stoolType === "None" ? "selected" : ""}>None</option>
+                    <option value="Type 1 (Hard lumps)" ${rec.stoolType === "Type 1 (Hard lumps)" ? "selected" : ""}>Type 1 (Hard lumps)</option>
+                    <option value="Type 2 (Lumpy sausage)" ${rec.stoolType === "Type 2 (Lumpy sausage)" ? "selected" : ""}>Type 2 (Lumpy sausage)</option>
+                    <option value="Type 3 (Cracked sausage)" ${rec.stoolType === "Type 3 (Cracked sausage)" ? "selected" : ""}>Type 3 (Cracked sausage)</option>
+                    <option value="Type 4 (Smooth snake)" ${rec.stoolType === "Type 4 (Smooth snake)" ? "selected" : ""}>Type 4 (Smooth snake)</option>
+                    <option value="Type 5 (Soft blobs)" ${rec.stoolType === "Type 5 (Soft blobs)" ? "selected" : ""}>Type 5 (Soft blobs)</option>
+                    <option value="Type 6 (Mushy)" ${rec.stoolType === "Type 6 (Mushy)" ? "selected" : ""}>Type 6 (Mushy)</option>
+                    <option value="Type 7 (Liquid)" ${rec.stoolType === "Type 7 (Liquid)" ? "selected" : ""}>Type 7 (Liquid)</option>
                   </select>
                 </div>
                 <div class="field-group full-width">
-                  <label>Bowel Details / Incontinence</label>
-                  <input type="text" data-bed="${bed}" data-field="bowelNotes" value="${patientData.bowelNotes || ""}">
-                </div>
-              </div>
-            </div>
-
-            <!-- Amy's Round (Pressure Area Care) -->
-            <div class="section-card">
-              <h3>Amy's Round (Pressure Areas)</h3>
-              <div class="field-row">
-                <div class="field-group">
-                  <label>Sacrum</label>
-                  <select data-bed="${bed}" data-field="amySacrum">
-                    <option value="Intact" ${patientData.amySacrum === "Intact" ? "selected" : ""}>Intact</option>
-                    <option value="Erythema" ${patientData.amySacrum === "Erythema" ? "selected" : ""}>Erythema</option>
-                    <option value="Broken / Dressing" ${patientData.amySacrum === "Broken / Dressing" ? "selected" : ""}>Broken / Dressing</option>
-                  </select>
-                  <input type="text" placeholder="Notes" data-bed="${bed}" data-field="amySacrumNotes" value="${patientData.amySacrumNotes || ""}" style="margin-top:4px;">
-                </div>
-                <div class="field-group">
-                  <label>Left Heel</label>
-                  <select data-bed="${bed}" data-field="amyLHeel">
-                    <option value="Intact" ${patientData.amyLHeel === "Intact" ? "selected" : ""}>Intact</option>
-                    <option value="Erythema" ${patientData.amyLHeel === "Erythema" ? "selected" : ""}>Erythema</option>
-                    <option value="Broken / Dressing" ${patientData.amyLHeel === "Broken / Dressing" ? "selected" : ""}>Broken / Dressing</option>
-                  </select>
-                  <input type="text" placeholder="Notes" data-bed="${bed}" data-field="amyLHeelNotes" value="${patientData.amyLHeelNotes || ""}" style="margin-top:4px;">
-                </div>
-                <div class="field-group">
-                  <label>Right Heel</label>
-                  <select data-bed="${bed}" data-field="amyRHeel">
-                    <option value="Intact" ${patientData.amyRHeel === "Intact" ? "selected" : ""}>Intact</option>
-                    <option value="Erythema" ${patientData.amyRHeel === "Erythema" ? "selected" : ""}>Erythema</option>
-                    <option value="Broken / Dressing" ${patientData.amyRHeel === "Broken /
+                  <label>Notes & Details</label>
+                  <input type="text" placeholder="e.g. Incontinent, small amount" data-bed="${bed}" data-field="bowelNote
