@@ -23,7 +23,7 @@
       --news-3: #ffcdd2;
       --news-3-text: #b71c1c;
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     body { background: var(--bg); color: var(--text); padding-bottom: 70px; }
     header { background: var(--primary); color: #fff; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
     header h1 { font-size: 1.05rem; font-weight: 700; }
@@ -36,9 +36,33 @@
     main { padding: 12px; max-width: 800px; margin: 0 auto; }
     .view { display: none; }
     .view.active { display: block; }
+    
+    /* Responsive Bed Grid with Native Buttons */
     .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .bed-card { background: var(--card); border: 2px solid var(--border); border-radius: 8px; padding: 14px 10px; text-align: center; font-size: 0.88rem; font-weight: 600; cursor: pointer; user-select: none; }
-    .bed-card.selected { background: var(--primary) !important; color: #ffffff !important; border-color: var(--primary-dark) !important; }
+    button.bed-btn {
+      background: #ffffff;
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 10px;
+      text-align: center;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text);
+      cursor: pointer;
+      display: block;
+      width: 100%;
+      outline: none;
+    }
+    button.bed-btn:active {
+      transform: scale(0.97);
+    }
+    button.bed-btn.selected {
+      background: var(--primary) !important;
+      color: #ffffff !important;
+      border-color: var(--primary-dark) !important;
+      box-shadow: inset 0 0 0 1px #ffffff;
+    }
+
     .card { background: var(--card); border-radius: 8px; border: 1px solid var(--border); padding: 14px; margin-bottom: 12px; }
     .card h3 { font-size: 0.92rem; color: var(--primary-dark); margin-bottom: 10px; border-bottom: 1px solid var(--border); padding-bottom: 4px; display: flex; justify-content: space-between; align-items: center; }
     .row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
@@ -70,47 +94,47 @@
       <h1>Thorndon Ward ICA Log</h1>
       <div class="sub">Offline Shift Notepad • SystmOne Staging</div>
     </div>
-    <span class="badge">Auto-Saved</span>
+    <span class="badge" id="saveStatus">Auto-Saved</span>
   </header>
 
   <nav id="tabBar">
-    <button class="tab-btn active" id="btnWardMap">Ward Map</button>
+    <button type="button" class="tab-btn active" id="btnWardMap">Ward Map</button>
     <div id="patientTabsContainer" style="display:flex; gap:6px;"></div>
-    <button class="tab-btn" id="btnSummary">Summary</button>
+    <button type="button" class="tab-btn" id="btnSummary">Summary</button>
   </nav>
 
   <main>
-    <!-- Ward Allocation Grid -->
+    <!-- Ward Allocation Grid (Native HTML Buttons) -->
     <div id="viewWard" class="view active">
       <div class="card">
         <h3>Ward Allocation</h3>
-        <p style="font-size:0.8rem; color:var(--sub); margin-bottom:12px;">Tap beds to manage. Selected beds pin as tabs above.</p>
+        <p style="font-size:0.8rem; color:var(--sub); margin-bottom:12px;">Tap beds to select or deselect. Active beds will pin as tabs above.</p>
         <div class="grid" id="bedGrid">
-          <div class="bed-card" data-bed="Bay 1 Bed 1">Bay 1 Bed 1</div>
-          <div class="bed-card" data-bed="Bay 1 Bed 2">Bay 1 Bed 2</div>
-          <div class="bed-card" data-bed="Bay 1 Bed 3">Bay 1 Bed 3</div>
-          <div class="bed-card" data-bed="Bay 1 Bed 4">Bay 1 Bed 4</div>
-          <div class="bed-card" data-bed="Bay 2 Bed 1">Bay 2 Bed 1</div>
-          <div class="bed-card" data-bed="Bay 2 Bed 2">Bay 2 Bed 2</div>
-          <div class="bed-card" data-bed="Bay 2 Bed 3">Bay 2 Bed 3</div>
-          <div class="bed-card" data-bed="Bay 2 Bed 4">Bay 2 Bed 4</div>
-          <div class="bed-card" data-bed="Bay 3 Bed 1">Bay 3 Bed 1</div>
-          <div class="bed-card" data-bed="Bay 3 Bed 2">Bay 3 Bed 2</div>
-          <div class="bed-card" data-bed="Bay 3 Bed 3">Bay 3 Bed 3</div>
-          <div class="bed-card" data-bed="Bay 3 Bed 4">Bay 3 Bed 4</div>
-          <div class="bed-card" data-bed="Bay 4 Bed 1">Bay 4 Bed 1</div>
-          <div class="bed-card" data-bed="Bay 4 Bed 2">Bay 4 Bed 2</div>
-          <div class="bed-card" data-bed="Bay 4 Bed 3">Bay 4 Bed 3</div>
-          <div class="bed-card" data-bed="Bay 4 Bed 4">Bay 4 Bed 4</div>
-          <div class="bed-card" data-bed="Bay 5 Bed 1">Bay 5 Bed 1</div>
-          <div class="bed-card" data-bed="Bay 5 Bed 2">Bay 5 Bed 2</div>
-          <div class="bed-card" data-bed="Bay 5 Bed 3">Bay 5 Bed 3</div>
-          <div class="bed-card" data-bed="Bay 5 Bed 4">Bay 5 Bed 4</div>
-          <div class="bed-card" data-bed="Side Room 1">Side Room 1</div>
-          <div class="bed-card" data-bed="Side Room 2">Side Room 2</div>
-          <div class="bed-card" data-bed="Side Room 3">Side Room 3</div>
-          <div class="bed-card" data-bed="Side Room 4">Side Room 4</div>
-          <div class="bed-card" data-bed="Side Room 5">Side Room 5</div>
+          <button type="button" class="bed-btn" data-bed="Bay 1 Bed 1">Bay 1 Bed 1</button>
+          <button type="button" class="bed-btn" data-bed="Bay 1 Bed 2">Bay 1 Bed 2</button>
+          <button type="button" class="bed-btn" data-bed="Bay 1 Bed 3">Bay 1 Bed 3</button>
+          <button type="button" class="bed-btn" data-bed="Bay 1 Bed 4">Bay 1 Bed 4</button>
+          <button type="button" class="bed-btn" data-bed="Bay 2 Bed 1">Bay 2 Bed 1</button>
+          <button type="button" class="bed-btn" data-bed="Bay 2 Bed 2">Bay 2 Bed 2</button>
+          <button type="button" class="bed-btn" data-bed="Bay 2 Bed 3">Bay 2 Bed 3</button>
+          <button type="button" class="bed-btn" data-bed="Bay 2 Bed 4">Bay 2 Bed 4</button>
+          <button type="button" class="bed-btn" data-bed="Bay 3 Bed 1">Bay 3 Bed 1</button>
+          <button type="button" class="bed-btn" data-bed="Bay 3 Bed 2">Bay 3 Bed 2</button>
+          <button type="button" class="bed-btn" data-bed="Bay 3 Bed 3">Bay 3 Bed 3</button>
+          <button type="button" class="bed-btn" data-bed="Bay 3 Bed 4">Bay 3 Bed 4</button>
+          <button type="button" class="bed-btn" data-bed="Bay 4 Bed 1">Bay 4 Bed 1</button>
+          <button type="button" class="bed-btn" data-bed="Bay 4 Bed 2">Bay 4 Bed 2</button>
+          <button type="button" class="bed-btn" data-bed="Bay 4 Bed 3">Bay 4 Bed 3</button>
+          <button type="button" class="bed-btn" data-bed="Bay 4 Bed 4">Bay 4 Bed 4</button>
+          <button type="button" class="bed-btn" data-bed="Bay 5 Bed 1">Bay 5 Bed 1</button>
+          <button type="button" class="bed-btn" data-bed="Bay 5 Bed 2">Bay 5 Bed 2</button>
+          <button type="button" class="bed-btn" data-bed="Bay 5 Bed 3">Bay 5 Bed 3</button>
+          <button type="button" class="bed-btn" data-bed="Bay 5 Bed 4">Bay 5 Bed 4</button>
+          <button type="button" class="bed-btn" data-bed="Side Room 1">Side Room 1</button>
+          <button type="button" class="bed-btn" data-bed="Side Room 2">Side Room 2</button>
+          <button type="button" class="bed-btn" data-bed="Side Room 3">Side Room 3</button>
+          <button type="button" class="bed-btn" data-bed="Side Room 4">Side Room 4</button>
+          <button type="button" class="bed-btn" data-bed="Side Room 5">Side Room 5</button>
         </div>
       </div>
     </div>
@@ -227,11 +251,11 @@
       <div class="card">
         <h3>Turning & Repositioning</h3>
         <div class="chips">
-          <button class="chip" data-repo="Left Tilt">Left Tilt</button>
-          <button class="chip" data-repo="Right Tilt">Right Tilt</button>
-          <button class="chip" data-repo="Back">Back</button>
-          <button class="chip" data-repo="Chair">Chair</button>
-          <button class="chip" data-repo="Mobilised">Mobilised</button>
+          <button type="button" class="chip" data-repo="Left Tilt">Left Tilt</button>
+          <button type="button" class="chip" data-repo="Right Tilt">Right Tilt</button>
+          <button type="button" class="chip" data-repo="Back">Back</button>
+          <button type="button" class="chip" data-repo="Chair">Chair</button>
+          <button type="button" class="chip" data-repo="Mobilised">Mobilised</button>
         </div>
         <textarea readonly id="f_repositioningLogs"></textarea>
       </div>
@@ -245,19 +269,19 @@
         </div>
         <label>Quick Intake:</label>
         <div class="chips">
-          <button class="chip" data-fluid="in" data-ml="100" data-label="Water">+100ml Water</button>
-          <button class="chip" data-fluid="in" data-ml="150" data-label="Tea">+150ml Tea</button>
-          <button class="chip" data-fluid="in" data-ml="200" data-label="Fortisip">+200ml Fortisip</button>
-          <button class="chip" data-fluid="in" data-ml="500" data-label="IV">+500ml IV</button>
+          <button type="button" class="chip" data-fluid="in" data-ml="100" data-label="Water">+100ml Water</button>
+          <button type="button" class="chip" data-fluid="in" data-ml="150" data-label="Tea">+150ml Tea</button>
+          <button type="button" class="chip" data-fluid="in" data-ml="200" data-label="Fortisip">+200ml Fortisip</button>
+          <button type="button" class="chip" data-fluid="in" data-ml="500" data-label="IV">+500ml IV</button>
         </div>
         <textarea readonly id="f_intakeLogs"></textarea>
 
         <label style="margin-top:8px;">Quick Output:</label>
         <div class="chips">
-          <button class="chip" data-fluid="out" data-ml="200" data-label="Urinal">+200ml Urine</button>
-          <button class="chip" data-fluid="out" data-ml="400" data-label="Urinal">+400ml Urine</button>
-          <button class="chip" data-fluid="out" data-ml="0" data-label="Catheter Emptied">Catheter Emptied</button>
-          <button class="chip" data-fluid="out" data-ml="0" data-label="Pad Wet">Pad Wet</button>
+          <button type="button" class="chip" data-fluid="out" data-ml="200" data-label="Urinal">+200ml Urine</button>
+          <button type="button" class="chip" data-fluid="out" data-ml="400" data-label="Urinal">+400ml Urine</button>
+          <button type="button" class="chip" data-fluid="out" data-ml="0" data-label="Catheter Emptied">Catheter Emptied</button>
+          <button type="button" class="chip" data-fluid="out" data-ml="0" data-label="Pad Wet">Pad Wet</button>
         </div>
         <textarea readonly id="f_outputLogs"></textarea>
       </div>
@@ -310,7 +334,7 @@
       <div class="card">
         <h3>General Notes & Events</h3>
         <textarea id="f_generalNotes" placeholder="Events, updates..."></textarea>
-        <button class="btn" id="btnTimestamp" style="margin-top:6px;">Add Timestamp Note</button>
+        <button type="button" class="btn" id="btnTimestamp" style="margin-top:6px;">Add Timestamp Note</button>
       </div>
     </div>
 
@@ -319,8 +343,8 @@
       <div class="summary-title" id="summaryHeader">Shift Handover Summary</div>
       <div id="summaryCardsContainer"></div>
       <div class="summary-actions">
-        <button class="btn danger" id="clearShiftBtn">Clear Shift</button>
-        <button class="btn" id="copySummaryBtn">Copy Handover</button>
+        <button type="button" class="btn danger" id="clearShiftBtn">Clear Shift</button>
+        <button type="button" class="btn" id="copySummaryBtn">Copy Handover</button>
       </div>
     </div>
   </main>
@@ -329,7 +353,7 @@
     (function () {
       "use strict";
 
-      const FIELDS = [
+      var FIELDS = [
         "rr", "sats", "o2", "bpSys", "bpDia", "hr", "temp",
         "bm", "weight", "lyingSys", "lyingDia", "standingSys", "standingDia",
         "bowelOpen", "stoolType", "bowelNotes",
@@ -338,67 +362,40 @@
         "dietB", "dietL", "dietD", "generalNotes"
       ];
 
-      let selectedBeds = [];
-      let logs = {};
-      let activeTab = "ward";
+      var selectedBeds = [];
+      var logs = {};
+      var activeTab = "ward";
 
       try {
-        selectedBeds = JSON.parse(localStorage.getItem("th_beds_final") || "[]");
-        logs = JSON.parse(localStorage.getItem("th_logs_final") || "{}");
+        selectedBeds = JSON.parse(localStorage.getItem("th_beds_v5") || "[]");
+        logs = JSON.parse(localStorage.getItem("th_logs_v5") || "{}");
       } catch (e) {
         selectedBeds = [];
         logs = {};
       }
 
       function getTime() {
-        const d = new Date();
+        var d = new Date();
         return String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
       }
 
       function save() {
-        localStorage.setItem("th_beds_final", JSON.stringify(selectedBeds));
-        localStorage.setItem("th_logs_final", JSON.stringify(logs));
+        localStorage.setItem("th_beds_v5", JSON.stringify(selectedBeds));
+        localStorage.setItem("th_logs_v5", JSON.stringify(logs));
       }
 
       function calculateNews(d) {
-        let score = 0;
-        const rr = parseInt(d.rr, 10);
+        var score = 0;
+        var rr = parseInt(d.rr, 10);
         if (!isNaN(rr)) {
           if (rr <= 8 || rr >= 25) score += 3;
           else if (rr >= 21) score += 2;
           else if (rr >= 9 && rr <= 11) score += 1;
         }
-        const sats = parseInt(d.sats, 10);
+        var sats = parseInt(d.sats, 10);
         if (!isNaN(sats)) {
           if (sats <= 91) score += 3;
           else if (sats <= 93) score += 2;
           else if (sats <= 95) score += 1;
         }
-        if (d.o2 === "Oxygen") score += 2;
-        const sys = parseInt(d.bpSys, 10);
-        if (!isNaN(sys)) {
-          if (sys <= 90 || sys >= 220) score += 3;
-          else if (sys <= 100) score += 2;
-          else if (sys <= 110) score += 1;
-        }
-        const hr = parseInt(d.hr, 10);
-        if (!isNaN(hr)) {
-          if (hr <= 40 || hr >= 131) score += 3;
-          else if (hr >= 111) score += 2;
-          else if ((hr >= 41 && hr <= 50) || (hr >= 91 && hr <= 110)) score += 1;
-        }
-        const temp = parseFloat(d.temp);
-        if (!isNaN(temp)) {
-          if (temp <= 35.0) score += 3;
-          else if (temp >= 39.1) score += 2;
-          else if ((temp >= 35.1 && temp <= 36.0) || (temp >= 38.1 && temp <= 39.0)) score += 1;
-        }
-        return score;
-      }
-
-      function syncGridUI() {
-        const cards = document.querySelectorAll(".bed-card");
-        cards.forEach(function (c) {
-          const bed = c.getAttribute("data-bed");
-          if (selectedBeds.indexOf(bed) !== -1) {
-            c.classList.add("select
+        if (d.o2 === "Oxygen") sco
