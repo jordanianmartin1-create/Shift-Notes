@@ -476,7 +476,7 @@ function renderSectionContent(b, sb, rec, secId){
   return '';
 }
 
-function renderApp(){
+  function renderApp(){
   var nav = document.getElementById("navBar");
   var root = document.getElementById("tabContent");
   if(!nav || !root) return;
@@ -486,4 +486,159 @@ function renderApp(){
     var allocB = allocated[i];
     navHtml += '<button type="button" class="' + (curTab === allocB ? 'active' : '') + '" onclick="switchTab(\'' + allocB + '\')">' + allocB + '</button>';
   }
-  navHtml += '<butt
+  navHtml += '<button type="button" class="' + (curTab === 'summary' ? 'active' : '') + '" onclick="switchTab(\'summary\')">Summary</button>';
+  nav.innerHTML = navHtml;
+
+  if(curTab === "home"){
+    var hm = '<div class="card"><div class="card-title">Select Shift Allocations</div>';
+    hm += '<div style="font-size:12px;color:#64748B;margin-bottom:8px">Tap beds below to allocate to your shift.</div>';
+    hm += '<div style="font-size:12px;font-weight:700;color:var(--navy);margin-bottom:10px">';
+    hm += 'Allocated (' + allocated.length + '): ' + (allocated.join(", ") || 'None selected');
+    hm += '</div><div class="bed-grid">';
+    
+    for(var j = 0; j < BEDS.length; j++){
+      var bedName = BEDS[j];
+      var isAct = allocated.includes(bedName) ? 'active-bed' : '';
+      hm += '<button type="button" class="bed-pill ' + isAct + '" onclick="toggleAlloc(\'' + bedName + '\')">' + bedName + '</button>';
+    }
+    
+    hm += '</div></div>';
+    root.innerHTML = hm;
+    return;
+  }
+
+  if(curTab === "summary"){
+    if(!allocated.length){
+      root.innerHTML = '<div class="card" style="text-align:center;padding:24px;color:#64748B;font-size:12px">No allocated beds.<br>Select beds in <b>Home</b> first.</div>';
+      return;
+    }
+    var sh = '<div style="margin-bottom:10px"><b style="font-size:13px;color:var(--navy)">Shift Handover Summary (' + allocated.length + ' Beds)</b></div>';
+    
+    for(var a = 0; a < allocated.length; a++){
+      var bSum = allocated[a];
+      var r = records[bSum] || {};
+      var secs = [];
+      var sp = [];
+      
+      if(r.amy && r.amy.sacrum) sp.push("Sacrum: " + r.amy.sacrum);
+      if(r.amy && r.amy.groin) sp.push("Groin: " + r.amy.groin);
+      if(r.amy && r.amy.heels) sp.push("Heels: " + r.amy.heels);
+      if(r.amy && r.amy.elbows) sp.push("Elbows: " + r.amy.elbows);
+      if(r.amy && r.amy.other) sp.push("Other: " + r.amy.other);
+      if(r.amy && r.amy.dress) sp.push("Dress: " + r.amy.dress);
+      if(sp.length > 0) secs.push("<b>Skin:</b> " + sp.join(' | '));
+
+      var bpFormatted = (r.news2 && r.news2.sys ? r.news2.sys + (r.news2.dia ? '/' + r.news2.dia : '') : '');
+      if(r.news2 && (r.news2.rr || r.news2.spo2 || bpFormatted || r.news2.hr || r.news2.t)){
+        var n = getNEWS2(r.news2);
+        if(n.sc === 0){
+          secs.push("<b>NEWS2:</b> 0" + (r.news2.time ? ' (' + r.news2.time + ')' : ''));
+        } else {
+          var bgClass = n.sc >= 7 ? 'b-red' : (n.sc >= 5 ? 'b-amber' : 'b-green');
+          var timeStr = r.news2.time ? ' at ' + r.news2.time : '';
+          secs.push("<b>NEWS2:</b> <span class=\"" + bgClass + " badge\">Score " + n.sc + "</span>" + timeStr + " &bull; " + n.reasons.join(', '));
+        }
+      }
+
+      var ti = 0, to = 0;
+      var fArr = (r.fluid && r.fluid.h) ? r.fluid.h : [];
+      for(var f = 0; f < fArr.length; f++){
+        ti += +fArr[f].i || 0;
+        to += +fArr[f].o || 0;
+      }
+      if(ti > 0 || to > 0){
+        secs.push("<b>Fluids:</b> In: " + ti + "ml | Out: " + to + "ml | Net: " + (ti - to) + "ml");
+      }
+
+      var fp = [];
+      if(r.food && r.food.b) fp.push("B: " + r.food.b);
+      if(r.food && r.food.l) fp.push("L: " + r.food.l);
+      if(r.food && r.food.d) fp.push("D: " + r.food.d);
+      if(r.food && r.food.note) fp.push("Note: " + r.food.note);
+      if(fp.length > 0) secs.push("<b>Food:</b> " + fp.join(' | '));
+
+      var hasBowel = (r.bowel && r.bowel.amt) || (r.bowel && r.bowel.type) || (r.bowel && r.bowel.time);
+      if(hasBowel){
+        var bwTime = r.bowel.time ? r.bowel.time + ' - ' : '';
+        var bwAmt = r.bowel.amt || '';
+        var bwType = r.bowel.type ? '(' + r.bowel.type + ')' : '';
+        secs.push("<b>Bowels:</b> " + bwTime + bwAmt + " " + bwType);
+      }
+      
+      if(r.bm && r.bm.val){
+        secs.push("<b>Blood Glucose:</b> " + r.bm.val + " mmol/L" + (r.bm.time ? ' (' + r.bm.time + ')' : ''));
+      }
+      
+      var lBp = (r.bp && r.bp.lsys ? r.bp.lsys + (r.bp.ldia ? '/' + r.bp.ldia : '') : '');
+      var sBp = (r.bp && r.bp.ssys ? r.bp.ssys + (r.bp.sdia ? '/' + r.bp.sdia : '') : '');
+      if(lBp || sBp){
+        secs.push("<b>L/S BP:</b> Lying: " + (lBp || '-') + " | Standing: " + (sBp || '-'));
+      }
+
+      sh += '<div class="card"><div class="card-title">' + bSum + '</div>';
+      
+      if(secs.length > 0){
+        for(var sIdx = 0; sIdx < secs.length; sIdx++){
+          sh += '<div class="summary-sec">' + secs[sIdx] + '</div>';
+        }
+      } else {
+        sh += '<div style="font-size:11px;color:#94A3B8;padding:4px 0">No entries recorded this shift.</div>';
+      }
+      sh += '</div>';
+    }
+    root.innerHTML = sh;
+    return;
+  }
+
+  if(allocated.includes(curTab)){
+    var viewB = curTab;
+    var sb = viewB.replace(/\s+/g,"");
+    ensureBed(viewB);
+    var rec = records[viewB];
+    if(!rec || !rec.vis) return;
+
+    var pHtml = '<div style="font-size:12px;color:#64748B;margin-bottom:6px;">Toggle visible charts for ' + viewB + '</div>';
+    
+    pHtml += '<div class="chip-scroll">';
+    for(var ci = 0; ci < SECTIONS.length; ci++){
+      var sChip = SECTIONS[ci];
+      var activeCls = rec.vis[sChip.id] ? 'active-chip' : '';
+      pHtml += '<button type="button" class="chip ' + activeCls + '" onclick="toggleVis(\'' + viewB + '\', \'' + sChip.id + '\')">' + sChip.lbl + '</button>';
+    }
+    pHtml += '</div>';
+
+    for(var si = 0; si < SECTIONS.length; si++){
+      var sCard = SECTIONS[si];
+      if (rec.vis[sCard.id]) {
+        pHtml += '<div class="card"><div class="card-title">' + sCard.lbl + '</div>';
+        pHtml += renderSectionContent(viewB, sb, rec, sCard.id);
+        pHtml += '</div>';
+      }
+    }
+
+    root.innerHTML = pHtml;
+
+    if(rec.vis.news2) calcNEWS2(viewB);
+    if(rec.vis.bp) calcBP(viewB);
+    if(rec.vis.bm) calcBM(viewB);
+    if(rec.vis.must) calcMUST(viewB);
+  }
+}
+
+function clearShift(){
+  if(confirm("Clear shift records? Ensure handover is finished.")){
+    allocated = [];
+    records = {};
+    curTab = "home";
+    saveDB();
+    renderApp();
+  }
+}
+
+window.onload = function() {
+  loadDB();
+  renderApp();
+};
+</script>
+</body>
+</html>
