@@ -81,50 +81,72 @@ window.onerror = function(msg, url, line) {
 </div>
 
 <script>
-var BEDS=["Bay 1 Bed 1","Bay 1 Bed 2","Bay 2 Bed 1","Bay 2 Bed 2","Bay 2 Bed 3","Bay 2 Bed 4","Bay 3 Bed 1","Bay 3 Bed 2","Bay 3 Bed 3","Bay 3 Bed 4","Bay 4 Bed 1","Bay 4 Bed 2","Bay 4 Bed 3","Bay 4 Bed 4","Bay 5 Bed 1","Bay 5 Bed 2","Bay 5 Bed 3","Bay 5 Bed 4","Side Room 1","Side Room 2","Side Room 3","Side Room 4","Side Room 5","Side Room 6","Side Room 7"];
-var SECTIONS=[{id:"amy",lbl:"Amy's Round"},{id:"news2",lbl:"NEWS2"},{id:"fluid",lbl:"Fluids"},{id:"food",lbl:"Food"},{id:"bowel",lbl:"Bowels"},{id:"turn",lbl:"Turning"},{id:"bp",lbl:"L/S BP"},{id:"bm",lbl:"Glucose"},{id:"must",lbl:"MUST"}];
-var HOURS=["07-08","08-09","09-10","10-11","11-12","12-13","13-14","14-15","15-16","16-17","17-18","18-19"];
+var BEDS = [
+  "Bay 1 Bed 1", "Bay 1 Bed 2", "Bay 2 Bed 1", "Bay 2 Bed 2", 
+  "Bay 2 Bed 3", "Bay 2 Bed 4", "Bay 3 Bed 1", "Bay 3 Bed 2", 
+  "Bay 3 Bed 3", "Bay 3 Bed 4", "Bay 4 Bed 1", "Bay 4 Bed 2", 
+  "Bay 4 Bed 3", "Bay 4 Bed 4", "Bay 5 Bed 1", "Bay 5 Bed 2", 
+  "Bay 5 Bed 3", "Bay 5 Bed 4", "Side Room 1", "Side Room 2", 
+  "Side Room 3", "Side Room 4", "Side Room 5", "Side Room 6", 
+  "Side Room 7"
+];
 
-var curTab="home";
-var allocated=[];
-var records={};
+var SECTIONS = [
+  {id:"amy", lbl:"Amy's Round"}, {id:"news2", lbl:"NEWS2"}, 
+  {id:"fluid", lbl:"Fluids"}, {id:"food", lbl:"Food"}, 
+  {id:"bowel", lbl:"Bowels"}, {id:"turn", lbl:"Turning"}, 
+  {id:"bp", lbl:"L/S BP"}, {id:"bm", lbl:"Glucose"}, 
+  {id:"must", lbl:"MUST"}
+];
+
+var HOURS = [
+  "07-08", "08-09", "09-10", "10-11", "11-12", "12-13", 
+  "13-14", "14-15", "15-16", "16-17", "17-18", "18-19"
+];
+
+var curTab = "home";
+var allocated = [];
+var records = {};
 
 function loadDB(){
   try{
-    var a=localStorage.getItem("tw_db_a");
-    var r=localStorage.getItem("tw_db_r");
-    if(a) allocated=JSON.parse(a);
-    if(r) records=JSON.parse(r);
+    var a = localStorage.getItem("tw_db_a");
+    var r = localStorage.getItem("tw_db_r");
+    if(a) allocated = JSON.parse(a);
+    if(r) records = JSON.parse(r);
   }catch(e){
-    allocated=[];
-    records={};
+    allocated = [];
+    records = {};
   }
-  if(!Array.isArray(allocated)) allocated=[];
-  if(!records || typeof records!=="object" || Array.isArray(records)) records={};
+  if(!Array.isArray(allocated)) allocated = [];
+  if(!records || typeof records !== "object" || Array.isArray(records)) records = {};
 }
 
 function saveDB(){
   try{
-    localStorage.setItem("tw_db_a",JSON.stringify(allocated));
-    localStorage.setItem("tw_db_r",JSON.stringify(records));
+    localStorage.setItem("tw_db_a", JSON.stringify(allocated));
+    localStorage.setItem("tw_db_r", JSON.stringify(records));
   }catch(e){}
-  var s=document.getElementById("status");
-  if(s){s.innerText="Saved";setTimeout(function(){s.innerText="Auto-Saved";},800);}
+  var s = document.getElementById("status");
+  if(s){
+    s.innerText = "Saved";
+    setTimeout(function(){ s.innerText = "Auto-Saved"; }, 800);
+  }
 }
 
 function ensureBed(b){
-  if(!records[b] || typeof records[b] !== 'object') records[b]={};
-  var r=records[b];
-  if(!r.vis) r.vis={amy:true,news2:true,fluid:true,food:true,bowel:true,turn:true,bp:true,bm:true,must:true};
-  if(!r.amy) r.amy={sacrum:"",groin:"",heels:"",elbows:"",other:"",dress:"",band:"Yes",turn:"No",food:"Yes"};
-  if(!r.news2) r.news2={time:"",rr:"",spo2:"",o2:"Air",sys:"",dia:"",hr:"",acvpu:"Alert",t:""};
-  if(!r.fluid||!Array.isArray(r.fluid.h)) r.fluid={h:Array(12).fill(null).map(function(){return {i:"",o:""};})};
-  if(!r.food) r.food={b:"",l:"",d:"",note:""};
-  if(!r.bowel) r.bowel={time:"",amt:"",type:""};
-  if(!r.turn) r.turn={t1:"",t2:"",t3:"",t4:"",t5:"",t6:""};
-  if(!r.bp) r.bp={lsys:"",ldia:"",ssys:"",sdia:""};
-  if(!r.bm) r.bm={time:"",val:""};
-  if(!r.must) r.must={ht:"",wt:""};
+  if(!records[b] || typeof records[b] !== 'object') records[b] = {};
+  var r = records[b];
+  if(!r.vis) r.vis = {amy:true, news2:true, fluid:true, food:true, bowel:true, turn:true, bp:true, bm:true, must:true};
+  if(!r.amy) r.amy = {sacrum:"", groin:"", heels:"", elbows:"", other:"", dress:"", band:"Yes", turn:"No", food:"Yes"};
+  if(!r.news2) r.news2 = {time:"", rr:"", spo2:"", o2:"Air", sys:"", dia:"", hr:"", acvpu:"Alert", t:""};
+  if(!r.fluid || !Array.isArray(r.fluid.h)) r.fluid = {h: Array(12).fill(null).map(function(){ return {i:"", o:""}; })};
+  if(!r.food) r.food = {b:"", l:"", d:"", note:""};
+  if(!r.bowel) r.bowel = {time:"", amt:"", type:""};
+  if(!r.turn) r.turn = {t1:"", t2:"", t3:"", t4:"", t5:"", t6:""};
+  if(!r.bp) r.bp = {lsys:"", ldia:"", ssys:"", sdia:""};
+  if(!r.bm) r.bm = {time:"", val:""};
+  if(!r.must) r.must = {ht:"", wt:""};
 }
 
 function switchTab(t){
@@ -133,11 +155,11 @@ function switchTab(t){
 }
 
 function toggleAlloc(b){
-  var i=allocated.indexOf(b);
-  if(i>-1){ 
-    allocated.splice(i,1);
-    if(curTab===b) curTab="home"; 
-  }else{
+  var i = allocated.indexOf(b);
+  if(i > -1){ 
+    allocated.splice(i, 1);
+    if(curTab === b) curTab = "home"; 
+  } else {
     allocated.push(b);
     ensureBed(b);
   }
@@ -152,200 +174,316 @@ function toggleVis(b, secId){
   renderApp();
 }
 
-function setVal(b,sec,k,v){
+function setVal(b, sec, k, v){
   ensureBed(b);
-  records[b][sec][k]=v;
+  records[b][sec][k] = v;
   saveDB();
-  if(sec==="news2") calcNEWS2(b);
-  if(sec==="bp") calcBP(b);
-  if(sec==="bm") calcBM(b);
-  if(sec==="must") calcMUST(b);
+  if(sec === "news2") calcNEWS2(b);
+  if(sec === "bp") calcBP(b);
+  if(sec === "bm") calcBM(b);
+  if(sec === "must") calcMUST(b);
 }
 
 function getNEWS2(r){
-  var sc=0, reasons=[];
-  var rr=+r.rr, sp=+r.spo2, sys=+r.sys, hr=+r.hr, t=+r.t;
-  if(r.rr!==""){if(rr<=8||rr>=25){sc+=3;reasons.push("RR "+rr+" [+3]");}else if(rr>=21){sc+=2;reasons.push("RR "+rr+" [+2]");}else if(rr<=11){sc+=1;reasons.push("RR "+rr+" [+1]");}}
-  if(r.spo2!==""){if(sp<=91){sc+=3;reasons.push("SpO2 "+sp+"% [+3]");}else if(sp<=93){sc+=2;reasons.push("SpO2 "+sp+"% [+2]");}else if(sp<=95){sc+=1;reasons.push("SpO2 "+sp+"% [+1]");}}
-  if(r.o2==="O2"){sc+=2;reasons.push("O2 [+2]");}
-  if(!isNaN(sys)&&r.sys!==""){
-    var bpLabel=sys+(r.dia?'/'+r.dia:'');
-    if(sys<=90||sys>=220){sc+=3;reasons.push("BP "+bpLabel+" [+3]");}else if(sys<=100){sc+=2;reasons.push("BP "+bpLabel+" [+2]");}else if(sys<=110){sc+=1;reasons.push("BP "+bpLabel+" [+1]");}
+  var sc = 0, reasons = [];
+  var rr = +r.rr, sp = +r.spo2, sys = +r.sys, hr = +r.hr, t = +r.t;
+  
+  if(r.rr !== ""){
+    if(rr <= 8 || rr >= 25){ sc+=3; reasons.push("RR "+rr+" [+3]"); }
+    else if(rr >= 21){ sc+=2; reasons.push("RR "+rr+" [+2]"); }
+    else if(rr <= 11){ sc+=1; reasons.push("RR "+rr+" [+1]"); }
   }
-  if(r.hr!==""){if(hr<=40||hr>=131){sc+=3;reasons.push("HR "+hr+" [+3]");}else if(hr>=111){sc+=2;reasons.push("HR "+hr+" [+2]");}else if(hr<=50||hr>=91){sc+=1;reasons.push("HR "+hr+" [+1]");}}
-  if(r.acvpu&&r.acvpu!=="Alert"){sc+=3;reasons.push(r.acvpu+" [+3]");}
-  if(r.t!==""){if(t<=35){sc+=3;reasons.push("T "+t+"°C [+3]");}else if(t>=39.1){sc+=2;reasons.push("T "+t+"°C [+2]");}else if((t>=35.1&&t<=36)||(t>=38.1&&t<=39)){sc+=1;reasons.push("T "+t+"°C [+1]");}}
-  return {sc:sc, reasons:reasons};
+  
+  if(r.spo2 !== ""){
+    if(sp <= 91){ sc+=3; reasons.push("SpO2 "+sp+"% [+3]"); }
+    else if(sp <= 93){ sc+=2; reasons.push("SpO2 "+sp+"% [+2]"); }
+    else if(sp <= 95){ sc+=1; reasons.push("SpO2 "+sp+"% [+1]"); }
+  }
+  
+  if(r.o2 === "O2"){ sc+=2; reasons.push("O2 [+2]"); }
+  
+  if(!isNaN(sys) && r.sys !== ""){
+    var bpLabel = sys + (r.dia ? '/' + r.dia : '');
+    if(sys <= 90 || sys >= 220){ sc+=3; reasons.push("BP "+bpLabel+" [+3]"); }
+    else if(sys <= 100){ sc+=2; reasons.push("BP "+bpLabel+" [+2]"); }
+    else if(sys <= 110){ sc+=1; reasons.push("BP "+bpLabel+" [+1]"); }
+  }
+  
+  if(r.hr !== ""){
+    if(hr <= 40 || hr >= 131){ sc+=3; reasons.push("HR "+hr+" [+3]"); }
+    else if(hr >= 111){ sc+=2; reasons.push("HR "+hr+" [+2]"); }
+    else if(hr <= 50 || hr >= 91){ sc+=1; reasons.push("HR "+hr+" [+1]"); }
+  }
+  
+  if(r.acvpu && r.acvpu !== "Alert"){ sc+=3; reasons.push(r.acvpu+" [+3]"); }
+  
+  if(r.t !== ""){
+    if(t <= 35){ sc+=3; reasons.push("T "+t+"°C [+3]"); }
+    else if(t >= 39.1){ sc+=2; reasons.push("T "+t+"°C [+2]"); }
+    else if((t >= 35.1 && t <= 36) || (t >= 38.1 && t <= 39)){ sc+=1; reasons.push("T "+t+"°C [+1]"); }
+  }
+  
+  return {sc: sc, reasons: reasons};
 }
 
 function calcNEWS2(b){
-  var el=document.getElementById("bdg-n-"+b.replace(/\s+/g,""));
+  var el = document.getElementById("bdg-n-" + b.replace(/\s+/g,""));
   if(!el) return;
   var r = (records[b] && records[b].news2) ? records[b].news2 : {};
   var n = getNEWS2(r);
-  el.className="badge "+(n.sc>=7?"b-red":(n.sc>=5?"b-amber":"b-green"));
-  el.innerText="Score: "+n.sc;
+  el.className = "badge " + (n.sc >= 7 ? "b-red" : (n.sc >= 5 ? "b-amber" : "b-green"));
+  el.innerText = "Score: " + n.sc;
 }
 
 function calcBP(b){
-  var el=document.getElementById("bdg-p-"+b.replace(/\s+/g,""));
+  var el = document.getElementById("bdg-p-" + b.replace(/\s+/g,""));
   if(!el) return;
   var r = (records[b] && records[b].bp) ? records[b].bp : {};
-  var l=+r.lsys||0, s=+r.ssys||0;
-  if(!l||!s){el.className="badge b-green";el.innerText="Normal";return;}
-  var d=l-s;
-  el.className="badge "+(d>=20?"b-red":"b-green");
-  el.innerText=d>=20?"Drop (-"+d+")":"Normal ("+d+")";
+  var l = +r.lsys || 0, s = +r.ssys || 0;
+  if(!l || !s){
+    el.className = "badge b-green";
+    el.innerText = "Normal";
+    return;
+  }
+  var d = l - s;
+  el.className = "badge " + (d >= 20 ? "b-red" : "b-green");
+  el.innerText = d >= 20 ? "Drop (-" + d + ")" : "Normal (" + d + ")";
 }
 
 function calcBM(b){
-  var el=document.getElementById("bdg-m-"+b.replace(/\s+/g,""));
+  var el = document.getElementById("bdg-m-" + b.replace(/\s+/g,""));
   if(!el) return;
   var r = (records[b] && records[b].bm) ? records[b].bm : null;
   var v = r ? +r.val : NaN;
-  if(isNaN(v)||!r||r.val===""){el.className="badge b-green";el.innerText="Pending";return;}
-  el.className="badge "+(v<4?"b-red":(v<=7?"b-green":(v<=11?"b-amber":"b-red")));
-  el.innerText=v<4?"HYPO":(v>11?"HIGH":"TARGET");
+  if(isNaN(v) || !r || r.val === ""){
+    el.className = "badge b-green";
+    el.innerText = "Pending";
+    return;
+  }
+  el.className = "badge " + (v < 4 ? "b-red" : (v <= 7 ? "b-green" : (v <= 11 ? "b-amber" : "b-red")));
+  el.innerText = v < 4 ? "HYPO" : (v > 11 ? "HIGH" : "TARGET");
 }
 
 function calcMUST(b){
-  var el=document.getElementById("bdg-u-"+b.replace(/\s+/g,""));
+  var el = document.getElementById("bdg-u-" + b.replace(/\s+/g,""));
   if(!el) return;
   var r = (records[b] && records[b].must) ? records[b].must : {};
-  var h=+r.ht||0, w=+r.wt||0;
-  if(!h||!w){el.className="badge b-green";el.innerText="BMI: --";return;}
-  var bmi=(w/(h*h)).toFixed(1);
-  el.className="badge "+(bmi<18.5?"b-red":"b-green");
-  el.innerText="BMI: "+bmi;
+  var h = +r.ht || 0, w = +r.wt || 0;
+  if(!h || !w){
+    el.className = "badge b-green";
+    el.innerText = "BMI: --";
+    return;
+  }
+  var bmi = (w / (h * h)).toFixed(1);
+  el.className = "badge " + (bmi < 18.5 ? "b-red" : "b-green");
+  el.innerText = "BMI: " + bmi;
 }
 
-function opt(arr,sel){
-  return arr.map(function(x){ return "<option "+(x===sel?'selected':'')+">"+x+"</option>"; }).join("");
+function opt(arr, sel){
+  var html = "";
+  for(var i = 0; i < arr.length; i++){
+    var x = arr[i];
+    var isSel = (x === sel) ? "selected" : "";
+    html += "<option " + isSel + ">" + x + "</option>";
+  }
+  return html;
 }
 
-function inp(b,sec,k,lbl,val,type,ph,mode){
+function inp(b, sec, k, lbl, val, type, ph, mode){
   var t = type || "text";
   var p = ph || "";
-  var m = mode ? 'inputmode="'+mode+'"' : '';
+  var m = mode ? 'inputmode="' + mode + '"' : '';
   var v = val || '';
-  return '<div><label>'+lbl+'</label><input type="'+t+'" '+m+' placeholder="'+p+'" value="'+v+'" oninput="setVal(\''+b+'\',\''+sec+'\',\''+k+'\',this.value)"></div>';
+  var onInp = 'setVal(\'' + b + '\',\'' + sec + '\',\'' + k + '\',this.value)';
+  
+  var html = '<div><label>' + lbl + '</label>';
+  html += '<input type="' + t + '" ' + m + ' placeholder="' + p + '" value="' + v + '" oninput="' + onInp + '">';
+  html += '</div>';
+  return html;
 }
 
-function sel(b,sec,k,lbl,val,arr){
-  return '<div><label>'+lbl+'</label><select onchange="setVal(\''+b+'\',\''+sec+'\',\''+k+'\',this.value)">'+opt(arr,val)+'</select></div>';
+function sel(b, sec, k, lbl, val, arr){
+  var onChg = 'setVal(\'' + b + '\',\'' + sec + '\',\'' + k + '\',this.value)';
+  var html = '<div><label>' + lbl + '</label>';
+  html += '<select onchange="' + onChg + '">' + opt(arr, val) + '</select>';
+  html += '</div>';
+  return html;
 }
 
 function renderSectionContent(b, sb, rec, secId){
   if (!rec || !rec[secId]) return '';
+  var h = "";
   
-  if(secId==="amy"){
-    return '<div class="row">'+inp(b,'amy','sacrum','Sacrum',rec.amy.sacrum)+inp(b,'amy','groin','Groin',rec.amy.groin)+'</div>'
-    +'<div class="row">'+inp(b,'amy','heels','Heels',rec.amy.heels)+inp(b,'amy','elbows','Elbows',rec.amy.elbows)+'</div>'
-    +inp(b,'amy','other','Other Skin Notes',rec.amy.other)
-    +'<div class="row">'+inp(b,'amy','dress','Dressing Due',rec.amy.dress)+sel(b,'amy','band','Wristband',rec.amy.band,['Yes','No','Red Band','Replaced'])+'</div>'
-    +'<div class="row">'+sel(b,'amy','turn','Turning',rec.amy.turn,['No','Yes','In bed only','Self-turns','N/A'])+sel(b,'amy','food','Food/Drink',rec.amy.food,['Yes','No','Fluid Only','NBM'])+'</div>';
+  if(secId === "amy"){
+    h += '<div class="row">';
+    h += inp(b, 'amy', 'sacrum', 'Sacrum', rec.amy.sacrum);
+    h += inp(b, 'amy', 'groin', 'Groin', rec.amy.groin);
+    h += '</div><div class="row">';
+    h += inp(b, 'amy', 'heels', 'Heels', rec.amy.heels);
+    h += inp(b, 'amy', 'elbows', 'Elbows', rec.amy.elbows);
+    h += '</div>';
+    h += inp(b, 'amy', 'other', 'Other Skin Notes', rec.amy.other);
+    h += '<div class="row">';
+    h += inp(b, 'amy', 'dress', 'Dressing Due', rec.amy.dress);
+    h += sel(b, 'amy', 'band', 'Wristband', rec.amy.band, ['Yes','No','Red Band','Replaced']);
+    h += '</div><div class="row">';
+    h += sel(b, 'amy', 'turn', 'Turning', rec.amy.turn, ['No','Yes','In bed only','Self-turns','N/A']);
+    h += sel(b, 'amy', 'food', 'Food/Drink', rec.amy.food, ['Yes','No','Fluid Only','NBM']);
+    h += '</div>';
+    return h;
   }
-  if(secId==="news2"){
-    return '<div style="margin-bottom:8px"><span id="bdg-n-'+sb+'" class="badge b-green">Score: 0</span></div>'
-    +'<div class="row">'+inp(b,'news2','time','Time',rec.news2.time,'time')+inp(b,'news2','rr','RR',rec.news2.rr,'text','','numeric')+inp(b,'news2','spo2','SpO2%',rec.news2.spo2,'text','','numeric')+'</div>'
-    +'<div class="row">'
-    +sel(b,'news2','o2','Air/O2',rec.news2.o2,['Air','O2'])
-    +'<div><label>BP (Sys / Dia)</label><div class="bp-pair"><input type="text" inputmode="numeric" placeholder="120" value="'+(rec.news2.sys||'')+'" oninput="setVal(\''+b+'\',\'news2\',\'sys\',this.value)"><span>/</span><input type="text" inputmode="numeric" placeholder="80" value="'+(rec.news2.dia||'')+'" oninput="setVal(\''+b+'\',\'news2\',\'dia\',this.value)"></div></div>'
-    +inp(b,'news2','hr','HR',rec.news2.hr,'text','','numeric')
-    +'</div>'
-    +'<div class="row">'+sel(b,'news2','acvpu','ACVPU',rec.news2.acvpu,['Alert','CVPU'])+inp(b,'news2','t','Temp',rec.news2.t,'text','37.0','decimal')+'</div>';
+  
+  if(secId === "news2"){
+    h += '<div style="margin-bottom:8px">';
+    h += '<span id="bdg-n-' + sb + '" class="badge b-green">Score: 0</span>';
+    h += '</div><div class="row">';
+    h += inp(b, 'news2', 'time', 'Time', rec.news2.time, 'time');
+    h += inp(b, 'news2', 'rr', 'RR', rec.news2.rr, 'text', '', 'numeric');
+    h += inp(b, 'news2', 'spo2', 'SpO2%', rec.news2.spo2, 'text', '', 'numeric');
+    h += '</div><div class="row">';
+    h += sel(b, 'news2', 'o2', 'Air/O2', rec.news2.o2, ['Air','O2']);
+    
+    var onSys = 'setVal(\'' + b + '\',\'news2\',\'sys\',this.value)';
+    var onDia = 'setVal(\'' + b + '\',\'news2\',\'dia\',this.value)';
+    
+    h += '<div><label>BP (Sys / Dia)</label><div class="bp-pair">';
+    h += '<input type="text" inputmode="numeric" placeholder="120" value="' + (rec.news2.sys || '') + '" oninput="' + onSys + '">';
+    h += '<span>/</span>';
+    h += '<input type="text" inputmode="numeric" placeholder="80" value="' + (rec.news2.dia || '') + '" oninput="' + onDia + '">';
+    h += '</div></div>';
+    
+    h += inp(b, 'news2', 'hr', 'HR', rec.news2.hr, 'text', '', 'numeric');
+    h += '</div><div class="row">';
+    h += sel(b, 'news2', 'acvpu', 'ACVPU', rec.news2.acvpu, ['Alert','CVPU']);
+    h += inp(b, 'news2', 't', 'Temp', rec.news2.t, 'text', '37.0', 'decimal');
+    h += '</div>';
+    return h;
   }
-  if(secId==="fluid"){
-    var ti=0,to=0;
+  
+  if(secId === "fluid"){
+    var ti = 0, to = 0;
     if(rec.fluid.h && Array.isArray(rec.fluid.h)) {
-      rec.fluid.h.forEach(function(x){ti+=+x.i||0;to+=+x.o||0;});
-      var rows=HOURS.map(function(h,hi){
+      rec.fluid.h.forEach(function(x){ ti += +x.i || 0; to += +x.o || 0; });
+      
+      var rows = "";
+      for(var hi = 0; hi < HOURS.length; hi++){
+        var hrLabel = HOURS[hi];
         var fi = (rec.fluid.h[hi] && rec.fluid.h[hi].i) || '';
         var fo = (rec.fluid.h[hi] && rec.fluid.h[hi].o) || '';
-        return '<div class="row" style="margin-bottom:4px"><span style="font-size:10px;width:60px;line-height:28px">'+h+'</span><input type="text" inputmode="numeric" placeholder="In" value="'+fi+'" oninput="records[\''+b+'\'].fluid.h['+hi+'].i=this.value;saveDB()"><input type="text" inputmode="numeric" placeholder="Out" value="'+fo+'" oninput="records[\''+b+'\'].fluid.h['+hi+'].o=this.value;saveDB()"></div>';
-      }).join('');
-      return '<div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:12px"><span>In: <b>'+ti+'ml</b></span><span>Out: <b>'+to+'ml</b></span><span>Net: <b>'+(ti-to)+'ml</b></span></div><div style="max-height:160px;overflow-y:auto;border:1px solid #CBD5E1;padding:6px;border-radius:6px">'+rows+'</div>';
+        var inFn = 'records[\'' + b + '\'].fluid.h[' + hi + '].i=this.value;saveDB()';
+        var outFn = 'records[\'' + b + '\'].fluid.h[' + hi + '].o=this.value;saveDB()';
+        
+        rows += '<div class="row" style="margin-bottom:4px">';
+        rows += '<span style="font-size:10px;width:60px;line-height:28px">' + hrLabel + '</span>';
+        rows += '<input type="text" inputmode="numeric" placeholder="In" value="' + fi + '" oninput="' + inFn + '">';
+        rows += '<input type="text" inputmode="numeric" placeholder="Out" value="' + fo + '" oninput="' + outFn + '">';
+        rows += '</div>';
+      }
+      
+      h += '<div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:12px">';
+      h += '<span>In: <b>' + ti + 'ml</b></span>';
+      h += '<span>Out: <b>' + to + 'ml</b></span>';
+      h += '<span>Net: <b>' + (ti - to) + 'ml</b></span>';
+      h += '</div>';
+      h += '<div style="max-height:160px;overflow-y:auto;border:1px solid #CBD5E1;padding:6px;border-radius:6px">';
+      h += rows;
+      h += '</div>';
+      return h;
     }
     return '';
   }
-  if(secId==="food"){
-    var fOpts=['','All','3/4','1/2','1/4','Refused','NBM'];
-    return '<div class="row">'+sel(b,'food','b','Breakfast',rec.food.b,fOpts)+sel(b,'food','l','Lunch',rec.food.l,fOpts)+sel(b,'food','d','Dinner',rec.food.d,fOpts)+'</div>'+inp(b,'food','note','Notes',rec.food.note);
+  
+  if(secId === "food"){
+    var fOpts = ['','All','3/4','1/2','1/4','Refused','NBM'];
+    h += '<div class="row">';
+    h += sel(b, 'food', 'b', 'Breakfast', rec.food.b, fOpts);
+    h += sel(b, 'food', 'l', 'Lunch', rec.food.l, fOpts);
+    h += sel(b, 'food', 'd', 'Dinner', rec.food.d, fOpts);
+    h += '</div>';
+    h += inp(b, 'food', 'note', 'Notes', rec.food.note);
+    return h;
   }
-  if(secId==="bowel"){
-    return '<div class="row">'+inp(b,'bowel','time','Time',rec.bowel.time,'time')+sel(b,'bowel','amt','Amount',rec.bowel.amt,['','Small','Medium','Large','Smear'])+'</div>'+sel(b,'bowel','type','Bristol Type',rec.bowel.type,['','Type 1','Type 2','Type 3','Type 4 (Smooth)','Type 5','Type 6','Type 7','BNO']);
+  
+  if(secId === "bowel"){
+    h += '<div class="row">';
+    h += inp(b, 'bowel', 'time', 'Time', rec.bowel.time, 'time');
+    h += sel(b, 'bowel', 'amt', 'Amount', rec.bowel.amt, ['','Small','Medium','Large','Smear']);
+    h += '</div>';
+    h += sel(b, 'bowel', 'type', 'Bristol Type', rec.bowel.type, ['','Type 1','Type 2','Type 3','Type 4 (Smooth)','Type 5','Type 6','Type 7','BNO']);
+    return h;
   }
-  if(secId==="turn"){
-    return '<div class="row">'+inp(b,'turn','t1','08:00',rec.turn.t1)+inp(b,'turn','t2','10:00',rec.turn.t2)+inp(b,'turn','t3','12:00',rec.turn.t3)+'</div><div class="row">'+inp(b,'turn','t4','14:00',rec.turn.t4)+inp(b,'turn','t5','16:00',rec.turn.t5)+inp(b,'turn','t6','18:00',rec.turn.t6)+'</div>';
+  
+  if(secId === "turn"){
+    h += '<div class="row">';
+    h += inp(b, 'turn', 't1', '08:00', rec.turn.t1);
+    h += inp(b, 'turn', 't2', '10:00', rec.turn.t2);
+    h += inp(b, 'turn', 't3', '12:00', rec.turn.t3);
+    h += '</div><div class="row">';
+    h += inp(b, 'turn', 't4', '14:00', rec.turn.t4);
+    h += inp(b, 'turn', 't5', '16:00', rec.turn.t5);
+    h += inp(b, 'turn', 't6', '18:00', rec.turn.t6);
+    h += '</div>';
+    return h;
   }
-  if(secId==="bp"){
-    return '<div style="margin-bottom:6px"><span id="bdg-p-'+sb+'" class="badge b-green">Normal</span></div>'
-    +'<div class="row">'
-    +'<div><label>Lying BP (Sys / Dia)</label><div class="bp-pair"><input type="text" inputmode="numeric" placeholder="120" value="'+(rec.bp.lsys||'')+'" oninput="setVal(\''+b+'\',\'bp\',\'lsys\',this.value)"><span>/</span><input type="text" inputmode="numeric" placeholder="80" value="'+(rec.bp.ldia||'')+'" oninput="setVal(\''+b+'\',\'bp\',\'ldia\',this.value)"></div></div>'
-    +'<div><label>Standing BP (Sys / Dia)</label><div class="bp-pair"><input type="text" inputmode="numeric" placeholder="118" value="'+(rec.bp.ssys||'')+'" oninput="setVal(\''+b+'\',\'bp\',\'ssys\',this.value)"><span>/</span><input type="text" inputmode="numeric" placeholder="78" value="'+(rec.bp.sdia||'')+'" oninput="setVal(\''+b+'\',\'bp\',\'sdia\',this.value)"></div></div>'
-    +'</div>';
+  
+  if(secId === "bp"){
+    h += '<div style="margin-bottom:6px">';
+    h += '<span id="bdg-p-' + sb + '" class="badge b-green">Normal</span>';
+    h += '</div><div class="row">';
+    
+    var onLSys = 'setVal(\'' + b + '\',\'bp\',\'lsys\',this.value)';
+    var onLDia = 'setVal(\'' + b + '\',\'bp\',\'ldia\',this.value)';
+    
+    h += '<div><label>Lying BP (Sys / Dia)</label><div class="bp-pair">';
+    h += '<input type="text" inputmode="numeric" placeholder="120" value="' + (rec.bp.lsys || '') + '" oninput="' + onLSys + '">';
+    h += '<span>/</span>';
+    h += '<input type="text" inputmode="numeric" placeholder="80" value="' + (rec.bp.ldia || '') + '" oninput="' + onLDia + '">';
+    h += '</div></div>';
+    
+    var onSSys = 'setVal(\'' + b + '\',\'bp\',\'ssys\',this.value)';
+    var onSDia = 'setVal(\'' + b + '\',\'bp\',\'sdia\',this.value)';
+    
+    h += '<div><label>Standing BP (Sys / Dia)</label><div class="bp-pair">';
+    h += '<input type="text" inputmode="numeric" placeholder="118" value="' + (rec.bp.ssys || '') + '" oninput="' + onSSys + '">';
+    h += '<span>/</span>';
+    h += '<input type="text" inputmode="numeric" placeholder="78" value="' + (rec.bp.sdia || '') + '" oninput="' + onSDia + '">';
+    h += '</div></div>';
+    
+    h += '</div>';
+    return h;
   }
-  if(secId==="bm"){
-    return '<div style="margin-bottom:6px"><span id="bdg-m-'+sb+'" class="badge b-green">Pending</span></div><div class="row">'+inp(b,'bm','time','Time',rec.bm.time,'time')+inp(b,'bm','val','BM mmol/L',rec.bm.val,'text','','decimal')+'</div>';
+  
+  if(secId === "bm"){
+    h += '<div style="margin-bottom:6px">';
+    h += '<span id="bdg-m-' + sb + '" class="badge b-green">Pending</span>';
+    h += '</div><div class="row">';
+    h += inp(b, 'bm', 'time', 'Time', rec.bm.time, 'time');
+    h += inp(b, 'bm', 'val', 'BM mmol/L', rec.bm.val, 'text', '', 'decimal');
+    h += '</div>';
+    return h;
   }
-  if(secId==="must"){
-    return '<div style="margin-bottom:6px"><span id="bdg-u-'+sb+'" class="badge b-green">BMI: --</span></div><div class="row">'+inp(b,'must','ht','Height (m)',rec.must.ht,'text','1.75','decimal')+inp(b,'must','wt','Weight (kg)',rec.must.wt,'text','70.5','decimal')+'</div>';
+  
+  if(secId === "must"){
+    h += '<div style="margin-bottom:6px">';
+    h += '<span id="bdg-u-' + sb + '" class="badge b-green">BMI: --</span>';
+    h += '</div><div class="row">';
+    h += inp(b, 'must', 'ht', 'Height (m)', rec.must.ht, 'text', '1.75', 'decimal');
+    h += inp(b, 'must', 'wt', 'Weight (kg)', rec.must.wt, 'text', '70.5', 'decimal');
+    h += '</div>';
+    return h;
   }
+  
   return '';
 }
 
 function renderApp(){
-  var nav=document.getElementById("navBar");
-  var root=document.getElementById("tabContent");
-  if(!nav||!root) return;
+  var nav = document.getElementById("navBar");
+  var root = document.getElementById("tabContent");
+  if(!nav || !root) return;
 
-  var navHtml = '<button type="button" class="'+(curTab==='home'?'active':'')+'" onclick="switchTab(\'home\')">Home</button>';
-  allocated.forEach(function(b){
-    navHtml += '<button type="button" class="'+(curTab===b?'active':'')+'" onclick="switchTab(\''+b+'\')">'+b+'</button>';
-  });
-  navHtml += '<button type="button" class="'+(curTab==='summary'?'active':'')+'" onclick="switchTab(\'summary\')">Summary</button>';
-  nav.innerHTML = navHtml;
-
-  if(curTab==="home"){
-    root.innerHTML='<div class="card"><div class="card-title">Select Shift Allocations</div><div style="font-size:12px;color:#64748B;margin-bottom:8px">Tap beds below to allocate to your shift.</div><div style="font-size:12px;font-weight:700;color:var(--navy);margin-bottom:10px">Allocated ('+allocated.length+'): '+(allocated.join(", ")||'None selected')+'</div><div class="bed-grid">'+BEDS.map(function(b){return '<button type="button" class="bed-pill '+(allocated.includes(b)?'active-bed':'')+'" onclick="toggleAlloc(\''+b+'\')">'+b+'</button>';}).join("")+'</div></div>';
-    return;
+  var navHtml = '<button type="button" class="' + (curTab === 'home' ? 'active' : '') + '" onclick="switchTab(\'home\')">Home</button>';
+  for(var i = 0; i < allocated.length; i++){
+    var allocB = allocated[i];
+    navHtml += '<button type="button" class="' + (curTab === allocB ? 'active' : '') + '" onclick="switchTab(\'' + allocB + '\')">' + allocB + '</button>';
   }
-
-  if(curTab==="summary"){
-    if(!allocated.length){
-      root.innerHTML='<div class="card" style="text-align:center;padding:24px;color:#64748B;font-size:12px">No allocated beds.<br>Select beds in <b>Home</b> first.</div>';
-      return;
-    }
-    var h='<div style="margin-bottom:10px"><b style="font-size:13px;color:var(--navy)">Shift Handover Summary ('+allocated.length+' Beds)</b></div>';
-    allocated.forEach(function(b){
-      var r=records[b]||{};
-      var secs=[];
-      var sp=[];
-      
-      if(r.amy && r.amy.sacrum) sp.push("Sacrum: "+r.amy.sacrum);
-      if(r.amy && r.amy.groin) sp.push("Groin: "+r.amy.groin);
-      if(r.amy && r.amy.heels) sp.push("Heels: "+r.amy.heels);
-      if(r.amy && r.amy.elbows) sp.push("Elbows: "+r.amy.elbows);
-      if(r.amy && r.amy.other) sp.push("Other: "+r.amy.other);
-      if(r.amy && r.amy.dress) sp.push("Dress: "+r.amy.dress);
-      if(sp.length) secs.push("<b>Skin:</b> "+sp.join(' | '));
-
-      var bpFormatted = (r.news2 && r.news2.sys ? r.news2.sys + (r.news2.dia ? '/' + r.news2.dia : '') : '');
-      if(r.news2 && (r.news2.rr||r.news2.spo2||bpFormatted||r.news2.hr||r.news2.t)){
-        var n=getNEWS2(r.news2);
-        if(n.sc===0) secs.push("<b>NEWS2:</b> 0"+(r.news2.time ? ' ('+r.news2.time+')' : ''));
-        else secs.push("<b>NEWS2:</b> <span class=\""+(n.sc>=7?'b-red':(n.sc>=5?'b-amber':'b-green'))+" badge\">Score "+n.sc+"</span>"+(r.news2.time ? ' at '+r.news2.time : '')+" &bull; "+n.reasons.join(', '));
-      }
-
-      var ti=0,to=0;
-      (r.fluid && r.fluid.h ? r.fluid.h : []).forEach(function(x){ti+=+x.i||0;to+=+x.o||0;});
-      if(ti>0||to>0) secs.push("<b>Fluids:</b> In: "+ti+"ml | Out: "+to+"ml | Net: "+(ti-to)+"ml");
-
-      var fp=[];
-      if(r.food && r.food.b) fp.push("B: "+r.food.b);
-      if(r.food && r.food.l) fp.push("L: "+r.food.l);
-      if(r.food && r.food.d) fp.push("D: "+r.food.d);
-      if(r.food && r.food.note) fp.push("Note: "+r.food.note);
-      if(fp.length) secs.push("<b>Food:</b> "+fp.join(' | '));
-
-      if((r.bowel && r.bowel.amt) || (r.bowel && r.bowel.type) || (r.bowel && r.bowel
+  navHtml += '<butt
