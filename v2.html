@@ -34,6 +34,7 @@ input,select{width:100%;padding:8px;border:1px solid #CBD5E1;border-radius:6px;f
 .bp-pair input{text-align:center}
 .btn{display:inline-block;padding:10px 16px;border-radius:6px;font-size:14px;font-weight:600;border:none;cursor:pointer;width:100%}
 .btn-del{background:#FEE2E2;color:var(--red)}
+.btn-primary{background:var(--navy);color:#fff;font-size:12px;padding:8px 12px}
 .footer{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #E2E8F0;padding:12px 16px;display:flex;justify-content:center;z-index:100}
 .badge{display:inline-block;padding:3px 8px;border-radius:4px;font-size:11px;font-weight:700}
 .b-green{background:#DCFCE7;color:#166534}
@@ -96,7 +97,7 @@ var SECTIONS = [
   {id:"fluid", lbl:"Fluids"}, {id:"food", lbl:"Food"}, 
   {id:"bowel", lbl:"Bowels"}, {id:"turn", lbl:"Turning"}, 
   {id:"bp", lbl:"L/S BP"}, {id:"bm", lbl:"Glucose"}, 
-  {id:"must", lbl:"MUST"}
+  {id:"must", lbl:"Weight"}
 ];
 
 var HOURS = [
@@ -145,8 +146,9 @@ function ensureBed(b){
   if(!r.bowel) r.bowel = {time:"", amt:"", type:""};
   if(!r.turn) r.turn = {t1:"", t2:"", t3:"", t4:"", t5:"", t6:""};
   if(!r.bp) r.bp = {lsys:"", ldia:"", ssys:"", sdia:""};
-  if(!r.bm) r.bm = {time:"", val:""};
-  if(!r.must) r.must = {ht:"", wt:""};
+  if(!r.bm) r.bm = {meal:"", val:""};
+  if(typeof r.bm.meal === 'undefined') r.bm.meal = "";
+  if(!r.must) r.must = {wt:""};
 }
 
 function switchTab(t){
@@ -181,7 +183,13 @@ function setVal(b, sec, k, v){
   if(sec === "news2") calcNEWS2(b);
   if(sec === "bp") calcBP(b);
   if(sec === "bm") calcBM(b);
-  if(sec === "must") calcMUST(b);
+}
+
+function setNow(b, sec, k){
+  var d = new Date();
+  var t = ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2);
+  setVal(b, sec, k, t);
+  renderApp();
 }
 
 function getNEWS2(r){
@@ -264,22 +272,7 @@ function calcBM(b){
   el.innerText = v < 4 ? "HYPO" : (v > 11 ? "HIGH" : "TARGET");
 }
 
-function calcMUST(b){
-  var el = document.getElementById("bdg-u-" + b.replace(/\s+/g,""));
-  if(!el) return;
-  var r = (records[b] && records[b].must) ? records[b].must : {};
-  var h = +r.ht || 0, w = +r.wt || 0;
-  if(!h || !w){
-    el.className = "badge b-green";
-    el.innerText = "BMI: --";
-    return;
-  }
-  var bmi = (w / (h * h)).toFixed(1);
-  el.className = "badge " + (bmi < 18.5 ? "b-red" : "b-green");
-  el.innerText = "BMI: " + bmi;
-}
-
-function opt(arr, sel){
+  function opt(arr, sel){
   var html = "";
   for(var i = 0; i < arr.length; i++){
     var x = arr[i];
@@ -295,19 +288,22 @@ function inp(b, sec, k, lbl, val, type, ph, mode){
   var m = mode ? 'inputmode="' + mode + '"' : '';
   var v = val || '';
   var onInp = 'setVal(\'' + b + '\',\'' + sec + '\',\'' + k + '\',this.value)';
-  
-  var html = '<div><label>' + lbl + '</label>';
-  html += '<input type="' + t + '" ' + m + ' placeholder="' + p + '" value="' + v + '" oninput="' + onInp + '">';
-  html += '</div>';
-  return html;
+  return '<div><label>' + lbl + '</label><input type="' + t + '" ' + m + ' placeholder="' + p + '" value="' + v + '" oninput="' + onInp + '"></div>';
+}
+
+function inpTime(b, sec, k, lbl, val){
+  var onInp = 'setVal(\'' + b + '\',\'' + sec + '\',\'' + k + '\',this.value)';
+  var onNow = 'setNow(\'' + b + '\',\'' + sec + '\',\'' + k + '\')';
+  var h = '<div><label>' + lbl + '</label><div style="display:flex;gap:4px;">';
+  h += '<input type="time" value="' + val + '" oninput="' + onInp + '">';
+  h += '<button type="button" class="btn-primary" style="border:none;border-radius:6px;width:auto;cursor:pointer;" onclick="' + onNow + '">Now</button>';
+  h += '</div></div>';
+  return h;
 }
 
 function sel(b, sec, k, lbl, val, arr){
   var onChg = 'setVal(\'' + b + '\',\'' + sec + '\',\'' + k + '\',this.value)';
-  var html = '<div><label>' + lbl + '</label>';
-  html += '<select onchange="' + onChg + '">' + opt(arr, val) + '</select>';
-  html += '</div>';
-  return html;
+  return '<div><label>' + lbl + '</label><select onchange="' + onChg + '">' + opt(arr, val) + '</select></div>';
 }
 
 function renderSectionContent(b, sb, rec, secId){
@@ -315,12 +311,13 @@ function renderSectionContent(b, sb, rec, secId){
   var h = "";
   
   if(secId === "amy"){
+    var skinOpts = ['', 'Fine', 'Red', 'Sore', 'Broken', 'Blister', 'Dressing intact', 'Cream applied'];
     h += '<div class="row">';
-    h += inp(b, 'amy', 'sacrum', 'Sacrum', rec.amy.sacrum);
-    h += inp(b, 'amy', 'groin', 'Groin', rec.amy.groin);
+    h += sel(b, 'amy', 'sacrum', 'Sacrum', rec.amy.sacrum, skinOpts);
+    h += sel(b, 'amy', 'groin', 'Groin', rec.amy.groin, skinOpts);
     h += '</div><div class="row">';
-    h += inp(b, 'amy', 'heels', 'Heels', rec.amy.heels);
-    h += inp(b, 'amy', 'elbows', 'Elbows', rec.amy.elbows);
+    h += sel(b, 'amy', 'heels', 'Heels', rec.amy.heels, skinOpts);
+    h += sel(b, 'amy', 'elbows', 'Elbows', rec.amy.elbows, skinOpts);
     h += '</div>';
     h += inp(b, 'amy', 'other', 'Other Skin Notes', rec.amy.other);
     h += '<div class="row">';
@@ -337,7 +334,7 @@ function renderSectionContent(b, sb, rec, secId){
     h += '<div style="margin-bottom:8px">';
     h += '<span id="bdg-n-' + sb + '" class="badge b-green">Score: 0</span>';
     h += '</div><div class="row">';
-    h += inp(b, 'news2', 'time', 'Time', rec.news2.time, 'time');
+    h += inpTime(b, 'news2', 'time', 'Time', rec.news2.time);
     h += inp(b, 'news2', 'rr', 'RR', rec.news2.rr, 'text', '', 'numeric');
     h += inp(b, 'news2', 'spo2', 'SpO2%', rec.news2.spo2, 'text', '', 'numeric');
     h += '</div><div class="row">';
@@ -406,7 +403,7 @@ function renderSectionContent(b, sb, rec, secId){
   
   if(secId === "bowel"){
     h += '<div class="row">';
-    h += inp(b, 'bowel', 'time', 'Time', rec.bowel.time, 'time');
+    h += inpTime(b, 'bowel', 'time', 'Time', rec.bowel.time);
     h += sel(b, 'bowel', 'amt', 'Amount', rec.bowel.amt, ['','Small','Medium','Large','Smear']);
     h += '</div>';
     h += sel(b, 'bowel', 'type', 'Bristol Type', rec.bowel.type, ['','Type 1','Type 2','Type 3','Type 4 (Smooth)','Type 5','Type 6','Type 7','BNO']);
@@ -414,14 +411,15 @@ function renderSectionContent(b, sb, rec, secId){
   }
   
   if(secId === "turn"){
+    var turnOpts = ['', 'Back', 'Left', 'Right', 'Chair', 'Walking', 'Refused'];
     h += '<div class="row">';
-    h += inp(b, 'turn', 't1', '08:00', rec.turn.t1);
-    h += inp(b, 'turn', 't2', '10:00', rec.turn.t2);
-    h += inp(b, 'turn', 't3', '12:00', rec.turn.t3);
+    h += sel(b, 'turn', 't1', '08:00', rec.turn.t1, turnOpts);
+    h += sel(b, 'turn', 't2', '10:00', rec.turn.t2, turnOpts);
+    h += sel(b, 'turn', 't3', '12:00', rec.turn.t3, turnOpts);
     h += '</div><div class="row">';
-    h += inp(b, 'turn', 't4', '14:00', rec.turn.t4);
-    h += inp(b, 'turn', 't5', '16:00', rec.turn.t5);
-    h += inp(b, 'turn', 't6', '18:00', rec.turn.t6);
+    h += sel(b, 'turn', 't4', '14:00', rec.turn.t4, turnOpts);
+    h += sel(b, 'turn', 't5', '16:00', rec.turn.t5, turnOpts);
+    h += sel(b, 'turn', 't6', '18:00', rec.turn.t6, turnOpts);
     h += '</div>';
     return h;
   }
@@ -454,20 +452,18 @@ function renderSectionContent(b, sb, rec, secId){
   }
   
   if(secId === "bm"){
+    var bmOpts = ['', 'Before Breakfast', 'After Breakfast', 'Before Lunch', 'After Lunch', 'Before Dinner', 'After Dinner', 'Before Bed', 'Night', 'Random'];
     h += '<div style="margin-bottom:6px">';
     h += '<span id="bdg-m-' + sb + '" class="badge b-green">Pending</span>';
     h += '</div><div class="row">';
-    h += inp(b, 'bm', 'time', 'Time', rec.bm.time, 'time');
+    h += sel(b, 'bm', 'meal', 'Timing', rec.bm.meal, bmOpts);
     h += inp(b, 'bm', 'val', 'BM mmol/L', rec.bm.val, 'text', '', 'decimal');
     h += '</div>';
     return h;
   }
   
   if(secId === "must"){
-    h += '<div style="margin-bottom:6px">';
-    h += '<span id="bdg-u-' + sb + '" class="badge b-green">BMI: --</span>';
-    h += '</div><div class="row">';
-    h += inp(b, 'must', 'ht', 'Height (m)', rec.must.ht, 'text', '1.75', 'decimal');
+    h += '<div class="row">';
     h += inp(b, 'must', 'wt', 'Weight (kg)', rec.must.wt, 'text', '70.5', 'decimal');
     h += '</div>';
     return h;
@@ -476,7 +472,7 @@ function renderSectionContent(b, sb, rec, secId){
   return '';
 }
 
-  function renderApp(){
+function renderApp(){
   var nav = document.getElementById("navBar");
   var root = document.getElementById("tabContent");
   if(!nav || !root) return;
@@ -566,13 +562,17 @@ function renderSectionContent(b, sb, rec, secId){
       }
       
       if(r.bm && r.bm.val){
-        secs.push("<b>Blood Glucose:</b> " + r.bm.val + " mmol/L" + (r.bm.time ? ' (' + r.bm.time + ')' : ''));
+        secs.push("<b>Blood Glucose:</b> " + r.bm.val + " mmol/L" + (r.bm.meal ? ' (' + r.bm.meal + ')' : ''));
       }
       
       var lBp = (r.bp && r.bp.lsys ? r.bp.lsys + (r.bp.ldia ? '/' + r.bp.ldia : '') : '');
       var sBp = (r.bp && r.bp.ssys ? r.bp.ssys + (r.bp.sdia ? '/' + r.bp.sdia : '') : '');
       if(lBp || sBp){
         secs.push("<b>L/S BP:</b> Lying: " + (lBp || '-') + " | Standing: " + (sBp || '-'));
+      }
+      
+      if(r.must && r.must.wt){
+        secs.push("<b>Weight:</b> " + r.must.wt + " kg");
       }
 
       sh += '<div class="card"><div class="card-title">' + bSum + '</div>';
@@ -621,7 +621,6 @@ function renderSectionContent(b, sb, rec, secId){
     if(rec.vis.news2) calcNEWS2(viewB);
     if(rec.vis.bp) calcBP(viewB);
     if(rec.vis.bm) calcBM(viewB);
-    if(rec.vis.must) calcMUST(viewB);
   }
 }
 
