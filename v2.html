@@ -29,17 +29,32 @@
     header h1 { font-size: 1.05rem; font-weight: 700; }
     header .sub { font-size: 0.72rem; opacity: 0.85; }
     .badge { font-size: 0.7rem; font-weight: 600; padding: 4px 10px; border-radius: 20px; background: rgba(255,255,255,0.2); }
+    
     nav#tabBar { display: flex; gap: 6px; padding: 8px 12px; background: #fff; border-bottom: 1px solid var(--border); position: sticky; top: 53px; z-index: 99; overflow-x: auto; }
     nav#tabBar::-webkit-scrollbar { display: none; }
     .tab-btn { background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 8px 14px; border-radius: 20px; font-size: 0.82rem; font-weight: 600; flex-shrink: 0; cursor: pointer; }
     .tab-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+    
     main { padding: 12px; max-width: 800px; margin: 0 auto; }
     .view { display: none; }
     .view.active { display: block; }
     
-    /* Ward Bed Buttons */
+    /* Native Checkbox Bed Toggle: 100% Reliable Pure CSS Selection */
     .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    button.bed-btn {
+    .bed-item { position: relative; width: 100%; }
+    .bed-item input[type="checkbox"] {
+      position: absolute;
+      opacity: 0;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      margin: 0;
+      cursor: pointer;
+      z-index: 2;
+    }
+    .bed-label {
+      display: block;
       background: #ffffff;
       border: 2px solid var(--border);
       border-radius: 8px;
@@ -48,18 +63,16 @@
       font-size: 0.88rem;
       font-weight: 600;
       color: var(--text);
-      cursor: pointer;
-      display: block;
-      width: 100%;
-      outline: none;
+      user-select: none;
+      transition: background 0.1s, border-color 0.1s;
     }
-    button.bed-btn.selected {
-      background-color: var(--primary) !important;
+    .bed-item input[type="checkbox"]:checked + .bed-label {
+      background: var(--primary) !important;
       color: #ffffff !important;
       border-color: var(--primary-dark) !important;
-      box-shadow: 0 2px 6px rgba(0, 94, 184, 0.35);
+      box-shadow: 0 2px 6px rgba(0, 94, 184, 0.3);
     }
-    button.bed-btn.selected::after {
+    .bed-item input[type="checkbox"]:checked + .bed-label::after {
       content: " ✓";
       font-weight: 700;
     }
@@ -70,16 +83,16 @@
     .col { flex: 1 1 calc(50% - 8px); display: flex; flex-direction: column; min-width: 120px; }
     .col.full { flex: 1 1 100%; }
     label { font-size: 0.72rem; font-weight: 600; color: var(--sub); margin-bottom: 3px; text-transform: uppercase; }
-    input, select, textarea { padding: 8px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.85rem; background: #fff; width: 100%; }
+    input[type="text"], input[type="number"], select, textarea { padding: 8px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.85rem; background: #fff; width: 100%; }
     textarea { min-height: 60px; line-height: 1.3; }
     .chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0; }
-    .chip { background: #e8edee; border: 1px solid #ced5d8; border-radius: 14px; padding: 5px 10px; font-size: 0.75rem; font-weight: 600; cursor: pointer; }
-    .btn { background: var(--primary); color: #fff; border: none; padding: 8px 12px; border-radius: 6px; font-size: 0.82rem; font-weight: 600; cursor: pointer; }
+    .chip { background: #e8edee; border: 1px solid #ced5d8; border-radius: 14px; padding: 6px 12px; font-size: 0.78rem; font-weight: 600; cursor: pointer; }
+    .btn { background: var(--primary); color: #fff; border: none; padding: 8px 14px; border-radius: 6px; font-size: 0.82rem; font-weight: 600; cursor: pointer; }
     .danger { background: var(--danger); }
     .score-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-weight: 700; font-size: 0.82rem; }
     .total-banner { background: #f8fafc; border: 1px solid var(--border); border-radius: 6px; padding: 8px 12px; margin-bottom: 8px; font-size: 0.82rem; font-weight: 600; display: flex; justify-content: space-between; }
     
-    /* Summary Card Styling */
+    /* Handover Summary */
     .summary-title { font-size: 0.95rem; font-weight: 700; color: var(--primary-dark); margin-bottom: 12px; }
     .handover-card { background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
     .handover-card h2 { font-size: 0.95rem; font-weight: 700; color: var(--primary-dark); margin-bottom: 8px; }
@@ -99,48 +112,54 @@
   </header>
 
   <nav id="tabBar">
-    <button type="button" class="tab-btn active" id="btnWardMap" onclick="setTab('ward')">Ward Map</button>
-    <div id="patientTabsContainer" style="display:flex; gap:6px;"></div>
-    <button type="button" class="tab-btn" id="btnSummary" onclick="setTab('summary')">Summary</button>
+    <button type="button" class="tab-btn active" id="tabWard" onclick="switchView('ward')">Ward Map</button>
+    <div id="dynamicTabs" style="display:flex; gap:6px;"></div>
+    <button type="button" class="tab-btn" id="tabSummary" onclick="switchView('summary')">Summary</button>
   </nav>
 
   <main>
-    <!-- Ward Allocation Grid: Pure HTML onclick triggers -->
+    <!-- Ward Allocation Grid (Checkboxes) -->
     <div id="viewWard" class="view active">
       <div class="card">
         <h3>Ward Allocation</h3>
-        <p style="font-size:0.8rem; color:var(--sub); margin-bottom:12px;">Tap beds to manage. Selected beds pin as tabs above.</p>
+        <p style="font-size:0.8rem; color:var(--sub); margin-bottom:12px;">Tap beds to select or deselect. Active beds will pin as tabs above.</p>
         <div class="grid" id="bedGrid">
-          <button type="button" class="bed-btn" data-bed="Bay 1 Bed 1" onclick="toggleBed('Bay 1 Bed 1')">Bay 1 Bed 1</button>
-          <button type="button" class="bed-btn" data-bed="Bay 1 Bed 2" onclick="toggleBed('Bay 1 Bed 2')">Bay 1 Bed 2</button>
-          <button type="button" class="bed-btn" data-bed="Bay 1 Bed 3" onclick="toggleBed('Bay 1 Bed 3')">Bay 1 Bed 3</button>
-          <button type="button" class="bed-btn" data-bed="Bay 1 Bed 4" onclick="toggleBed('Bay 1 Bed 4')">Bay 1 Bed 4</button>
-          <button type="button" class="bed-btn" data-bed="Bay 2 Bed 1" onclick="toggleBed('Bay 2 Bed 1')">Bay 2 Bed 1</button>
-          <button type="button" class="bed-btn" data-bed="Bay 2 Bed 2" onclick="toggleBed('Bay 2 Bed 2')">Bay 2 Bed 2</button>
-          <button type="button" class="bed-btn" data-bed="Bay 2 Bed 3" onclick="toggleBed('Bay 2 Bed 3')">Bay 2 Bed 3</button>
-          <button type="button" class="bed-btn" data-bed="Bay 2 Bed 4" onclick="toggleBed('Bay 2 Bed 4')">Bay 2 Bed 4</button>
-          <button type="button" class="bed-btn" data-bed="Bay 3 Bed 1" onclick="toggleBed('Bay 3 Bed 1')">Bay 3 Bed 1</button>
-          <button type="button" class="bed-btn" data-bed="Bay 3 Bed 2" onclick="toggleBed('Bay 3 Bed 2')">Bay 3 Bed 2</button>
-          <button type="button" class="bed-btn" data-bed="Bay 3 Bed 3" onclick="toggleBed('Bay 3 Bed 3')">Bay 3 Bed 3</button>
-          <button type="button" class="bed-btn" data-bed="Bay 3 Bed 4" onclick="toggleBed('Bay 3 Bed 4')">Bay 3 Bed 4</button>
-          <button type="button" class="bed-btn" data-bed="Bay 4 Bed 1" onclick="toggleBed('Bay 4 Bed 1')">Bay 4 Bed 1</button>
-          <button type="button" class="bed-btn" data-bed="Bay 4 Bed 2" onclick="toggleBed('Bay 4 Bed 2')">Bay 4 Bed 2</button>
-          <button type="button" class="bed-btn" data-bed="Bay 4 Bed 3" onclick="toggleBed('Bay 4 Bed 3')">Bay 4 Bed 3</button>
-          <button type="button" class="bed-btn" data-bed="Bay 4 Bed 4" onclick="toggleBed('Bay 4 Bed 4')">Bay 4 Bed 4</button>
-          <button type="button" class="bed-btn" data-bed="Bay 5 Bed 1" onclick="toggleBed('Bay 5 Bed 1')">Bay 5 Bed 1</button>
-          <button type="button" class="bed-btn" data-bed="Bay 5 Bed 2" onclick="toggleBed('Bay 5 Bed 2')">Bay 5 Bed 2</button>
-          <button type="button" class="bed-btn" data-bed="Bay 5 Bed 3" onclick="toggleBed('Bay 5 Bed 3')">Bay 5 Bed 3</button>
-          <button type="button" class="bed-btn" data-bed="Bay 5 Bed 4" onclick="toggleBed('Bay 5 Bed 4')">Bay 5 Bed 4</button>
-          <button type="button" class="bed-btn" data-bed="Side Room 1" onclick="toggleBed('Side Room 1')">Side Room 1</button>
-          <button type="button" class="bed-btn" data-bed="Side Room 2" onclick="toggleBed('Side Room 2')">Side Room 2</button>
-          <button type="button" class="bed-btn" data-bed="Side Room 3" onclick="toggleBed('Side Room 3')">Side Room 3</button>
-          <button type="button" class="bed-btn" data-bed="Side Room 4" onclick="toggleBed('Side Room 4')">Side Room 4</button>
-          <button type="button" class="bed-btn" data-bed="Side Room 5" onclick="toggleBed('Side Room 5')">Side Room 5</button>
+          <!-- Bay 1 -->
+          <div class="bed-item"><input type="checkbox" id="b_b1b1" value="Bay 1 Bed 1"><label class="bed-label" for="b_b1b1">Bay 1 Bed 1</label></div>
+          <div class="bed-item"><input type="checkbox" id="b_b1b2" value="Bay 1 Bed 2"><label class="bed-label" for="b_b1b2">Bay 1 Bed 2</label></div>
+          <div class="bed-item"><input type="checkbox" id="b_b1b3" value="Bay 1 Bed 3"><label class="bed-label" for="b_b1b3">Bay 1 Bed 3</label></div>
+          <div class="bed-item"><input type="checkbox" id="b_b1b4" value="Bay 1 Bed 4"><label class="bed-label" for="b_b1b4">Bay 1 Bed 4</label></div>
+          <!-- Bay 2 -->
+          <div class="bed-item"><input type="checkbox" id="b_b2b1" value="Bay 2 Bed 1"><label class="bed-label" for="b_b2b1">Bay 2 Bed 1</label></div>
+          <div class="bed-item"><input type="checkbox" id="b_b2b2" value="Bay 2 Bed 2"><label class="bed-label" for="b_b2b2">Bay 2 Bed 2</label></div>
+          <div class="bed-item"><input type="checkbox" id="b_b2b3" value="Bay 2 Bed 3"><label class="bed-label" for="b_b2b3">Bay 2 Bed 3</label></div>
+          <div class="bed-item"><input type="checkbox" id="b_b2b4" value="Bay 2 Bed 4"><label class="bed-label" for="b_b2b4">Bay 2 Bed 4</label></div>
+          <!-- Bay 3 -->
+          <div class="bed-item"><input type="checkbox" id="b_b3b1" value="Bay 3 Bed 1"><label class="bed-label" for="b_b3b1">Bay 3 Bed 1</label></div>
+          <div class="bed-item"><input type="checkbox" id="b_b3b2" value="Bay 3 Bed 2"><label class="bed-label" for="b_b3b2">Bay 3 Bed 2</label></div>
+          <div class="bed-item"><input type="checkbox" id="b_b3b3" value="Bay 3 Bed 3"><label class="bed-label" for="b_b3b3">Bay 3 Bed 3</label></div>
+          <div class="bed-item"><input type="checkbox" id="b_b3b4" value="Bay 3 Bed 4"><label class="bed-label" for="b_b3b4">Bay 3 Bed 4</label></div>
+          <!-- Bay 4 -->
+          <div class="bed-item"><input type="checkbox" id="b_b4b1" value="Bay 4 Bed 1"><label class="bed-label" for="b_b4b1">Bay 4 Bed 1</label></div>
+          <div class="bed-item"><input type="checkbox" id="b_b4b2" value="Bay 4 Bed 2"><label class="bed-label" for="b_b4b2">Bay 4 Bed 2</label></div>
+          <div class="bed-item"><input type="checkbox" id="b_b4b3" value="Bay 4 Bed 3"><label class="bed-label" for="b_b4b3">Bay 4 Bed 3</label></div>
+          <div class="bed-item"><input type="checkbox" id="b_b4b4" value="Bay 4 Bed 4"><label class="bed-label" for="b_b4b4">Bay 4 Bed 4</label></div>
+          <!-- Bay 5 -->
+          <div class="bed-item"><input type="checkbox" id="b_b5b1" value="Bay 5 Bed 1"><label class="bed-label" for="b_b5b1">Bay 5 Bed 1</label></div>
+          <div class="bed-item"><input type="checkbox" id="b_b5b2" value="Bay 5 Bed 2"><label class="bed-label" for="b_b5b2">Bay 5 Bed 2</label></div>
+          <div class="bed-item"><input type="checkbox" id="b_b5b3" value="Bay 5 Bed 3"><label class="bed-label" for="b_b5b3">Bay 5 Bed 3</label></div>
+          <div class="bed-item"><input type="checkbox" id="b_b5b4" value="Bay 5 Bed 4"><label class="bed-label" for="b_b5b4">Bay 5 Bed 4</label></div>
+          <!-- Side Rooms -->
+          <div class="bed-item"><input type="checkbox" id="b_sr1" value="Side Room 1"><label class="bed-label" for="b_sr1">Side Room 1</label></div>
+          <div class="bed-item"><input type="checkbox" id="b_sr2" value="Side Room 2"><label class="bed-label" for="b_sr2">Side Room 2</label></div>
+          <div class="bed-item"><input type="checkbox" id="b_sr3" value="Side Room 3"><label class="bed-label" for="b_sr3">Side Room 3</label></div>
+          <div class="bed-item"><input type="checkbox" id="b_sr4" value="Side Room 4"><label class="bed-label" for="b_sr4">Side Room 4</label></div>
+          <div class="bed-item"><input type="checkbox" id="b_sr5" value="Side Room 5"><label class="bed-label" for="b_sr5">Side Room 5</label></div>
         </div>
       </div>
     </div>
 
-    <!-- Observations Form -->
+    <!-- Observation Entry Form -->
     <div id="viewForm" class="view">
       <div class="card">
         <h3>
@@ -340,36 +359,4 @@
     </div>
 
     <!-- Handover Summary Panel -->
-    <div id="viewSummary" class="view">
-      <div class="summary-title" id="summaryHeader">Shift Handover Summary</div>
-      <div id="summaryCardsContainer"></div>
-      <div class="summary-actions">
-        <button type="button" class="btn danger" onclick="clearShift()">Clear Shift</button>
-        <button type="button" class="btn" onclick="copyHandover()">Copy Handover</button>
-      </div>
-    </div>
-  </main>
-
-  <script>
-    var FIELDS = [
-      "rr", "sats", "o2", "bpSys", "bpDia", "hr", "temp",
-      "bm", "weight", "lyingSys", "lyingDia", "standingSys", "standingDia",
-      "bowelOpen", "stoolType", "bowelNotes",
-      "sacrum", "sacrumNotes", "lHeel", "lHeelNotes", "rHeel", "rHeelNotes", "other", "otherNotes",
-      "repositioningLogs", "intakeLogs", "outputLogs", "intakeTotal", "outputTotal",
-      "dietB", "dietL", "dietD", "generalNotes"
-    ];
-
-    var selectedBeds = [];
-    var logs = {};
-    var activeTab = "ward";
-
-    try {
-      selectedBeds = JSON.parse(localStorage.getItem("th_beds_v6") || "[]");
-      logs = JSON.parse(localStorage.getItem("th_logs_v6") || "{}");
-    } catch (e) {
-      selectedBeds = [];
-      logs = {};
-    }
-
-    function getTi
+    <div id="viewSummary"
