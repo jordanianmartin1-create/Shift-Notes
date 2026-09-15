@@ -24,13 +24,11 @@
   #dimmer { position: fixed; inset: 0; background: rgba(0,0,0,0); pointer-events: none; z-index: 9999; }
   [data-theme="night"] #dimmer { background: rgba(0,0,0,0.35); }
 
-  /* Setup */
   .setup-container { padding: 20px; }
   .bed-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
   .bed-pill { padding: 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--card); color: var(--text); font-weight: 600; text-align: center; cursor: pointer; }
   .bed-pill.selected { background: var(--teal); color: #fff; border-color: var(--teal); }
 
-  /* Sticky Nav */
   .sticky-nav { position: sticky; top: 0; z-index: 100; background: var(--bg); border-bottom: 1px solid var(--border); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
   header { background: var(--navy); color: #fff; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; }
   header h1 { font-size: 1.1rem; }
@@ -41,7 +39,6 @@
   .tab-btn.active-bed { background: var(--teal); color: #fff; border-color: var(--teal); }
   .tab-btn.active-sec { background: var(--slate); color: #fff; border-color: var(--slate); }
 
-  /* Content */
   .container { padding: 16px; }
   .card { background: var(--card); padding: 16px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 16px; }
   h2 { font-size: 1.1rem; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; color: var(--text); }
@@ -125,7 +122,6 @@ const sections = [
 let alloc = [];
 let db = {};
 
-// Safe LocalStorage Loading
 try {
   const savedAlloc = localStorage.getItem('cd_alloc');
   if (savedAlloc) alloc = JSON.parse(savedAlloc);
@@ -157,7 +153,6 @@ function startShift(auto = false) {
     localStorage.setItem('cd_alloc', JSON.stringify(alloc));
   }
   
-  // Ensure every selected bed has the correct data structure
   alloc.forEach(b => {
     if(!db[b] || typeof db[b] !== 'object') db[b] = {};
     if(!db[b].news2) db[b].news2 = [];
@@ -191,7 +186,7 @@ function renderUI() {
 
 function renderContent() {
   const area = document.getElementById('contentArea');
-  if(!db[curBed]) return; // Failsafe
+  if(!db[curBed]) return;
   const d = db[curBed];
   let h = '';
 
@@ -348,10 +343,90 @@ function renderContent() {
   if (curSec === 'summary') {
     h += `<div class="card">`;
     
-    // NEWS
     h += `<div class="summary-sec"><b>NEWS2:</b> `;
     if(d.news2.length===0) h+=`No entries.`;
     else {
       const l = d.news2[d.news2.length-1]; const sc = calcN2(l);
       if(sc >= 5) h+=`<b style="color:var(--red)">Score ${sc} @ ${l.time}</b>`;
-      else h+=`Score ${sc} 
+      else h+=`Score ${sc} @ ${l.time}`;
+    }
+    h += `</div>`;
+
+    h += `<div class="summary-sec"><b>Glucose:</b> `;
+    if(d.bm.length===0) h+=`No entries.`;
+    else {
+      const bml = d.bm[d.bm.length-1]; const bmv = parseFloat(bml.val);
+      if(bmv<4 || bmv>11) h+=`<b style="color:var(--red)">${bmv} mmol/L @ ${bml.time}</b>`;
+      else h+=`${bmv} mmol/L @ ${bml.time}`;
+    }
+    h += `</div>`;
+
+    let iT=0, oT=0; d.fluid.forEach(f=>{ iT+=parseFloat(f.i)||0; oT+=parseFloat(f.o)||0; });
+    const net = iT-oT;
+    h += `<div class="summary-sec"><b>Fluids:</b> In ${iT}ml, Out ${oT}ml. Net: `;
+    if(net <= -500) h+=`<b style="color:var(--red)">${net}ml</b>`; else h+=`${net}ml`;
+    h += `</div>`;
+
+    h += `<div class="summary-sec"><b>Dressings:</b> `;
+    if(d.amy.dressLoc) h+=`${d.amy.dressLoc} (Due: <b>${calcDue(d.amy.dressDate)}</b>)`;
+    else h+=`None recorded.`;
+    h += `</div>`;
+    
+    h += `</div>`;
+  }
+
+  area.innerHTML = h;
+}
+
+function calcN2(e) {
+  let sc = 0; const r=parseFloat(e.rr), sp=parseFloat(e.spo2), sy=parseFloat(e.sys), h=parseFloat(e.hr), t=parseFloat(e.t);
+  if(r) sc += (r<=8||r>=25)?3: (r>=21)?2: (r<=11)?1:0;
+  if(sp) sc += (sp<=91)?3: (sp<=93)?2: (sp<=95)?1:0;
+  if(e.o2==='O2') sc += 2;
+  if(sy) sc += (sy<=90||sy>=220)?3: (sy<=100)?2: (sy<=110)?1:0;
+  if(h) sc += (h<=40||h>=131)?3: (h>=111)?2: (h<=50||h>=91)?1:0;
+  if(e.acvpu && e.acvpu!=='Alert') sc += 3;
+  if(t) sc += (t<=35.0)?3: (t>=39.1)?2: (t>=35.1&&t<=36.0 || t>=38.1&&t<=39.0)?1:0;
+  return sc;
+}
+
+function opts(arr, sel) { return arr.map(a => `<option ${a===sel?'selected':''}>${a}</option>`).join(''); }
+function tNow() { const d = new Date(); return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'); }
+
+function addArr(k) { db[curBed][k].push({time: tNow()}); saveDB(); renderContent(); }
+function rmArr(k, i) { db[curBed][k].splice(i, 1); saveDB(); renderContent(); }
+function updArr(k, i, prop, val) { db[curBed][k][i][prop] = val; saveDB(); renderContent(); }
+function updArrObj(k, i, prop, val) { db[curBed][k][i][prop] = val; saveDB(); renderContent(); }
+function updArrRaw(k, i, val) { db[curBed][k][i] = val; saveDB(); }
+function updObj(sec, prop, val) { db[curBed][sec][prop] = val; saveDB(); renderContent(); }
+
+function markSkinFine() { 
+  db[curBed].amy.sac = 'Fine'; db[curBed].amy.groin = 'Fine'; 
+  db[curBed].amy.heels = 'Fine'; db[curBed].amy.elbows = 'Fine'; 
+  saveDB(); renderContent(); 
+}
+
+function setNoDate() {
+  const d = new Date();
+  db[curBed].amy.dressDate = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  db[curBed].amy.noDate = true;
+  saveDB(); renderContent();
+}
+
+function calcDue(val) {
+  if (!val) return '-';
+  const d = new Date(val); d.setDate(d.getDate() + 3);
+  return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
+}
+
+function clearShift() {
+  if (confirm("Are you sure you want to clear all data and end the shift?")) {
+    localStorage.clear(); location.reload();
+  }
+}
+
+initSetup();
+  
+</script>
+</body>
+</html>
