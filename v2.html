@@ -7,21 +7,31 @@
   <style>
     :root {
       --primary: #005eb8;
+      --primary-dark: #003087;
       --bg: #f0f4f5;
       --card: #ffffff;
       --text: #212b32;
+      --sub: #4c6272;
       --border: #d8dde0;
       --danger: #d5281b;
+      --news-0: #e8f5e9;
+      --news-0-text: #2e7d32;
+      --news-1: #fff9c4;
+      --news-1-text: #f57f17;
+      --news-2: #ffe0b2;
+      --news-2-text: #e65100;
+      --news-3: #ffcdd2;
+      --news-3-text: #b71c1c;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
-    body { background: var(--bg); color: var(--text); padding-bottom: 60px; }
+    body { background: var(--bg); color: var(--text); padding-bottom: 70px; }
     header { background: var(--primary); color: #fff; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
     header h1 { font-size: 1.05rem; font-weight: 700; }
     header .sub { font-size: 0.72rem; opacity: 0.85; }
     .badge { font-size: 0.7rem; font-weight: 600; padding: 4px 10px; border-radius: 20px; background: rgba(255,255,255,0.2); }
     nav#tabBar { display: flex; gap: 6px; padding: 8px 12px; background: #fff; border-bottom: 1px solid var(--border); position: sticky; top: 53px; z-index: 99; overflow-x: auto; }
     nav#tabBar::-webkit-scrollbar { display: none; }
-    .tab-btn { background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 8px 14px; border-radius: 20px; font-size: 0.82rem; font-weight: 600; flex-shrink: 0; }
+    .tab-btn { background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 8px 14px; border-radius: 20px; font-size: 0.82rem; font-weight: 600; flex-shrink: 0; cursor: pointer; }
     .tab-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
     main { padding: 12px; max-width: 800px; margin: 0 auto; }
     .view { display: none; }
@@ -30,18 +40,27 @@
     .bed-card { background: var(--card); border: 2px solid var(--border); border-radius: 8px; padding: 14px 10px; text-align: center; font-size: 0.88rem; font-weight: 600; cursor: pointer; }
     .bed-card.selected { background: #edf5fc; border-color: var(--primary); color: var(--primary); }
     .card { background: var(--card); border-radius: 8px; border: 1px solid var(--border); padding: 14px; margin-bottom: 12px; }
-    .card h3 { font-size: 0.92rem; color: #003087; margin-bottom: 10px; border-bottom: 1px solid var(--border); padding-bottom: 4px; }
+    .card h3 { font-size: 0.92rem; color: var(--primary-dark); margin-bottom: 10px; border-bottom: 1px solid var(--border); padding-bottom: 4px; display: flex; justify-content: space-between; align-items: center; }
     .row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
     .col { flex: 1 1 calc(50% - 8px); display: flex; flex-direction: column; min-width: 120px; }
     .col.full { flex: 1 1 100%; }
-    label { font-size: 0.72rem; font-weight: 600; color: #4c6272; margin-bottom: 3px; text-transform: uppercase; }
+    label { font-size: 0.72rem; font-weight: 600; color: var(--sub); margin-bottom: 3px; text-transform: uppercase; }
     input, select, textarea { padding: 8px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.85rem; background: #fff; width: 100%; }
     textarea { min-height: 60px; line-height: 1.3; }
     .chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0; }
     .chip { background: #e8edee; border: 1px solid #ced5d8; border-radius: 14px; padding: 5px 10px; font-size: 0.75rem; font-weight: 600; cursor: pointer; }
-    .btn { background: var(--primary); color: #fff; border: none; padding: 8px 12px; border-radius: 6px; font-size: 0.82rem; font-weight: 600; cursor: pointer; margin-top: 4px; }
-    .danger { background: var(--danger); width: 100%; padding: 12px; margin-top: 14px; }
-    .summary-box { background: #fff; border: 1px solid var(--border); border-radius: 6px; padding: 10px; margin-bottom: 10px; font-family: monospace; font-size: 0.78rem; white-space: pre-wrap; }
+    .btn { background: var(--primary); color: #fff; border: none; padding: 8px 12px; border-radius: 6px; font-size: 0.82rem; font-weight: 600; cursor: pointer; }
+    .danger { background: var(--danger); }
+    .score-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-weight: 700; font-size: 0.82rem; }
+    .total-banner { background: #f8fafc; border: 1px solid var(--border); border-radius: 6px; padding: 8px 12px; margin-bottom: 8px; font-size: 0.82rem; font-weight: 600; display: flex; justify-content: space-between; }
+    
+    /* Screenshot Handover Card Styles */
+    .summary-title { font-size: 0.95rem; font-weight: 700; color: var(--primary-dark); margin-bottom: 12px; }
+    .handover-card { background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+    .handover-card h2 { font-size: 0.95rem; font-weight: 700; color: var(--primary-dark); margin-bottom: 8px; }
+    .summary-row { padding: 7px 0; border-top: 1px dashed #e2e8f0; font-size: 0.82rem; line-height: 1.4; color: #2d3748; }
+    .summary-row strong { color: var(--primary-dark); font-weight: 700; }
+    .summary-actions { display: flex; justify-content: space-between; gap: 10px; margin-top: 16px; }
   </style>
 </head>
 <body>
@@ -51,7 +70,7 @@
       <h1>Thorndon Ward ICA Log</h1>
       <div class="sub">Offline Shift Notepad • SystmOne Staging</div>
     </div>
-    <span class="badge">Saved</span>
+    <span class="badge">Auto-Saved</span>
   </header>
 
   <nav id="tabBar"></nav>
@@ -61,7 +80,7 @@
     <div id="viewWard" class="view active">
       <div class="card">
         <h3>Ward Allocation</h3>
-        <p style="font-size:0.8rem; color:#4c6272; margin-bottom:12px;">Tap beds to manage. Selected beds pin as tabs above.</p>
+        <p style="font-size:0.8rem; color:var(--sub); margin-bottom:12px;">Tap beds to manage. Selected beds pin as tabs above.</p>
         <div class="grid" id="bedGrid"></div>
       </div>
     </div>
@@ -69,44 +88,109 @@
     <!-- Patient Observation Form -->
     <div id="viewForm" class="view">
       <div class="card">
-        <h3 id="formTitle">Patient Observations</h3>
+        <h3>
+          <span id="formTitle">Patient Observations</span>
+          <span class="score-badge" id="newsScoreBadge">NEWS2: 0</span>
+        </h3>
         <div class="row">
-          <div class="col"><label>Resp Rate</label><input type="number" id="f_rr"></div>
-          <div class="col"><label>SpO2 (%)</label><input type="number" id="f_sats"></div>
-          <div class="col"><label>O2 Therapy</label><select id="f_o2"><option value="Air">Air</option><option value="Oxygen">Oxygen</option></select></div>
-          <div class="col"><label>Blood Pressure</label><input type="text" id="f_bp" placeholder="120/80"></div>
-          <div class="col"><label>Heart Rate</label><input type="number" id="f_hr"></div>
-          <div class="col"><label>Temp (°C)</label><input type="text" id="f_temp" placeholder="36.8"></div>
-          <div class="col full"><label>NEWS2 Score</label><input type="number" id="f_news2"></div>
+          <div class="col"><label>Resp Rate (/min)</label><input type="text" inputmode="numeric" pattern="[0-9]*" id="f_rr"></div>
+          <div class="col"><label>SpO2 (%)</label><input type="text" inputmode="numeric" pattern="[0-9]*" id="f_sats"></div>
+          <div class="col">
+            <label>Oxygen</label>
+            <select id="f_o2">
+              <option value="Air">Air</option>
+              <option value="Oxygen">Oxygen</option>
+            </select>
+          </div>
+          <div class="col"><label>Heart Rate (bpm)</label><input type="text" inputmode="numeric" pattern="[0-9]*" id="f_hr"></div>
+          <div class="col"><label>Systolic BP</label><input type="text" inputmode="numeric" pattern="[0-9]*" id="f_bpSys" placeholder="120"></div>
+          <div class="col"><label>Diastolic BP</label><input type="text" inputmode="numeric" pattern="[0-9]*" id="f_bpDia" placeholder="80"></div>
+          <div class="col full"><label>Temp (°C)</label><input type="text" inputmode="decimal" id="f_temp" placeholder="36.8"></div>
         </div>
       </div>
 
       <div class="card">
         <h3>Metabolic & Orthostatic</h3>
         <div class="row">
-          <div class="col"><label>BM Glucose (mmol/L)</label><input type="text" id="f_bm"></div>
-          <div class="col"><label>Weight (kg)</label><input type="number" step="0.1" id="f_weight"></div>
-          <div class="col"><label>Lying BP</label><input type="text" id="f_lyingBp"></div>
-          <div class="col"><label>Standing BP</label><input type="text" id="f_standingBp"></div>
+          <div class="col"><label>BM Glucose (mmol/L)</label><input type="text" inputmode="decimal" id="f_bm"></div>
+          <div class="col"><label>Weight (kg)</label><input type="text" inputmode="decimal" id="f_weight"></div>
+          <div class="col"><label>Lying Systolic</label><input type="text" inputmode="numeric" pattern="[0-9]*" id="f_lyingSys" placeholder="120"></div>
+          <div class="col"><label>Lying Diastolic</label><input type="text" inputmode="numeric" pattern="[0-9]*" id="f_lyingDia" placeholder="80"></div>
+          <div class="col"><label>Standing Systolic</label><input type="text" inputmode="numeric" pattern="[0-9]*" id="f_standingSys" placeholder="115"></div>
+          <div class="col"><label>Standing Diastolic</label><input type="text" inputmode="numeric" pattern="[0-9]*" id="f_standingDia" placeholder="75"></div>
         </div>
       </div>
 
       <div class="card">
-        <h3>Bowel Movement & Stool Scale</h3>
+        <h3>Bowel Movement (Bristol Scale)</h3>
         <div class="row">
-          <div class="col"><label>Bowels Opened?</label><select id="f_bowelOpen"><option value="No">No</option><option value="Yes">Yes</option></select></div>
-          <div class="col"><label>Bristol Type</label><select id="f_stoolType"><option value="None">None</option><option value="Type 1">Type 1</option><option value="Type 2">Type 2</option><option value="Type 3">Type 3</option><option value="Type 4">Type 4</option><option value="Type 5">Type 5</option><option value="Type 6">Type 6</option><option value="Type 7">Type 7</option></select></div>
-          <div class="col full"><label>Notes / Incontinence</label><input type="text" id="f_bowelNotes"></div>
+          <div class="col">
+            <label>Bowels Opened?</label>
+            <select id="f_bowelOpen">
+              <option value="No">No</option>
+              <option value="Yes">Yes</option>
+            </select>
+          </div>
+          <div class="col">
+            <label>Bristol Type</label>
+            <select id="f_stoolType">
+              <option value="None">None</option>
+              <option value="Type 1 (Hard lumps)">Type 1 (Hard lumps)</option>
+              <option value="Type 2 (Lumpy sausage)">Type 2 (Lumpy sausage)</option>
+              <option value="Type 3 (Cracked sausage)">Type 3 (Cracked sausage)</option>
+              <option value="Type 4 (Smooth)">Type 4 (Smooth)</option>
+              <option value="Type 5 (Soft blobs)">Type 5 (Soft blobs)</option>
+              <option value="Type 6 (Mushy)">Type 6 (Mushy)</option>
+              <option value="Type 7 (Liquid)">Type 7 (Liquid)</option>
+            </select>
+          </div>
+          <div class="col full"><label>Amount / Consistency Notes</label><input type="text" id="f_bowelNotes" placeholder="e.g. Medium, Type 4"></div>
         </div>
       </div>
 
       <div class="card">
-        <h3>Amy's Round (Pressure Areas)</h3>
+        <h3>Amy's Round (Skin / Pressure Areas)</h3>
         <div class="row">
-          <div class="col"><label>Sacrum</label><select id="f_sacrum"><option value="Intact">Intact</option><option value="Erythema">Erythema</option><option value="Broken">Broken</option></select><input type="text" id="f_sacrumNotes" placeholder="Notes" style="margin-top:3px;"></div>
-          <div class="col"><label>Left Heel</label><select id="f_lHeel"><option value="Intact">Intact</option><option value="Erythema">Erythema</option><option value="Broken">Broken</option></select><input type="text" id="f_lHeelNotes" placeholder="Notes" style="margin-top:3px;"></div>
-          <div class="col"><label>Right Heel</label><select id="f_rHeel"><option value="Intact">Intact</option><option value="Erythema">Erythema</option><option value="Broken">Broken</option></select><input type="text" id="f_rHeelNotes" placeholder="Notes" style="margin-top:3px;"></div>
-          <div class="col"><label>Other/Buttocks</label><select id="f_other"><option value="Intact">Intact</option><option value="Erythema">Erythema</option><option value="Broken">Broken</option></select><input type="text" id="f_otherNotes" placeholder="Notes" style="margin-top:3px;"></div>
+          <div class="col">
+            <label>Sacrum</label>
+            <select id="f_sacrum">
+              <option value="Intact">Intact</option>
+              <option value="Red">Red</option>
+              <option value="Broken/Sore">Broken/Sore</option>
+              <option value="Dressing">Dressing</option>
+            </select>
+            <input type="text" id="f_sacrumNotes" placeholder="Details" style="margin-top:3px;">
+          </div>
+          <div class="col">
+            <label>Left Heel</label>
+            <select id="f_lHeel">
+              <option value="Intact">Intact</option>
+              <option value="Red">Red</option>
+              <option value="Broken/Sore">Broken/Sore</option>
+              <option value="Dressing">Dressing</option>
+            </select>
+            <input type="text" id="f_lHeelNotes" placeholder="Details" style="margin-top:3px;">
+          </div>
+          <div class="col">
+            <label>Right Heel</label>
+            <select id="f_rHeel">
+              <option value="Intact">Intact</option>
+              <option value="Red">Red</option>
+              <option value="Broken/Sore">Broken/Sore</option>
+              <option value="Dressing">Dressing</option>
+            </select>
+            <input type="text" id="f_rHeelNotes" placeholder="Details" style="margin-top:3px;">
+          </div>
+          <div class="col">
+            <label>Other / Buttocks / Groin</label>
+            <select id="f_other">
+              <option value="Intact">Intact</option>
+              <option value="Red">Red</option>
+              <option value="Broken/Sore">Broken/Sore</option>
+              <option value="Dressing">Dressing</option>
+            </select>
+            <input type="text" id="f_otherNotes" placeholder="Details" style="margin-top:3px;">
+          </div>
         </div>
       </div>
 
@@ -124,42 +208,90 @@
 
       <div class="card">
         <h3>Fluid Balance</h3>
-        <label>Intake:</label>
+        <div class="total-banner">
+          <span>In: <b id="dispIntakeTotal">0</b>ml</span>
+          <span>Out: <b id="dispOutputTotal">0</b>ml</span>
+          <span>Net: <b id="dispNetTotal">0</b>ml</span>
+        </div>
+        <label>Quick Intake:</label>
         <div class="chips">
-          <button class="chip" onclick="app.addFluid('in', '100ml Water')">+100ml Water</button>
-          <button class="chip" onclick="app.addFluid('in', '150ml Tea')">+150ml Tea</button>
-          <button class="chip" onclick="app.addFluid('in', '200ml Fortisip')">+200ml Supplement</button>
-          <button class="chip" onclick="app.addFluid('in', '500ml IV')">+500ml IV</button>
+          <button class="chip" onclick="app.addFluid('in', 100, 'Water')">+100ml Water</button>
+          <button class="chip" onclick="app.addFluid('in', 150, 'Tea')">+150ml Tea</button>
+          <button class="chip" onclick="app.addFluid('in', 200, 'Fortisip')">+200ml Fortisip</button>
+          <button class="chip" onclick="app.addFluid('in', 500, 'IV')">+500ml IV</button>
         </div>
         <textarea readonly id="f_intakeLogs"></textarea>
-        <label style="margin-top:6px;">Output:</label>
+
+        <label style="margin-top:8px;">Quick Output:</label>
         <div class="chips">
-          <button class="chip" onclick="app.addFluid('out', '200ml Urine')">+200ml Urine</button>
-          <button class="chip" onclick="app.addFluid('out', '400ml Urine')">+400ml Urine</button>
-          <button class="chip" onclick="app.addFluid('out', 'Catheter Emptied')">Catheter Emptied</button>
-          <button class="chip" onclick="app.addFluid('out', 'Pad Wet')">Pad Wet</button>
+          <button class="chip" onclick="app.addFluid('out', 200, 'Urinal')">+200ml Urine</button>
+          <button class="chip" onclick="app.addFluid('out', 400, 'Urinal')">+400ml Urine</button>
+          <button class="chip" onclick="app.addFluid('out', 0, 'Catheter Emptied')">Catheter Emptied</button>
+          <button class="chip" onclick="app.addFluid('out', 0, 'Pad Wet')">Pad Wet</button>
         </div>
         <textarea readonly id="f_outputLogs"></textarea>
       </div>
 
       <div class="card">
-        <h3>Diet & General Notes</h3>
-        <label>Diet Intake</label>
-        <textarea id="f_dietIntake" style="margin-bottom:8px;"></textarea>
-        <label>Events & Decisions</label>
-        <textarea id="f_generalNotes"></textarea>
-        <button class="btn" onclick="app.addTimestamp()">Add Timestamp Note</button>
+        <h3>Food & Meals</h3>
+        <div class="row">
+          <div class="col">
+            <label>Breakfast</label>
+            <select id="f_dietB">
+              <option value="-">-</option>
+              <option value="All">All</option>
+              <option value="3/4">3/4</option>
+              <option value="1/2">1/2</option>
+              <option value="1/4">1/4</option>
+              <option value="None">None</option>
+              <option value="Refused">Refused</option>
+              <option value="NBM">NBM</option>
+            </select>
+          </div>
+          <div class="col">
+            <label>Lunch</label>
+            <select id="f_dietL">
+              <option value="-">-</option>
+              <option value="All">All</option>
+              <option value="3/4">3/4</option>
+              <option value="1/2">1/2</option>
+              <option value="1/4">1/4</option>
+              <option value="None">None</option>
+              <option value="Refused">Refused</option>
+              <option value="NBM">NBM</option>
+            </select>
+          </div>
+          <div class="col">
+            <label>Dinner</label>
+            <select id="f_dietD">
+              <option value="-">-</option>
+              <option value="All">All</option>
+              <option value="3/4">3/4</option>
+              <option value="1/2">1/2</option>
+              <option value="1/4">1/4</option>
+              <option value="None">None</option>
+              <option value="Refused">Refused</option>
+              <option value="NBM">NBM</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>General Notes & Events</h3>
+        <textarea id="f_generalNotes" placeholder="Events, updates..."></textarea>
+        <button class="btn" onclick="app.addTimestamp()" style="margin-top:6px;">Add Timestamp Note</button>
       </div>
     </div>
 
-    <!-- Summary Panel -->
+    <!-- Handover Summary Panel -->
     <div id="viewSummary" class="view">
-      <div class="card">
-        <h3>Ward Handover Summary</h3>
-        <button class="btn" id="copySummaryBtn" style="margin-bottom:10px;">Copy Full Summary</button>
-        <div id="summaryContent"></div>
+      <div class="summary-title" id="summaryHeader">Shift Handover Summary</div>
+      <div id="summaryCardsContainer"></div>
+      <div class="summary-actions">
+        <button class="btn danger" id="clearShiftBtn">Clear Shift</button>
+        <button class="btn" id="copySummaryBtn">Copy Handover</button>
       </div>
-      <button class="btn danger" id="clearShiftBtn">Clear Entire Shift (Reset All)</button>
     </div>
   </main>
 
@@ -173,10 +305,17 @@
       "Side Room 1", "Side Room 2", "Side Room 3", "Side Room 4", "Side Room 5"
     ];
 
-    const FIELDS = ["rr", "sats", "o2", "bp", "hr", "temp", "news2", "bm", "weight", "lyingBp", "standingBp", "bowelOpen", "stoolType", "bowelNotes", "sacrum", "sacrumNotes", "lHeel", "lHeelNotes", "rHeel", "rHeelNotes", "other", "otherNotes", "repositioningLogs", "intakeLogs", "outputLogs", "dietIntake", "generalNotes"];
+    const FIELDS = [
+      "rr", "sats", "o2", "bpSys", "bpDia", "hr", "temp", "newsTime",
+      "bm", "bmTime", "weight", "lyingSys", "lyingDia", "standingSys", "standingDia",
+      "bowelOpen", "stoolType", "bowelNotes", "bowelTime",
+      "sacrum", "sacrumNotes", "lHeel", "lHeelNotes", "rHeel", "rHeelNotes", "other", "otherNotes",
+      "repositioningLogs", "intakeLogs", "outputLogs", "intakeTotal", "outputTotal",
+      "dietB", "dietL", "dietD", "generalNotes"
+    ];
 
-    let selectedBeds = JSON.parse(localStorage.getItem("th_beds") || "[]");
-    let logs = JSON.parse(localStorage.getItem("th_logs") || "{}");
+    let selectedBeds = JSON.parse(localStorage.getItem("th_beds_v3") || "[]");
+    let logs = JSON.parse(localStorage.getItem("th_logs_v3") || "{}");
     let activeTab = "ward";
 
     function getTime() {
@@ -185,8 +324,45 @@
     }
 
     function save() {
-      localStorage.setItem("th_beds", JSON.stringify(selectedBeds));
-      localStorage.setItem("th_logs", JSON.stringify(logs));
+      localStorage.setItem("th_beds_v3", JSON.stringify(selectedBeds));
+      localStorage.setItem("th_logs_v3", JSON.stringify(logs));
+    }
+
+    // Official RCP NEWS2 score calculation
+    function calculateNews(d) {
+      let score = 0;
+      const rr = parseInt(d.rr, 10);
+      if (!isNaN(rr)) {
+        if (rr <= 8 || rr >= 25) score += 3;
+        else if (rr >= 21) score += 2;
+        else if (rr >= 9 && rr <= 11) score += 1;
+      }
+      const sats = parseInt(d.sats, 10);
+      if (!isNaN(sats)) {
+        if (sats <= 91) score += 3;
+        else if (sats <= 93) score += 2;
+        else if (sats <= 95) score += 1;
+      }
+      if (d.o2 === "Oxygen") score += 2;
+      const sys = parseInt(d.bpSys, 10);
+      if (!isNaN(sys)) {
+        if (sys <= 90 || sys >= 220) score += 3;
+        else if (sys <= 100) score += 2;
+        else if (sys <= 110) score += 1;
+      }
+      const hr = parseInt(d.hr, 10);
+      if (!isNaN(hr)) {
+        if (hr <= 40 || hr >= 131) score += 3;
+        else if (hr >= 111) score += 2;
+        else if ((hr >= 41 && hr <= 50) || (hr >= 91 && hr <= 110)) score += 1;
+      }
+      const temp = parseFloat(d.temp);
+      if (!isNaN(temp)) {
+        if (temp <= 35.0) score += 3;
+        else if (temp >= 39.1) score += 2;
+        else if ((temp >= 35.1 && temp <= 36.0) || (temp >= 38.1 && temp <= 39.0)) score += 1;
+      }
+      return score;
     }
 
     function renderTabs() {
@@ -210,109 +386,28 @@
       });
     }
 
+    function updateFluidTotalsDisplay(inTotal, outTotal) {
+      const i = parseInt(inTotal, 10) || 0;
+      const o = parseInt(outTotal, 10) || 0;
+      document.getElementById("dispIntakeTotal").textContent = i;
+      document.getElementById("dispOutputTotal").textContent = o;
+      document.getElementById("dispNetTotal").textContent = (i - o);
+    }
+
     function loadForm(bed) {
-      document.getElementById("formTitle").textContent = bed + " Observations";
+      document.getElementById("formTitle").textContent = bed;
       const data = logs[bed] || {};
       FIELDS.forEach(f => {
         const el = document.getElementById("f_" + f);
         if (el) el.value = data[f] || (el.tagName === "SELECT" && el.options[0] ? el.options[0].value : "");
       });
+      updateFluidTotalsDisplay(data.intakeTotal || 0, data.outputTotal || 0);
+      refreshNewsBadge(data);
     }
 
-    function saveCurrentForm() {
-      if (activeTab === "ward" || activeTab === "summary") return;
-      if (!logs[activeTab]) logs[activeTab] = {};
-      FIELDS.forEach(f => {
-        const el = document.getElementById("f_" + f);
-        if (el) logs[activeTab][f] = el.value;
-      });
-      save();
-    }
-
-    const app = {
-      setTab(tab) {
-        saveCurrentForm();
-        activeTab = tab;
-        document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
-        if (tab === "ward") {
-          document.getElementById("viewWard").classList.add("active");
-        } else if (tab === "summary") {
-          document.getElementById("viewSummary").classList.add("active");
-          app.renderSummary();
-        } else {
-          loadForm(tab);
-          document.getElementById("viewForm").classList.add("active");
-        }
-        renderTabs();
-      },
-      toggleBed(bed) {
-        const i = selectedBeds.indexOf(bed);
-        if (i === -1) {
-          selectedBeds.push(bed);
-          if (!logs[bed]) logs[bed] = {};
-        } else {
-          selectedBeds.splice(i, 1);
-          if (activeTab === bed) activeTab = "ward";
-        }
-        save();
-        renderGrid();
-        renderTabs();
-        if (activeTab === bed) app.setTab(bed);
-      },
-      addRepo(val) {
-        const el = document.getElementById("f_repositioningLogs");
-        el.value = (el.value ? el.value + "\n" : "") + `[${getTime()}] ${val}`;
-        saveCurrentForm();
-      },
-      addFluid(dir, val) {
-        const el = document.getElementById(dir === "in" ? "f_intakeLogs" : "f_outputLogs");
-        el.value = (el.value ? el.value + "\n" : "") + `[${getTime()}] ${val}`;
-        saveCurrentForm();
-      },
-      addTimestamp() {
-        const el = document.getElementById("f_generalNotes");
-        el.value = (el.value ? el.value + "\n" : "") + `[${getTime()}] `;
-        el.focus();
-        saveCurrentForm();
-      },
-      renderSummary() {
-        const box = document.getElementById("summaryContent");
-        box.innerHTML = selectedBeds.length ? "" : "<p style='font-size:0.8rem;color:#4c6272;'>No active beds.</p>";
-        selectedBeds.forEach(bed => {
-          const l = logs[bed] || {};
-          const d = document.createElement("div");
-          d.className = "summary-box";
-          d.textContent = `=== ${bed.toUpperCase()} ===\nNEWS2: ${l.news2 || '-'} (RR:${l.rr || '-'} SpO2:${l.sats || '-'}% on ${l.o2 || 'Air'} BP:${l.bp || '-'} HR:${l.hr || '-'} T:${l.temp || '-'}C)\nBM: ${l.bm || '-'} mmol/L | Wt: ${l.weight || '-'} kg | L/S BP: ${l.lyingBp || '-'}/${l.standingBp || '-'}\nBowels: ${l.bowelOpen || 'No'} (Type: ${l.stoolType || 'None'}) - ${l.bowelNotes || 'None'}\nPressure Areas: Sacrum:${l.sacrum || 'Intact'} | L.Heel:${l.lHeel || 'Intact'} | R.Heel:${l.rHeel || 'Intact'} | Other:${l.other || 'Intact'}\nRepo:\n${l.repositioningLogs || 'None'}\nFluids:\n[In] ${l.intakeLogs || 'None'}\n[Out] ${l.outputLogs || 'None'}\nDiet: ${l.dietIntake || 'None'}\nNotes: ${l.generalNotes || 'None'}`;
-          box.appendChild(d);
-        });
-      }
-    };
-
-    FIELDS.forEach(f => {
-      const el = document.getElementById("f_" + f);
-      if (el) el.addEventListener("input", saveCurrentForm);
-    });
-
-    document.getElementById("copySummaryBtn").onclick = () => {
-      let t = "";
-      document.querySelectorAll(".summary-box").forEach(b => t += b.textContent + "\n\n");
-      navigator.clipboard.writeText(t.trim()).then(() => alert("Summary copied."));
-    };
-
-    document.getElementById("clearShiftBtn").onclick = () => {
-      if (confirm("Reset shift and clear all logs?")) {
-        selectedBeds = [];
-        logs = {};
-        save();
-        activeTab = "ward";
-        renderGrid();
-        renderTabs();
-        app.setTab("ward");
-      }
-    };
-
-    renderGrid();
-    renderTabs();
-  </script>
-</body>
-</html>
+    function refreshNewsBadge(data) {
+      const score = calculateNews(data);
+      const badge = document.getElementById("newsScoreBadge");
+      badge.textContent = "NEWS2: Score " + score;
+      if (score >= 7) { badge.style.background = "var(--news-3)"; badge.style.color = "var(--news-3-text)"; }
+      else if (score >= 5) { badge.style.backgrou
