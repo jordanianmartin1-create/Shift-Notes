@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Thorndon Ward ICA Log - v9.0</title>
+  <title>Thorndon Ward ICA Log - v10.0</title>
   <style>
     :root {
       --primary: #005eb8;
@@ -31,10 +31,10 @@
     header .sub { font-size: 0.72rem; opacity: 0.85; }
     .ver-badge { font-size: 0.7rem; font-weight: 700; padding: 3px 8px; border-radius: 12px; background: rgba(255,255,255,0.25); }
 
-    /* Hidden State Checkboxes stored at top of body */
-    .state-ck { position: absolute; left: -9999px; opacity: 0; pointer-events: none; }
+    /* Hidden Engine Inputs */
+    .engine-input { position: absolute; left: -9999px; opacity: 0; pointer-events: none; }
 
-    /* Sticky Tab Navigation */
+    /* Sticky Tab Bar */
     nav#tabBar {
       display: flex;
       gap: 6px;
@@ -49,7 +49,8 @@
       -webkit-overflow-scrolling: touch;
     }
     nav#tabBar::-webkit-scrollbar { display: none; }
-    .tab-btn {
+    
+    .tab-lbl {
       background: var(--bg);
       border: 1px solid var(--border);
       color: var(--text);
@@ -59,57 +60,56 @@
       font-weight: 600;
       flex-shrink: 0;
       cursor: pointer;
+      user-select: none;
       display: inline-block;
-      text-decoration: none;
     }
-    .tab-btn.active {
+
+    /* Bed tabs hidden by default until ticked in Ward Map */
+    .b-tab { display: none; }
+
+    /* Pure CSS Tab Reveal when selected in grid */
+    #ck_b1b1:checked ~ nav #lbl_tab_b1b1, #ck_b1b2:checked ~ nav #lbl_tab_b1b2, #ck_b1b3:checked ~ nav #lbl_tab_b1b3, #ck_b1b4:checked ~ nav #lbl_tab_b1b4,
+    #ck_b2b1:checked ~ nav #lbl_tab_b2b1, #ck_b2b2:checked ~ nav #lbl_tab_b2b2, #ck_b2b3:checked ~ nav #lbl_tab_b2b3, #ck_b2b4:checked ~ nav #lbl_tab_b2b4,
+    #ck_b3b1:checked ~ nav #lbl_tab_b3b1, #ck_b3b2:checked ~ nav #lbl_tab_b3b2, #ck_b3b3:checked ~ nav #lbl_tab_b3b3, #ck_b3b4:checked ~ nav #lbl_tab_b3b4,
+    #ck_b4b1:checked ~ nav #lbl_tab_b4b1, #ck_b4b2:checked ~ nav #lbl_tab_b4b2, #ck_b4b3:checked ~ nav #lbl_tab_b4b3, #ck_b4b4:checked ~ nav #lbl_tab_b4b4,
+    #ck_b5b1:checked ~ nav #lbl_tab_b5b1, #ck_b5b2:checked ~ nav #lbl_tab_b5b2, #ck_b5b3:checked ~ nav #lbl_tab_b5b3, #ck_b5b4:checked ~ nav #lbl_tab_b5b4,
+    #ck_sr1:checked ~ nav #lbl_tab_sr1, #ck_sr2:checked ~ nav #lbl_tab_sr2, #ck_sr3:checked ~ nav #lbl_tab_sr3, #ck_sr4:checked ~ nav #lbl_tab_sr4,
+    #ck_sr5:checked ~ nav #lbl_tab_sr5, #ck_sr6:checked ~ nav #lbl_tab_sr6, #ck_sr7:checked ~ nav #lbl_tab_sr7 {
+      display: inline-block;
+    }
+
+    /* Pure CSS Active Tab Pill Highlight */
+    #view_ward:checked ~ nav #lbl_tab_ward,
+    #view_summary:checked ~ nav #lbl_tab_summary,
+    #view_b1b1:checked ~ nav #lbl_tab_b1b1, #view_b1b2:checked ~ nav #lbl_tab_b1b2, #view_b1b3:checked ~ nav #lbl_tab_b1b3, #view_b1b4:checked ~ nav #lbl_tab_b1b4,
+    #view_b2b1:checked ~ nav #lbl_tab_b2b1, #view_b2b2:checked ~ nav #lbl_tab_b2b2, #view_b2b3:checked ~ nav #lbl_tab_b2b3, #view_b2b4:checked ~ nav #lbl_tab_b2b4,
+    #view_b3b1:checked ~ nav #lbl_tab_b3b1, #view_b3b2:checked ~ nav #lbl_tab_b3b2, #view_b3b3:checked ~ nav #lbl_tab_b3b3, #view_b3b4:checked ~ nav #lbl_tab_b3b4,
+    #view_b4b1:checked ~ nav #lbl_tab_b4b1, #view_b4b2:checked ~ nav #lbl_tab_b4b2, #view_b4b3:checked ~ nav #lbl_tab_b4b3, #view_b4b4:checked ~ nav #lbl_tab_b4b4,
+    #view_b5b1:checked ~ nav #lbl_tab_b5b1, #view_b5b2:checked ~ nav #lbl_tab_b5b2, #view_b5b3:checked ~ nav #lbl_tab_b5b3, #view_b5b4:checked ~ nav #lbl_tab_b5b4,
+    #view_sr1:checked ~ nav #lbl_tab_sr1, #view_sr2:checked ~ nav #lbl_tab_sr2, #view_sr3:checked ~ nav #lbl_tab_sr3, #view_sr4:checked ~ nav #lbl_tab_sr4,
+    #view_sr5:checked ~ nav #lbl_tab_sr5, #view_sr6:checked ~ nav #lbl_tab_sr6, #view_sr7:checked ~ nav #lbl_tab_sr7 {
       background: var(--primary) !important;
       color: #fff !important;
       border-color: var(--primary) !important;
     }
 
-    /* PURE CSS TAB VISIBILITY: Hidden by default */
-    .b-tab { display: none; }
-
-    /* Pure CSS triggers: when checkbox is checked, the matching tab button turns visible instantly */
-    #ck_b1b1:checked ~ nav #tab_b1b1 { display: inline-block; }
-    #ck_b1b2:checked ~ nav #tab_b1b2 { display: inline-block; }
-    #ck_b1b3:checked ~ nav #tab_b1b3 { display: inline-block; }
-    #ck_b1b4:checked ~ nav #tab_b1b4 { display: inline-block; }
-
-    #ck_b2b1:checked ~ nav #tab_b2b1 { display: inline-block; }
-    #ck_b2b2:checked ~ nav #tab_b2b2 { display: inline-block; }
-    #ck_b2b3:checked ~ nav #tab_b2b3 { display: inline-block; }
-    #ck_b2b4:checked ~ nav #tab_b2b4 { display: inline-block; }
-
-    #ck_b3b1:checked ~ nav #tab_b3b1 { display: inline-block; }
-    #ck_b3b2:checked ~ nav #tab_b3b2 { display: inline-block; }
-    #ck_b3b3:checked ~ nav #tab_b3b3 { display: inline-block; }
-    #ck_b3b4:checked ~ nav #tab_b3b4 { display: inline-block; }
-
-    #ck_b4b1:checked ~ nav #tab_b4b1 { display: inline-block; }
-    #ck_b4b2:checked ~ nav #tab_b4b2 { display: inline-block; }
-    #ck_b4b3:checked ~ nav #tab_b4b3 { display: inline-block; }
-    #ck_b4b4:checked ~ nav #tab_b4b4 { display: inline-block; }
-
-    #ck_b5b1:checked ~ nav #tab_b5b1 { display: inline-block; }
-    #ck_b5b2:checked ~ nav #tab_b5b2 { display: inline-block; }
-    #ck_b5b3:checked ~ nav #tab_b5b3 { display: inline-block; }
-    #ck_b5b4:checked ~ nav #tab_b5b4 { display: inline-block; }
-
-    #ck_sr1:checked ~ nav #tab_sr1 { display: inline-block; }
-    #ck_sr2:checked ~ nav #tab_sr2 { display: inline-block; }
-    #ck_sr3:checked ~ nav #tab_sr3 { display: inline-block; }
-    #ck_sr4:checked ~ nav #tab_sr4 { display: inline-block; }
-    #ck_sr5:checked ~ nav #tab_sr5 { display: inline-block; }
-    #ck_sr6:checked ~ nav #tab_sr6 { display: inline-block; }
-    #ck_sr7:checked ~ nav #tab_sr7 { display: inline-block; }
-
     main { padding: 12px; max-width: 800px; margin: 0 auto; }
-    .view { display: none; }
-    .view.active { display: block; }
+    
+    /* Panel Visibility Switching via CSS */
+    .screen-panel { display: none; }
+    #view_ward:checked ~ main #panel_ward { display: block; }
+    #view_summary:checked ~ main #panel_summary { display: block; }
+    #view_b1b1:checked ~ main #panel_b1b1, #view_b1b2:checked ~ main #panel_b1b2, #view_b1b3:checked ~ main #panel_b1b3, #view_b1b4:checked ~ main #panel_b1b4,
+    #view_b2b1:checked ~ main #panel_b2b1, #view_b2b2:checked ~ main #panel_b2b2, #view_b2b3:checked ~ main #panel_b2b3, #view_b2b4:checked ~ main #panel_b2b4,
+    #view_b3b1:checked ~ main #panel_b3b1, #view_b3b2:checked ~ main #panel_b3b2, #view_b3b3:checked ~ main #panel_b3b3, #view_b3b4:checked ~ main #panel_b3b4,
+    #view_b4b1:checked ~ main #panel_b4b1, #view_b4b2:checked ~ main #panel_b4b2, #view_b4b3:checked ~ main #panel_b4b3, #view_b4b4:checked ~ main #panel_b4b4,
+    #view_b5b1:checked ~ main #panel_b5b1, #view_b5b2:checked ~ main #panel_b5b2, #view_b5b3:checked ~ main #panel_b5b3, #view_b5b4:checked ~ main #panel_b5b4,
+    #view_sr1:checked ~ main #panel_sr1, #view_sr2:checked ~ main #panel_sr2, #view_sr3:checked ~ main #panel_sr3, #view_sr4:checked ~ main #panel_sr4,
+    #view_sr5:checked ~ main #panel_sr5, #view_sr6:checked ~ main #panel_sr6, #view_sr7:checked ~ main #panel_sr7 {
+      display: block;
+    }
 
-    /* Ward Allocation Grid */
+    /* Grid Layout */
     .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
     .bed-label {
       display: block;
@@ -125,71 +125,31 @@
       cursor: pointer;
     }
 
-    /* Checkbox highlights the bed in grid */
-    #ck_b1b1:checked ~ main #lbl_b1b1,
-    #ck_b1b2:checked ~ main #lbl_b1b2,
-    #ck_b1b3:checked ~ main #lbl_b1b3,
-    #ck_b1b4:checked ~ main #lbl_b1b4,
-    #ck_b2b1:checked ~ main #lbl_b2b1,
-    #ck_b2b2:checked ~ main #lbl_b2b2,
-    #ck_b2b3:checked ~ main #lbl_b2b3,
-    #ck_b2b4:checked ~ main #lbl_b2b4,
-    #ck_b3b1:checked ~ main #lbl_b3b1,
-    #ck_b3b2:checked ~ main #lbl_b3b2,
-    #ck_b3b3:checked ~ main #lbl_b3b3,
-    #ck_b3b4:checked ~ main #lbl_b3b4,
-    #ck_b4b1:checked ~ main #lbl_b4b1,
-    #ck_b4b2:checked ~ main #lbl_b4b2,
-    #ck_b4b3:checked ~ main #lbl_b4b3,
-    #ck_b4b4:checked ~ main #lbl_b4b4,
-    #ck_b5b1:checked ~ main #lbl_b5b1,
-    #ck_b5b2:checked ~ main #lbl_b5b2,
-    #ck_b5b3:checked ~ main #lbl_b5b3,
-    #ck_b5b4:checked ~ main #lbl_b5b4,
-    #ck_sr1:checked ~ main #lbl_sr1,
-    #ck_sr2:checked ~ main #lbl_sr2,
-    #ck_sr3:checked ~ main #lbl_sr3,
-    #ck_sr4:checked ~ main #lbl_sr4,
-    #ck_sr5:checked ~ main #lbl_sr5,
-    #ck_sr6:checked ~ main #lbl_sr6,
-    #ck_sr7:checked ~ main #lbl_sr7 {
+    /* Checkbox checked highlight on Ward Grid */
+    #ck_b1b1:checked ~ main #lbl_b1b1, #ck_b1b2:checked ~ main #lbl_b1b2, #ck_b1b3:checked ~ main #lbl_b1b3, #ck_b1b4:checked ~ main #lbl_b1b4,
+    #ck_b2b1:checked ~ main #lbl_b2b1, #ck_b2b2:checked ~ main #lbl_b2b2, #ck_b2b3:checked ~ main #lbl_b2b3, #ck_b2b4:checked ~ main #lbl_b2b4,
+    #ck_b3b1:checked ~ main #lbl_b3b1, #ck_b3b2:checked ~ main #lbl_b3b2, #ck_b3b3:checked ~ main #lbl_b3b3, #ck_b3b4:checked ~ main #lbl_b3b4,
+    #ck_b4b1:checked ~ main #lbl_b4b1, #ck_b4b2:checked ~ main #lbl_b4b2, #ck_b4b3:checked ~ main #lbl_b4b3, #ck_b4b4:checked ~ main #lbl_b4b4,
+    #ck_b5b1:checked ~ main #lbl_b5b1, #ck_b5b2:checked ~ main #lbl_b5b2, #ck_b5b3:checked ~ main #lbl_b5b3, #ck_b5b4:checked ~ main #lbl_b5b4,
+    #ck_sr1:checked ~ main #lbl_sr1, #ck_sr2:checked ~ main #lbl_sr2, #ck_sr3:checked ~ main #lbl_sr3, #ck_sr4:checked ~ main #lbl_sr4,
+    #ck_sr5:checked ~ main #lbl_sr5, #ck_sr6:checked ~ main #lbl_sr6, #ck_sr7:checked ~ main #lbl_sr7 {
       background: var(--primary) !important;
       color: #ffffff !important;
       border-color: var(--primary-dark) !important;
       box-shadow: 0 2px 6px rgba(0, 94, 184, 0.3);
     }
-
-    #ck_b1b1:checked ~ main #lbl_b1b1::after,
-    #ck_b1b2:checked ~ main #lbl_b1b2::after,
-    #ck_b1b3:checked ~ main #lbl_b1b3::after,
-    #ck_b1b4:checked ~ main #lbl_b1b4::after,
-    #ck_b2b1:checked ~ main #lbl_b2b1::after,
-    #ck_b2b2:checked ~ main #lbl_b2b2::after,
-    #ck_b2b3:checked ~ main #lbl_b2b3::after,
-    #ck_b2b4:checked ~ main #lbl_b2b4::after,
-    #ck_b3b1:checked ~ main #lbl_b3b1::after,
-    #ck_b3b2:checked ~ main #lbl_b3b2::after,
-    #ck_b3b3:checked ~ main #lbl_b3b3::after,
-    #ck_b3b4:checked ~ main #lbl_b3b4::after,
-    #ck_b4b1:checked ~ main #lbl_b4b1::after,
-    #ck_b4b2:checked ~ main #lbl_b4b2::after,
-    #ck_b4b3:checked ~ main #lbl_b4b3::after,
-    #ck_b4b4:checked ~ main #lbl_b4b4::after,
-    #ck_b5b1:checked ~ main #lbl_b5b1::after,
-    #ck_b5b2:checked ~ main #lbl_b5b2::after,
-    #ck_b5b3:checked ~ main #lbl_b5b3::after,
-    #ck_b5b4:checked ~ main #lbl_b5b4::after,
-    #ck_sr1:checked ~ main #lbl_sr1::after,
-    #ck_sr2:checked ~ main #lbl_sr2::after,
-    #ck_sr3:checked ~ main #lbl_sr3::after,
-    #ck_sr4:checked ~ main #lbl_sr4::after,
-    #ck_sr5:checked ~ main #lbl_sr5::after,
-    #ck_sr6:checked ~ main #lbl_sr6::after,
-    #ck_sr7:checked ~ main #lbl_sr7::after {
+    #ck_b1b1:checked ~ main #lbl_b1b1::after, #ck_b1b2:checked ~ main #lbl_b1b2::after, #ck_b1b3:checked ~ main #lbl_b1b3::after, #ck_b1b4:checked ~ main #lbl_b1b4::after,
+    #ck_b2b1:checked ~ main #lbl_b2b1::after, #ck_b2b2:checked ~ main #lbl_b2b2::after, #ck_b2b3:checked ~ main #lbl_b2b3::after, #ck_b2b4:checked ~ main #lbl_b2b4::after,
+    #ck_b3b1:checked ~ main #lbl_b3b1::after, #ck_b3b2:checked ~ main #lbl_b3b2::after, #ck_b3b3:checked ~ main #lbl_b3b3::after, #ck_b3b4:checked ~ main #lbl_b3b4::after,
+    #ck_b4b1:checked ~ main #lbl_b4b1::after, #ck_b4b2:checked ~ main #lbl_b4b2::after, #ck_b4b3:checked ~ main #lbl_b4b3::after, #ck_b4b4:checked ~ main #lbl_b4b4::after,
+    #ck_b5b1:checked ~ main #lbl_b5b1::after, #ck_b5b2:checked ~ main #lbl_b5b2::after, #ck_b5b3:checked ~ main #lbl_b5b3::after, #ck_b5b4:checked ~ main #lbl_b5b4::after,
+    #ck_sr1:checked ~ main #lbl_sr1::after, #ck_sr2:checked ~ main #lbl_sr2::after, #ck_sr3:checked ~ main #lbl_sr3::after, #ck_sr4:checked ~ main #lbl_sr4::after,
+    #ck_sr5:checked ~ main #lbl_sr5::after, #ck_sr6:checked ~ main #lbl_sr6::after, #ck_sr7:checked ~ main #lbl_sr7::after {
       content: " ✓";
       font-weight: 700;
     }
 
+    /* Clinical Cards */
     .card { background: var(--card); border-radius: 8px; border: 1px solid var(--border); padding: 14px; margin-bottom: 12px; }
     .card h3 { font-size: 0.92rem; color: var(--primary-dark); margin-bottom: 10px; border-bottom: 1px solid var(--border); padding-bottom: 4px; display: flex; justify-content: space-between; align-items: center; }
     .row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
@@ -216,92 +176,117 @@
 </head>
 <body>
 
-  <!-- Top-Level State Checkboxes (Pure CSS Engine) -->
-  <input type="checkbox" class="state-ck" id="ck_b1b1" value="Bay 1 Bed 1">
-  <input type="checkbox" class="state-ck" id="ck_b1b2" value="Bay 1 Bed 2">
-  <input type="checkbox" class="state-ck" id="ck_b1b3" value="Bay 1 Bed 3">
-  <input type="checkbox" class="state-ck" id="ck_b1b4" value="Bay 1 Bed 4">
+  <!-- Bed Active Checkboxes -->
+  <input type="checkbox" class="engine-input" id="ck_b1b1" value="Bay 1 Bed 1">
+  <input type="checkbox" class="engine-input" id="ck_b1b2" value="Bay 1 Bed 2">
+  <input type="checkbox" class="engine-input" id="ck_b1b3" value="Bay 1 Bed 3">
+  <input type="checkbox" class="engine-input" id="ck_b1b4" value="Bay 1 Bed 4">
+  <input type="checkbox" class="engine-input" id="ck_b2b1" value="Bay 2 Bed 1">
+  <input type="checkbox" class="engine-input" id="ck_b2b2" value="Bay 2 Bed 2">
+  <input type="checkbox" class="engine-input" id="ck_b2b3" value="Bay 2 Bed 3">
+  <input type="checkbox" class="engine-input" id="ck_b2b4" value="Bay 2 Bed 4">
+  <input type="checkbox" class="engine-input" id="ck_b3b1" value="Bay 3 Bed 1">
+  <input type="checkbox" class="engine-input" id="ck_b3b2" value="Bay 3 Bed 2">
+  <input type="checkbox" class="engine-input" id="ck_b3b3" value="Bay 3 Bed 3">
+  <input type="checkbox" class="engine-input" id="ck_b3b4" value="Bay 3 Bed 4">
+  <input type="checkbox" class="engine-input" id="ck_b4b1" value="Bay 4 Bed 1">
+  <input type="checkbox" class="engine-input" id="ck_b4b2" value="Bay 4 Bed 2">
+  <input type="checkbox" class="engine-input" id="ck_b4b3" value="Bay 4 Bed 3">
+  <input type="checkbox" class="engine-input" id="ck_b4b4" value="Bay 4 Bed 4">
+  <input type="checkbox" class="engine-input" id="ck_b5b1" value="Bay 5 Bed 1">
+  <input type="checkbox" class="engine-input" id="ck_b5b2" value="Bay 5 Bed 2">
+  <input type="checkbox" class="engine-input" id="ck_b5b3" value="Bay 5 Bed 3">
+  <input type="checkbox" class="engine-input" id="ck_b5b4" value="Bay 5 Bed 4">
+  <input type="checkbox" class="engine-input" id="ck_sr1" value="Side Room 1">
+  <input type="checkbox" class="engine-input" id="ck_sr2" value="Side Room 2">
+  <input type="checkbox" class="engine-input" id="ck_sr3" value="Side Room 3">
+  <input type="checkbox" class="engine-input" id="ck_sr4" value="Side Room 4">
+  <input type="checkbox" class="engine-input" id="ck_sr5" value="Side Room 5">
+  <input type="checkbox" class="engine-input" id="ck_sr6" value="Side Room 6">
+  <input type="checkbox" class="engine-input" id="ck_sr7" value="Side Room 7">
 
-  <input type="checkbox" class="state-ck" id="ck_b2b1" value="Bay 2 Bed 1">
-  <input type="checkbox" class="state-ck" id="ck_b2b2" value="Bay 2 Bed 2">
-  <input type="checkbox" class="state-ck" id="ck_b2b3" value="Bay 2 Bed 3">
-  <input type="checkbox" class="state-ck" id="ck_b2b4" value="Bay 2 Bed 4">
-
-  <input type="checkbox" class="state-ck" id="ck_b3b1" value="Bay 3 Bed 1">
-  <input type="checkbox" class="state-ck" id="ck_b3b2" value="Bay 3 Bed 2">
-  <input type="checkbox" class="state-ck" id="ck_b3b3" value="Bay 3 Bed 3">
-  <input type="checkbox" class="state-ck" id="ck_b3b4" value="Bay 3 Bed 4">
-
-  <input type="checkbox" class="state-ck" id="ck_b4b1" value="Bay 4 Bed 1">
-  <input type="checkbox" class="state-ck" id="ck_b4b2" value="Bay 4 Bed 2">
-  <input type="checkbox" class="state-ck" id="ck_b4b3" value="Bay 4 Bed 3">
-  <input type="checkbox" class="state-ck" id="ck_b4b4" value="Bay 4 Bed 4">
-
-  <input type="checkbox" class="state-ck" id="ck_b5b1" value="Bay 5 Bed 1">
-  <input type="checkbox" class="state-ck" id="ck_b5b2" value="Bay 5 Bed 2">
-  <input type="checkbox" class="state-ck" id="ck_b5b3" value="Bay 5 Bed 3">
-  <input type="checkbox" class="state-ck" id="ck_b5b4" value="Bay 5 Bed 4">
-
-  <input type="checkbox" class="state-ck" id="ck_sr1" value="Side Room 1">
-  <input type="checkbox" class="state-ck" id="ck_sr2" value="Side Room 2">
-  <input type="checkbox" class="state-ck" id="ck_sr3" value="Side Room 3">
-  <input type="checkbox" class="state-ck" id="ck_sr4" value="Side Room 4">
-  <input type="checkbox" class="state-ck" id="ck_sr5" value="Side Room 5">
-  <input type="checkbox" class="state-ck" id="ck_sr6" value="Side Room 6">
-  <input type="checkbox" class="state-ck" id="ck_sr7" value="Side Room 7">
+  <!-- Screen View Radio Buttons -->
+  <input type="radio" name="view_mode" class="engine-input" id="view_ward" checked>
+  <input type="radio" name="view_mode" class="engine-input" id="view_summary">
+  <input type="radio" name="view_mode" class="engine-input" id="view_b1b1">
+  <input type="radio" name="view_mode" class="engine-input" id="view_b1b2">
+  <input type="radio" name="view_mode" class="engine-input" id="view_b1b3">
+  <input type="radio" name="view_mode" class="engine-input" id="view_b1b4">
+  <input type="radio" name="view_mode" class="engine-input" id="view_b2b1">
+  <input type="radio" name="view_mode" class="engine-input" id="view_b2b2">
+  <input type="radio" name="view_mode" class="engine-input" id="view_b2b3">
+  <input type="radio" name="view_mode" class="engine-input" id="view_b2b4">
+  <input type="radio" name="view_mode" class="engine-input" id="view_b3b1">
+  <input type="radio" name="view_mode" class="engine-input" id="view_b3b2">
+  <input type="radio" name="view_mode" class="engine-input" id="view_b3b3">
+  <input type="radio" name="view_mode" class="engine-input" id="view_b3b4">
+  <input type="radio" name="view_mode" class="engine-input" id="view_b4b1">
+  <input type="radio" name="view_mode" class="engine-input" id="view_b4b2">
+  <input type="radio" name="view_mode" class="engine-input" id="view_b4b3">
+  <input type="radio" name="view_mode" class="engine-input" id="view_b4b4">
+  <input type="radio" name="view_mode" class="engine-input" id="view_b5b1">
+  <input type="radio" name="view_mode" class="engine-input" id="view_b5b2">
+  <input type="radio" name="view_mode" class="engine-input" id="view_b5b3">
+  <input type="radio" name="view_mode" class="engine-input" id="view_b5b4">
+  <input type="radio" name="view_mode" class="engine-input" id="view_sr1">
+  <input type="radio" name="view_mode" class="engine-input" id="view_sr2">
+  <input type="radio" name="view_mode" class="engine-input" id="view_sr3">
+  <input type="radio" name="view_mode" class="engine-input" id="view_sr4">
+  <input type="radio" name="view_mode" class="engine-input" id="view_sr5">
+  <input type="radio" name="view_mode" class="engine-input" id="view_sr6">
+  <input type="radio" name="view_mode" class="engine-input" id="view_sr7">
 
   <header>
     <div>
       <h1>Thorndon Ward ICA Log</h1>
       <div class="sub">Offline Shift Notepad • SystmOne Staging</div>
     </div>
-    <span class="ver-badge">v9.0 Active</span>
+    <span class="ver-badge">v10.0 Active</span>
   </header>
 
-  <!-- Navigation Tab Bar -->
+  <!-- Navigation Tab Bar (Labels link directly to radios) -->
   <nav id="tabBar">
-    <button type="button" class="tab-btn active" id="tab_btn_ward" onclick="showScreen('ward')">Ward Map</button>
+    <label class="tab-lbl" id="lbl_tab_ward" for="view_ward">Ward Map</label>
 
-    <!-- Pre-rendered Bed Tabs -->
-    <button type="button" class="tab-btn b-tab" id="tab_b1b1" onclick="showScreen('Bay 1 Bed 1')">Bay 1 Bed 1</button>
-    <button type="button" class="tab-btn b-tab" id="tab_b1b2" onclick="showScreen('Bay 1 Bed 2')">Bay 1 Bed 2</button>
-    <button type="button" class="tab-btn b-tab" id="tab_b1b3" onclick="showScreen('Bay 1 Bed 3')">Bay 1 Bed 3</button>
-    <button type="button" class="tab-btn b-tab" id="tab_b1b4" onclick="showScreen('Bay 1 Bed 4')">Bay 1 Bed 4</button>
+    <label class="tab-lbl b-tab" id="lbl_tab_b1b1" for="view_b1b1">Bay 1 Bed 1</label>
+    <label class="tab-lbl b-tab" id="lbl_tab_b1b2" for="view_b1b2">Bay 1 Bed 2</label>
+    <label class="tab-lbl b-tab" id="lbl_tab_b1b3" for="view_b1b3">Bay 1 Bed 3</label>
+    <label class="tab-lbl b-tab" id="lbl_tab_b1b4" for="view_b1b4">Bay 1 Bed 4</label>
 
-    <button type="button" class="tab-btn b-tab" id="tab_b2b1" onclick="showScreen('Bay 2 Bed 1')">Bay 2 Bed 1</button>
-    <button type="button" class="tab-btn b-tab" id="tab_b2b2" onclick="showScreen('Bay 2 Bed 2')">Bay 2 Bed 2</button>
-    <button type="button" class="tab-btn b-tab" id="tab_b2b3" onclick="showScreen('Bay 2 Bed 3')">Bay 2 Bed 3</button>
-    <button type="button" class="tab-btn b-tab" id="tab_b2b4" onclick="showScreen('Bay 2 Bed 4')">Bay 2 Bed 4</button>
+    <label class="tab-lbl b-tab" id="lbl_tab_b2b1" for="view_b2b1">Bay 2 Bed 1</label>
+    <label class="tab-lbl b-tab" id="lbl_tab_b2b2" for="view_b2b2">Bay 2 Bed 2</label>
+    <label class="tab-lbl b-tab" id="lbl_tab_b2b3" for="view_b2b3">Bay 2 Bed 3</label>
+    <label class="tab-lbl b-tab" id="lbl_tab_b2b4" for="view_b2b4">Bay 2 Bed 4</label>
 
-    <button type="button" class="tab-btn b-tab" id="tab_b3b1" onclick="showScreen('Bay 3 Bed 1')">Bay 3 Bed 1</button>
-    <button type="button" class="tab-btn b-tab" id="tab_b3b2" onclick="showScreen('Bay 3 Bed 2')">Bay 3 Bed 2</button>
-    <button type="button" class="tab-btn b-tab" id="tab_b3b3" onclick="showScreen('Bay 3 Bed 3')">Bay 3 Bed 3</button>
-    <button type="button" class="tab-btn b-tab" id="tab_b3b4" onclick="showScreen('Bay 3 Bed 4')">Bay 3 Bed 4</button>
+    <label class="tab-lbl b-tab" id="lbl_tab_b3b1" for="view_b3b1">Bay 3 Bed 1</label>
+    <label class="tab-lbl b-tab" id="lbl_tab_b3b2" for="view_b3b2">Bay 3 Bed 2</label>
+    <label class="tab-lbl b-tab" id="lbl_tab_b3b3" for="view_b3b3">Bay 3 Bed 3</label>
+    <label class="tab-lbl b-tab" id="lbl_tab_b3b4" for="view_b3b4">Bay 3 Bed 4</label>
 
-    <button type="button" class="tab-btn b-tab" id="tab_b4b1" onclick="showScreen('Bay 4 Bed 1')">Bay 4 Bed 1</button>
-    <button type="button" class="tab-btn b-tab" id="tab_b4b2" onclick="showScreen('Bay 4 Bed 2')">Bay 4 Bed 2</button>
-    <button type="button" class="tab-btn b-tab" id="tab_b4b3" onclick="showScreen('Bay 4 Bed 3')">Bay 4 Bed 3</button>
-    <button type="button" class="tab-btn b-tab" id="tab_b4b4" onclick="showScreen('Bay 4 Bed 4')">Bay 4 Bed 4</button>
+    <label class="tab-lbl b-tab" id="lbl_tab_b4b1" for="view_b4b1">Bay 4 Bed 1</label>
+    <label class="tab-lbl b-tab" id="lbl_tab_b4b2" for="view_b4b2">Bay 4 Bed 2</label>
+    <label class="tab-lbl b-tab" id="lbl_tab_b4b3" for="view_b4b3">Bay 4 Bed 3</label>
+    <label class="tab-lbl b-tab" id="lbl_tab_b4b4" for="view_b4b4">Bay 4 Bed 4</label>
 
-    <button type="button" class="tab-btn b-tab" id="tab_b5b1" onclick="showScreen('Bay 5 Bed 1')">Bay 5 Bed 1</button>
-    <button type="button" class="tab-btn b-tab" id="tab_b5b2" onclick="showScreen('Bay 5 Bed 2')">Bay 5 Bed 2</button>
-    <button type="button" class="tab-btn b-tab" id="tab_b5b3" onclick="showScreen('Bay 5 Bed 3')">Bay 5 Bed 3</button>
-    <button type="button" class="tab-btn b-tab" id="tab_b5b4" onclick="showScreen('Bay 5 Bed 4')">Bay 5 Bed 4</button>
+    <label class="tab-lbl b-tab" id="lbl_tab_b5b1" for="view_b5b1">Bay 5 Bed 1</label>
+    <label class="tab-lbl b-tab" id="lbl_tab_b5b2" for="view_b5b2">Bay 5 Bed 2</label>
+    <label class="tab-lbl b-tab" id="lbl_tab_b5b3" for="view_b5b3">Bay 5 Bed 3</label>
+    <label class="tab-lbl b-tab" id="lbl_tab_b5b4" for="view_b5b4">Bay 5 Bed 4</label>
 
-    <button type="button" class="tab-btn b-tab" id="tab_sr1" onclick="showScreen('Side Room 1')">Side Room 1</button>
-    <button type="button" class="tab-btn b-tab" id="tab_sr2" onclick="showScreen('Side Room 2')">Side Room 2</button>
-    <button type="button" class="tab-btn b-tab" id="tab_sr3" onclick="showScreen('Side Room 3')">Side Room 3</button>
-    <button type="button" class="tab-btn b-tab" id="tab_sr4" onclick="showScreen('Side Room 4')">Side Room 4</button>
-    <button type="button" class="tab-btn b-tab" id="tab_sr5" onclick="showScreen('Side Room 5')">Side Room 5</button>
-    <button type="button" class="tab-btn b-tab" id="tab_sr6" onclick="showScreen('Side Room 6')">Side Room 6</button>
-    <button type="button" class="tab-btn b-tab" id="tab_sr7" onclick="showScreen('Side Room 7')">Side Room 7</button>
+    <label class="tab-lbl b-tab" id="lbl_tab_sr1" for="view_sr1">Side Room 1</label>
+    <label class="tab-lbl b-tab" id="lbl_tab_sr2" for="view_sr2">Side Room 2</label>
+    <label class="tab-lbl b-tab" id="lbl_tab_sr3" for="view_sr3">Side Room 3</label>
+    <label class="tab-lbl b-tab" id="lbl_tab_sr4" for="view_sr4">Side Room 4</label>
+    <label class="tab-lbl b-tab" id="lbl_tab_sr5" for="view_sr5">Side Room 5</label>
+    <label class="tab-lbl b-tab" id="lbl_tab_sr6" for="view_sr6">Side Room 6</label>
+    <label class="tab-lbl b-tab" id="lbl_tab_sr7" for="view_sr7">Side Room 7</label>
 
-    <button type="button" class="tab-btn" id="tab_btn_summary" onclick="showScreen('summary')">Summary</button>
+    <label class="tab-lbl" id="lbl_tab_summary" for="view_summary">Summary</label>
   </nav>
 
   <main>
-    <!-- Ward Allocation Screen -->
-    <div id="viewWard" class="view active">
+    <!-- Screen: Ward Allocation Grid -->
+    <div id="panel_ward" class="screen-panel">
       <div class="card">
         <h3>Ward Allocation (27 Beds)</h3>
         <p style="font-size:0.8rem; color:var(--sub); margin-bottom:12px;">Tap beds to select or deselect. Active beds will pin as tabs above.</p>
@@ -319,48 +304,4 @@
           <!-- Bay 3 -->
           <div><label class="bed-label" id="lbl_b3b1" for="ck_b3b1">Bay 3 Bed 1</label></div>
           <div><label class="bed-label" id="lbl_b3b2" for="ck_b3b2">Bay 3 Bed 2</label></div>
-          <div><label class="bed-label" id="lbl_b3b3" for="ck_b3b3">Bay 3 Bed 3</label></div>
-          <div><label class="bed-label" id="lbl_b3b4" for="ck_b3b4">Bay 3 Bed 4</label></div>
-          <!-- Bay 4 -->
-          <div><label class="bed-label" id="lbl_b4b1" for="ck_b4b1">Bay 4 Bed 1</label></div>
-          <div><label class="bed-label" id="lbl_b4b2" for="ck_b4b2">Bay 4 Bed 2</label></div>
-          <div><label class="bed-label" id="lbl_b4b3" for="ck_b4b3">Bay 4 Bed 3</label></div>
-          <div><label class="bed-label" id="lbl_b4b4" for="ck_b4b4">Bay 4 Bed 4</label></div>
-          <!-- Bay 5 -->
-          <div><label class="bed-label" id="lbl_b5b1" for="ck_b5b1">Bay 5 Bed 1</label></div>
-          <div><label class="bed-label" id="lbl_b5b2" for="ck_b5b2">Bay 5 Bed 2</label></div>
-          <div><label class="bed-label" id="lbl_b5b3" for="ck_b5b3">Bay 5 Bed 3</label></div>
-          <div><label class="bed-label" id="lbl_b5b4" for="ck_b5b4">Bay 5 Bed 4</label></div>
-          <!-- Side Rooms 1 to 7 -->
-          <div><label class="bed-label" id="lbl_sr1" for="ck_sr1">Side Room 1</label></div>
-          <div><label class="bed-label" id="lbl_sr2" for="ck_sr2">Side Room 2</label></div>
-          <div><label class="bed-label" id="lbl_sr3" for="ck_sr3">Side Room 3</label></div>
-          <div><label class="bed-label" id="lbl_sr4" for="ck_sr4">Side Room 4</label></div>
-          <div><label class="bed-label" id="lbl_sr5" for="ck_sr5">Side Room 5</label></div>
-          <div><label class="bed-label" id="lbl_sr6" for="ck_sr6">Side Room 6</label></div>
-          <div><label class="bed-label" id="lbl_sr7" for="ck_sr7">Side Room 7</label></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Observation Entry Form Screen -->
-    <div id="viewForm" class="view">
-      <div class="card">
-        <h3>
-          <span id="formTitle">Patient Observations</span>
-          <span class="score-badge" id="newsScoreBadge">NEWS2: 0</span>
-        </h3>
-        <div class="row">
-          <div class="col"><label class="field-lbl">Resp Rate (/min)</label><input type="text" inputmode="numeric" pattern="[0-9]*" id="f_rr"></div>
-          <div class="col"><label class="field-lbl">SpO2 (%)</label><input type="text" inputmode="numeric" pattern="[0-9]*" id="f_sats"></div>
-          <div class="col">
-            <label class="field-lbl">Oxygen</label>
-            <select id="f_o2">
-              <option value="Air">Air</option>
-              <option value="Oxygen">Oxygen</option>
-            </select>
-          </div>
-          <div class="col"><label class="field-lbl">Heart Rate (bpm)</label><input type="text" inputmode="numeric" pattern="[0-9]*" id="f_hr"></div>
-          <div class="col"><label class="field-lbl">Systolic BP</label><input type="text" inputmode="numeric" pattern="[0-9]*" id="f_bpSys" placeholder="120"></div>
-          <div class="col"><label class="field-lbl">Diastolic BP</label><input type="text" inputmode="numeric" pattern="[0-9]*" id="f_bpDia" placeholder="80"></div>
-          <div class="col full"><label clas
+          <div><label class="bed-label" id="lbl_b3b3" for=
