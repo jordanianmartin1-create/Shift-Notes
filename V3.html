@@ -108,7 +108,7 @@
 </div>
 
 <script>
-  const allBeds = [
+const allBeds = [
   'Bay 1 Bed 1','Bay 1 Bed 2', 'Bay 2 Bed 1','Bay 2 Bed 2','Bay 2 Bed 3','Bay 2 Bed 4',
   'Bay 3 Bed 1','Bay 3 Bed 2','Bay 3 Bed 3','Bay 3 Bed 4', 'Bay 4 Bed 1','Bay 4 Bed 2','Bay 4 Bed 3','Bay 4 Bed 4',
   'Bay 5 Bed 1','Bay 5 Bed 2','Bay 5 Bed 3','Bay 5 Bed 4', 'Side Room 1','Side Room 2','Side Room 3','Side Room 4',
@@ -232,7 +232,7 @@ function refreshFluid() {
   if (el) el.innerHTML = `<span>In: ${inT}</span><span>Out: ${outT}</span><span>Net: ${inT-outT}</span>`;
 }
 
-function renderContent() {
+  function renderContent() {
   const area = document.getElementById('contentArea');
   
   if (showSummary) {
@@ -469,4 +469,17 @@ function setNoDate() {
 
 function calcDue(val) {
   if (!val) return '-';
-  const d
+  const d = new Date(val); d.setDate(d.getDate() + 3);
+  return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
+}
+
+function clearShift() {
+  if (confirm("Are you sure you want to clear all data and end the shift?")) {
+    localStorage.clear(); location.reload();
+  }
+}
+
+initSetup();
+</script>
+</body>
+</html>
