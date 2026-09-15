@@ -87,8 +87,15 @@
 <div class="container" id="patientContent"></div>
 
 <script>
-const beds = ['Bay 1 Bed 1', 'Bay 1 Bed 2', 'Bay 1 Bed 3', 'Bay 1 Bed 4', 'Bay 1 Bed 5', 'Bay 1 Bed 6'];
-let activeBed = beds[0];
+const beds = [
+  'Bay 1 Bed 1', 'Bay 1 Bed 2', 
+  'Bay 2 Bed 1', 'Bay 2 Bed 2', 'Bay 2 Bed 3', 'Bay 2 Bed 4', 
+  'Bay 3 Bed 1', 'Bay 3 Bed 2', 'Bay 3 Bed 3', 'Bay 3 Bed 4', 
+  'Bay 4 Bed 1', 'Bay 4 Bed 2', 'Bay 4 Bed 3', 'Bay 4 Bed 4', 
+  'Bay 5 Bed 1', 'Bay 5 Bed 2', 'Bay 5 Bed 3', 'Bay 5 Bed 4', 
+  'Side Room 1', 'Side Room 2', 'Side Room 3', 'Side Room 4', 'Side Room 5', 'Side Room 6', 'Side Room 7'
+];
+let activeBedIndex = 0;
 let isNightShift = false;
 
 document.getElementById('shiftToggle').addEventListener('change', (e) => {
@@ -106,24 +113,28 @@ function updateTimeSlots() {
   const activeFluids = isNightShift ? nightFluids : dayFluids;
   const activeTurns = isNightShift ? nightTurns : dayTurns;
 
-  document.querySelectorAll('.fluid-time').forEach((slot, i) => { if(activeFluids[i]) slot.textContent = activeFluids[i]; });
-  document.querySelectorAll('.turn-time').forEach((slot, i) => { if(activeTurns[i]) slot.textContent = activeTurns[i]; });
+  document.querySelectorAll('.fluid-time').forEach((slot, i) => { if(activeFluids[i % 13]) slot.textContent = activeFluids[i % 13]; });
+  document.querySelectorAll('.turn-time').forEach((slot, i) => { if(activeTurns[i % 6]) slot.textContent = activeTurns[i % 6]; });
 }
 
 function init() {
+  renderPatientViews();
   renderTabs();
   renderSubNav();
-  renderPatientView();
 }
 
 function renderTabs() {
   const container = document.getElementById('bedTabs');
   container.innerHTML = '';
-  beds.forEach(bed => {
+  beds.forEach((bed, index) => {
     const btn = document.createElement('button');
-    btn.className = `bed-tab ${bed === activeBed ? 'active' : ''}`;
+    btn.className = `bed-tab ${index === activeBedIndex ? 'active' : ''}`;
     btn.textContent = bed;
-    btn.onclick = () => { activeBed = bed; init(); };
+    btn.onclick = () => { 
+      activeBedIndex = index; 
+      renderTabs(); 
+      showActiveBed(); 
+    };
     container.appendChild(btn);
   });
 }
@@ -145,7 +156,7 @@ function renderSubNav() {
     const btn = document.createElement('button');
     btn.textContent = nav.label;
     btn.onclick = () => {
-      const el = document.getElementById(`${nav.id}Section`);
+      const el = document.getElementById(`${nav.id}Section_${activeBedIndex}`);
       const yOffset = -120;
       const y = el.getBoundingClientRect().top + window.pageYOffset + yOffset;
       window.scrollTo({ top: y, behavior: 'smooth' });
@@ -154,78 +165,94 @@ function renderSubNav() {
   });
 }
 
-function renderPatientView() {
+function renderPatientViews() {
   const container = document.getElementById('patientContent');
-  container.innerHTML = `
-    <div id="newsSection" class="card amber">
-      <h2>NEWS2 Observations <button class="clear-btn" onclick="clearContainer('newsList')">Clear</button></h2>
-      <div id="newsList"></div>
-      <button class="action-btn" onclick="addLogEntry('newsList', 'NEWS2 Check')">+ Add NEWS2</button>
-    </div>
+  container.innerHTML = '';
+  
+  beds.forEach((bed, index) => {
+    const bedDiv = document.createElement('div');
+    bedDiv.id = `bed_${index}`;
+    bedDiv.style.display = index === activeBedIndex ? 'block' : 'none';
+    
+    bedDiv.innerHTML = `
+      <div id="newsSection_${index}" class="card amber">
+        <h2>NEWS2 Observations <button class="clear-btn" onclick="clearContainer('newsList_${index}')">Clear</button></h2>
+        <div id="newsList_${index}"></div>
+        <button class="action-btn" onclick="addLogEntry('newsList_${index}', 'NEWS2 Check')">+ Add NEWS2</button>
+      </div>
 
-    <div id="bmSection" class="card slate">
-      <h2>Blood Glucose (BM) <button class="clear-btn" onclick="clearContainer('bmList')">Clear</button></h2>
-      <div id="bmList"></div>
-      <button class="action-btn" onclick="addLogEntry('bmList', 'BM Check')">+ Add BM Check</button>
-    </div>
+      <div id="bmSection_${index}" class="card slate">
+        <h2>Blood Glucose (BM) <button class="clear-btn" onclick="clearContainer('bmList_${index}')">Clear</button></h2>
+        <div id="bmList_${index}"></div>
+        <button class="action-btn" onclick="addLogEntry('bmList_${index}', 'BM Check')">+ Add BM Check</button>
+      </div>
 
-    <div id="fluidsSection" class="card teal">
-      <h2>Fluids <button class="clear-btn" onclick="clearInputs('fluidsSection')">Clear</button></h2>
-      ${Array(13).fill(0).map(() => `
-        <div style="display:flex; gap:8px; margin-bottom:8px; align-items:center;">
-          <span class="fluid-time" style="width:45px; font-weight:600; font-size:0.9rem;"></span>
-          <input type="number" placeholder="In (ml)" style="margin:0;">
-          <input type="number" placeholder="Out (ml)" style="margin:0;">
+      <div id="fluidsSection_${index}" class="card teal">
+        <h2>Fluids <button class="clear-btn" onclick="clearInputs('fluidsSection_${index}')">Clear</button></h2>
+        ${Array(13).fill(0).map(() => `
+          <div style="display:flex; gap:8px; margin-bottom:8px; align-items:center;">
+            <span class="fluid-time" style="width:45px; font-weight:600; font-size:0.9rem;"></span>
+            <input type="number" placeholder="In (ml)" style="margin:0;">
+            <input type="number" placeholder="Out (ml)" style="margin:0;">
+          </div>
+        `).join('')}
+      </div>
+
+      <div id="bowelsSection_${index}" class="card amber">
+        <h2>Bowel Movements <button class="clear-btn" onclick="clearContainer('bowelsList_${index}')">Clear</button></h2>
+        <div id="bowelsList_${index}"></div>
+        <button class="action-btn" onclick="addLogEntry('bowelsList_${index}', 'Bowel Record')">+ Add Bowel Record</button>
+      </div>
+
+      <div id="skinSection_${index}" class="card teal">
+        <h2>Skin & Dressings <button class="clear-btn" onclick="clearInputs('skinSection_${index}')">Clear</button></h2>
+        <button class="secondary action-btn" style="margin-top:0; margin-bottom:12px;" onclick="markAllFine('skinSection_${index}')">Mark All Fine</button>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+          <div><label style="font-size:0.9rem;">Sacrum</label><select class="skin-select"><option></option><option>Fine</option><option>Red</option><option>Broken</option></select></div>
+          <div><label style="font-size:0.9rem;">Groin</label><select class="skin-select"><option></option><option>Fine</option><option>Red</option><option>Broken</option></select></div>
+          <div><label style="font-size:0.9rem;">Heels</label><select class="skin-select"><option></option><option>Fine</option><option>Red</option><option>Broken</option></select></div>
+          <div><label style="font-size:0.9rem;">Elbows</label><select class="skin-select"><option></option><option>Fine</option><option>Red</option><option>Broken</option></select></div>
         </div>
-      `).join('')}
-    </div>
-
-    <div id="bowelsSection" class="card amber">
-      <h2>Bowel Movements <button class="clear-btn" onclick="clearContainer('bowelsList')">Clear</button></h2>
-      <div id="bowelsList"></div>
-      <button class="action-btn" onclick="addLogEntry('bowelsList', 'Bowel Record')">+ Add Bowel Record</button>
-    </div>
-
-    <div id="skinSection" class="card teal">
-      <h2>Skin & Dressings <button class="clear-btn" onclick="clearInputs('skinSection')">Clear</button></h2>
-      <button class="secondary action-btn" style="margin-top:0; margin-bottom:12px;" onclick="markAllFine()">Mark All Fine</button>
-      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
-        <div><label style="font-size:0.9rem;">Sacrum</label><select class="skin-select"><option></option><option>Fine</option><option>Red</option><option>Broken</option></select></div>
-        <div><label style="font-size:0.9rem;">Groin</label><select class="skin-select"><option></option><option>Fine</option><option>Red</option><option>Broken</option></select></div>
-        <div><label style="font-size:0.9rem;">Heels</label><select class="skin-select"><option></option><option>Fine</option><option>Red</option><option>Broken</option></select></div>
-        <div><label style="font-size:0.9rem;">Elbows</label><select class="skin-select"><option></option><option>Fine</option><option>Red</option><option>Broken</option></select></div>
+        <hr style="border:0; border-top:1px solid var(--border); margin:16px 0;">
+        <h3 style="margin:0 0 12px 0; font-size:1rem;">Dressings</h3>
+        <div id="dressingsList_${index}"></div>
+        <button class="secondary action-btn" onclick="addDressing('dressingsList_${index}')">+ Add Dressing</button>
       </div>
-      <hr style="border:0; border-top:1px solid var(--border); margin:16px 0;">
-      <h3 style="margin:0 0 12px 0; font-size:1rem;">Dressings</h3>
-      <div id="dressingsList"></div>
-      <button class="secondary action-btn" onclick="addDressing()">+ Add Dressing</button>
-    </div>
 
-    <div id="foodSection" class="card slate">
-      <h2>Food Intake <button class="clear-btn" onclick="clearInputs('foodSection')">Clear</button></h2>
-      ${['Breakfast', 'Lunch', 'Dinner'].map(meal => `
-        <label style="font-size:0.9rem;">${meal}</label>
-        <select><option></option><option>100%</option><option>75%</option><option>50%</option><option>25%</option><option>0%</option><option>Refused</option><option>NBM</option></select>
-      `).join('')}
-    </div>
-
-    <div id="turnSection" class="card teal">
-      <h2>Turning Chart <button class="clear-btn" onclick="clearInputs('turnSection')">Clear</button></h2>
-      <div style="display:grid; grid-template-columns: auto 1fr; gap:8px; align-items:center;">
-      ${Array(6).fill(0).map(() => `
-        <span class="turn-time" style="font-weight:600; font-size:0.9rem;"></span>
-        <input type="text" placeholder="Position checked" style="margin:0;">
-      `).join('')}
+      <div id="foodSection_${index}" class="card slate">
+        <h2>Food Intake <button class="clear-btn" onclick="clearInputs('foodSection_${index}')">Clear</button></h2>
+        ${['Breakfast', 'Lunch', 'Dinner'].map(meal => `
+          <label style="font-size:0.9rem;">${meal}</label>
+          <select><option></option><option>100%</option><option>75%</option><option>50%</option><option>25%</option><option>0%</option><option>Refused</option><option>NBM</option></select>
+        `).join('')}
       </div>
-    </div>
 
-    <div id="eventsSection" class="card slate">
-      <h2>Ad-Hoc Events <button class="clear-btn" onclick="clearContainer('eventsList')">Clear</button></h2>
-      <div id="eventsList"></div>
-      <button class="action-btn" onclick="addLogEntry('eventsList', 'Event')">+ Add Event</button>
-    </div>
-  `;
+      <div id="turnSection_${index}" class="card teal">
+        <h2>Turning Chart <button class="clear-btn" onclick="clearInputs('turnSection_${index}')">Clear</button></h2>
+        <div style="display:grid; grid-template-columns: auto 1fr; gap:8px; align-items:center;">
+        ${Array(6).fill(0).map(() => `
+          <span class="turn-time" style="font-weight:600; font-size:0.9rem;"></span>
+          <input type="text" placeholder="Position checked" style="margin:0;">
+        `).join('')}
+        </div>
+      </div>
+
+      <div id="eventsSection_${index}" class="card slate">
+        <h2>Ad-Hoc Events <button class="clear-btn" onclick="clearContainer('eventsList_${index}')">Clear</button></h2>
+        <div id="eventsList_${index}"></div>
+        <button class="action-btn" onclick="addLogEntry('eventsList_${index}', 'Event')">+ Add Event</button>
+      </div>
+    `;
+    container.appendChild(bedDiv);
+  });
+  
   updateTimeSlots();
+}
+
+function showActiveBed() {
+  beds.forEach((_, index) => {
+    document.getElementById(`bed_${index}`).style.display = index === activeBedIndex ? 'block' : 'none';
+  });
 }
 
 function clearContainer(id) { document.getElementById(id).innerHTML = ''; }
@@ -236,7 +263,10 @@ function clearInputs(id) {
   c.querySelectorAll('select').forEach(s => s.value = '');
 }
 
-function markAllFine() { document.querySelectorAll('.skin-select').forEach(s => s.value = 'Fine'); }
+function markAllFine(id) { 
+  const c = document.getElementById(id);
+  c.querySelectorAll('.skin-select').forEach(s => s.value = 'Fine'); 
+}
 
 function addLogEntry(id, type) {
   const c = document.getElementById(id);
@@ -252,8 +282,8 @@ function addLogEntry(id, type) {
   c.appendChild(div);
 }
 
-function addDressing() {
-  const c = document.getElementById('dressingsList');
+function addDressing(id) {
+  const c = document.getElementById(id);
   const div = document.createElement('div');
   div.style.marginBottom = '12px';
   div.innerHTML = `
@@ -285,7 +315,6 @@ function setNoDate(btn) {
 }
 
 init();
-
 </script>
 </body>
 </html>
