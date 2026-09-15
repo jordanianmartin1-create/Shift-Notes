@@ -257,10 +257,11 @@ function refreshFluid() {
       const d = db[b];
       if (!d) return;
       let hasAlerts = false;
-      let n2txt = 'No entries', skintxt = 'None recorded';
+      let sectionsHtml = '';
       
+      let obsTxt = '';
       if (d.news2.length > 0) {
-        n2txt = d.news2.map(l => {
+        obsTxt += d.news2.map(l => {
           const sc = calcN2(l);
           if (sc >= 5) hasAlerts = true;
           let txt = `${l.time||'--:--'} - Score ${sc} (RR ${l.rr||'-'}, SpO2 ${l.spo2||'-'}%, ${l.o2||'Air'}, BP ${l.sys||'-'}/${l.dia||'-'}, HR ${l.hr||'-'}, ${l.acvpu||'Alert'}, Temp ${l.t||'-'}°C)`;
@@ -268,60 +269,84 @@ function refreshFluid() {
         }).join('<br>');
       }
       
-      let obsSec = `<b>Observations:</b><br>${n2txt}`;
-      
       if (d.bm.length > 0) {
-        let bmtxt = d.bm.map(l => {
+        if (obsTxt) obsTxt += '<br><br>';
+        obsTxt += d.bm.map(l => {
           const v = parseFloat(l.val);
           if (v < 4 || v > 11) hasAlerts = true;
           let txt = `${l.time||'--:--'} - Glucose: ${l.val||'-'} mmol/L (${l.meal||'Unspecified'})`;
           return (v < 4 || v > 11) ? `<b style="color:var(--red)">${txt}</b>` : txt;
         }).join('<br>');
-        obsSec += `<br><br>${bmtxt}`;
       }
+      
+      if (obsTxt) sectionsHtml += `<div class="summary-sec"><b>Observations:</b><br>${obsTxt}</div>`;
       
       let iT=0, oT=0; d.fluid.forEach(f=>{ iT+=parseFloat(f.i)||0; oT+=parseFloat(f.o)||0; });
       const net = iT-oT;
-      let ftxt = `In: ${iT}ml | Out: ${oT}ml | Net: ${net}ml`;
-      if (net <= -500) {
-        hasAlerts = true;
-        ftxt = `<b style="color:var(--red)">${ftxt}</b>`;
+      if (iT > 0 || oT > 0) {
+        let ftxt = `In: ${iT}ml | Out: ${oT}ml | Net: ${net}ml`;
+        if (net <= -500) {
+          hasAlerts = true;
+          ftxt = `<b style="color:var(--red)">${ftxt}</b>`;
+        }
+        sectionsHtml += `<div class="summary-sec"><b>Fluid Balance:</b><br>${ftxt}</div>`;
       }
       
-      let dietTxt = `Breakfast: ${d.food.b||'-'} | Lunch: ${d.food.l||'-'} | Dinner: ${d.food.d||'-'}`;
-      let bowelTxt = d.bowel.map(r => `${r.time||'--:--'} - ${r.amt||'-'} (${r.type||'-'})`).join('<br>') || 'No entries';
+      let dietParts = [];
+      if (d.food.b) dietParts.push(`Breakfast: ${d.food.b}`);
+      if (d.food.l) dietParts.push(`Lunch: ${d.food.l}`);
+      if (d.food.d) dietParts.push(`Dinner: ${d.food.d}`);
+      let dietTxt = dietParts.join(' | ');
+      
+      let bowelTxt = '';
+      if (d.bowel.length > 0) {
+        bowelTxt = d.bowel.map(r => `${r.time||'--:--'} - ${r.amt||'-'} (${r.type||'-'})`).join('<br>');
+      }
+      
+      if (dietTxt || bowelTxt) {
+        let dHtml = '';
+        if (dietTxt) dHtml += `${dietTxt}<br>`;
+        if (bowelTxt) dHtml += `Bowels:<br>${bowelTxt}`;
+        sectionsHtml += `<div class="summary-sec"><b>Diet & Bowels:</b><br>${dHtml}</div>`;
+      }
       
       let skinParts = [];
       if (d.amy.sac) skinParts.push(`Sacrum (${d.amy.sac})`);
       if (d.amy.groin) skinParts.push(`Groin (${d.amy.groin})`);
       if (d.amy.heels) skinParts.push(`Heels (${d.amy.heels})`);
       if (d.amy.elbows) skinParts.push(`Elbows (${d.amy.elbows})`);
-      let skinSummary = skinParts.length > 0 ? skinParts.join(', ') : 'Not checked';
+      let skinSummary = skinParts.length > 0 ? `Checks: ${skinParts.join(', ')}` : '';
       
       const tTimes = isNight ? ['20:00','22:00','00:00','02:00','04:00','06:00'] : ['08:00','10:00','12:00','14:00','16:00','18:00'];
       let turnDetails = d.turn.map((t, i) => t !== '' ? `${tTimes[i]} - ${t}` : null).filter(Boolean).join('<br>');
-      if (!turnDetails) turnDetails = 'No turns logged';
+      if (turnDetails) turnDetails = `Turns:<br>${turnDetails}`;
       
+      let skintxt = '';
       if (d.dressings && d.dressings.length > 0) {
-        skintxt = d.dressings.map(dr => `${dr.val || 'Unnamed'} (Due: <b>${calcDue(dr.date)}</b>)`).join('<br>');
+        skintxt = `Dressings:<br>` + d.dressings.map(dr => `${dr.val || 'Unnamed'} (Due: <b>${calcDue(dr.date)}</b>)`).join('<br>');
       }
 
-      let eventTxt = d.events.map(r => `${r.time||'--:--'} - ${r.val||''}`).join('<br>') || 'No entries';
+      let skinGroup = [skinSummary, turnDetails, skintxt].filter(Boolean).join('<br><br>');
+      if (skinGroup) sectionsHtml += `<div class="summary-sec"><b>Skin & Repositioning:</b><br>${skinGroup}</div>`;
+
+      if (d.events.length > 0) {
+        let eventTxt = d.events.map(r => `${r.time||'--:--'} - ${r.val||''}`).join('<br>');
+        sectionsHtml += `<div class="summary-sec"><b>Narrative Notes:</b><br>${eventTxt}</div>`;
+      }
       
-      let admitSec = '';
       if (d.admit.length > 0) {
         let admitTxt = d.admit.map(r => `- ${r.val||''}`).join('<br>');
-        admitSec = `<div class="summary-sec"><b>Admissions Property:</b><br>${admitTxt}</div>`;
+        sectionsHtml += `<div class="summary-sec"><b>Admissions Property:</b><br>${admitTxt}</div>`;
+      }
+
+      if (!sectionsHtml) {
+        sectionsHtml = `<p style="color:var(--text-sub); font-size:0.9rem;">No data recorded yet.</p>`;
+        hasAlerts = false;
       }
 
       h += `<div class="card" ${hasAlerts ? 'style="border-left:4px solid var(--red);"' : 'style="border-left:4px solid var(--green);"'} >
         <h2 style="color:var(--navy); margin-bottom:12px; font-size:1.2rem;">${b}</h2>
-        <div class="summary-sec">${obsSec}</div>
-        <div class="summary-sec"><b>Fluid Balance:</b><br>${ftxt}</div>
-        <div class="summary-sec"><b>Diet & Bowels:</b><br>${dietTxt}<br>Bowels:<br>${bowelTxt}</div>
-        <div class="summary-sec"><b>Skin & Repositioning:</b><br>Checks: ${skinSummary}<br><br>Turns:<br>${turnDetails}<br><br>Dressings:<br>${skintxt}</div>
-        <div class="summary-sec"><b>Narrative Notes:</b><br>${eventTxt}</div>
-        ${admitSec}
+        ${sectionsHtml}
       </div>`;
     });
     area.innerHTML = h || '<p style="text-align:center; padding:20px; color:var(--text-sub);">No active patients.</p>';
