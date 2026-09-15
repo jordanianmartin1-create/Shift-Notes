@@ -1,320 +1,354 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-GB">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <title>Care Digipad</title>
 <style>
   :root {
-    --bg: #f8fafc;
-    --card: #ffffff;
-    --text: #1e293b;
-    --text-sub: #64748b;
-    --border: #e2e8f0;
-    --teal: #0d9488;
-    --amber: #d97706;
-    --slate: #475569;
-    --tab-bg: #e2e8f0;
+    --bg: #f4f6f8; --card: #ffffff; --text: #1e293b; --text-sub: #64748b;
+    --border: #cbd5e1; --teal: #0d9488; --amber: #d97706; --slate: #475569;
+    --red: #dc2626; --green: #16a34a; --tab-bg: #e2e8f0; --navy: #1f4e79;
   }
   [data-theme="night"] {
-    --bg: #000000;
-    --card: #121212;
-    --text: #e2e8f0;
-    --text-sub: #94a3b8;
-    --border: #334155;
-    --teal: #14b8a6;
-    --amber: #f59e0b;
-    --slate: #94a3b8;
-    --tab-bg: #1e293b;
+    --bg: #000000; --card: #121212; --text: #e2e8f0; --text-sub: #94a3b8;
+    --border: #334155; --teal: #14b8a6; --amber: #f59e0b; --slate: #94a3b8;
+    --red: #ef4444; --green: #22c55e; --tab-bg: #1e293b; --navy: #0f172a;
   }
   
-  * { box-sizing: border-box; font-family: -apple-system, sans-serif; }
-  body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: 40px; }
+  * { box-sizing: border-box; font-family: -apple-system, sans-serif; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); padding-bottom: 70px; }
+  .hidden { display: none !important; }
   
   #dimmer { position: fixed; inset: 0; background: rgba(0,0,0,0); pointer-events: none; z-index: 9999; }
   [data-theme="night"] #dimmer { background: rgba(0,0,0,0.35); }
 
-  header { background: var(--card); padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
-  header h1 { margin: 0; font-size: 1.2rem; }
+  /* Setup */
+  .setup-container { padding: 20px; }
+  .bed-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+  .bed-pill { padding: 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--card); color: var(--text); font-weight: 600; text-align: center; cursor: pointer; }
+  .bed-pill.selected { background: var(--teal); color: #fff; border-color: var(--teal); }
 
-  .bed-tabs { display: flex; overflow-x: auto; background: var(--card); border-bottom: 1px solid var(--border); padding: 12px 16px; gap: 8px; }
-  .bed-tab { padding: 8px 16px; background: var(--tab-bg); border-radius: 20px; font-weight: 600; white-space: nowrap; border: none; color: var(--text); font-size: 0.95rem; }
-  .bed-tab.active { background: var(--teal); color: #fff; }
+  /* Sticky Nav */
+  .sticky-nav { position: sticky; top: 0; z-index: 100; background: var(--bg); border-bottom: 1px solid var(--border); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+  header { background: var(--navy); color: #fff; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; }
+  header h1 { font-size: 1.1rem; }
+  .scroll-row { display: flex; overflow-x: auto; padding: 10px 16px; gap: 8px; scrollbar-width: none; }
+  .scroll-row::-webkit-scrollbar { display: none; }
+  
+  .tab-btn { padding: 8px 14px; border-radius: 20px; font-weight: 600; border: 1px solid var(--border); background: var(--card); color: var(--text); font-size: 0.9rem; white-space: nowrap; cursor: pointer; }
+  .tab-btn.active-bed { background: var(--teal); color: #fff; border-color: var(--teal); }
+  .tab-btn.active-sec { background: var(--slate); color: #fff; border-color: var(--slate); }
 
-  .sub-nav { display: flex; overflow-x: auto; background: var(--bg); padding: 12px 16px; gap: 8px; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--border); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-  .sub-nav button { padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--card); color: var(--text); font-size: 0.85rem; white-space: nowrap; }
-
-  .container { padding: 16px; max-width: 600px; margin: 0 auto; }
+  /* Content */
+  .container { padding: 16px; }
   .card { background: var(--card); padding: 16px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 16px; }
-  .card.teal { border-top: 4px solid var(--teal); }
-  .card.amber { border-top: 4px solid var(--amber); }
-  .card.slate { border-top: 4px solid var(--slate); }
+  h2 { font-size: 1.1rem; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; color: var(--text); }
+  
+  .row { display: flex; gap: 8px; margin-bottom: 10px; align-items: flex-end; }
+  .row > div { flex: 1; }
+  label { display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-sub); margin-bottom: 4px; }
+  input, select, textarea { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; background: var(--card); color: var(--text); font-size: 0.95rem; }
+  .bp-pair { display: flex; align-items: center; gap: 4px; }
+  .bp-pair span { font-weight: bold; color: var(--text-sub); }
+  
+  .btn { width: 100%; padding: 12px; border-radius: 6px; font-weight: 600; border: none; cursor: pointer; font-size: 1rem; }
+  .btn-primary { background: var(--slate); color: #fff; margin-top: 8px; }
+  .btn-danger { background: var(--red); color: #fff; }
+  .btn-sm { width: auto; padding: 6px 12px; font-size: 0.85rem; }
+  
+  .badge { padding: 4px 8px; border-radius: 4px; font-size: 0.85rem; font-weight: 700; display: inline-block; }
+  .bg-green { background: #dcfce7; color: #166534; }
+  .bg-amber { background: #fef3c7; color: #92400e; }
+  .bg-red { background: #fee2e2; color: #991b1b; }
+  [data-theme="night"] .bg-green { background: #064e3b; color: #34d399; }
+  [data-theme="night"] .bg-amber { background: #78350f; color: #fbbf24; }
+  [data-theme="night"] .bg-red { background: #7f1d1d; color: #f87171; }
 
-  h2 { margin: 0 0 16px 0; font-size: 1.1rem; display: flex; justify-content: space-between; align-items: center; }
-  .clear-btn { font-size: 0.8rem; padding: 4px 8px; background: transparent; border: 1px solid var(--border); color: var(--text-sub); border-radius: 4px; }
-
-  input, select, button.action-btn { width: 100%; padding: 10px; margin-bottom: 8px; border: 1px solid var(--border); border-radius: 6px; background: var(--card); color: var(--text); font-size: 1rem; }
-  button.action-btn { background: var(--slate); color: #fff; font-weight: bold; border: none; margin-top: 8px; }
-  button.secondary { background: transparent; color: var(--text); border: 1px solid var(--border); }
-
-  .log-entry { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding: 8px 0; gap: 8px; }
-  .log-entry input { margin: 0; }
-  .delete { color: #dc2626; font-weight: bold; background: none; border: none; padding: 4px 8px; }
-
-  .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+  .summary-sec { border-bottom: 1px dashed var(--border); padding-bottom: 12px; margin-bottom: 12px; font-size: 0.95rem; line-height: 1.5; }
+  .summary-sec:last-child { border-bottom: none; }
+  
+  .footer { position: fixed; bottom: 0; left: 0; right: 0; background: var(--card); border-top: 1px solid var(--border); padding: 10px 16px; z-index: 100; }
+  
+  .switch { position: relative; display: inline-block; width: 40px; height: 22px; }
   .switch input { opacity: 0; width: 0; height: 0; }
-  .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--border); transition: .4s; border-radius: 24px; }
-  .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+  .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(255,255,255,0.3); border-radius: 24px; transition: .4s; }
+  .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px; background-color: white; border-radius: 50%; transition: .4s; }
   input:checked + .slider { background-color: var(--teal); }
-  input:checked + .slider:before { transform: translateX(20px); }
-  .shift-toggle { display: flex; align-items: center; gap: 8px; font-weight: 500; font-size: 0.9rem; }
+  input:checked + .slider:before { transform: translateX(18px); }
+  .shift-toggle { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; font-weight: 500; }
 </style>
 </head>
 <body>
 <div id="dimmer"></div>
 
-<header>
-  <h1>Care Digipad</h1>
-  <div class="shift-toggle">
-    <span>Day</span>
-    <label class="switch"><input type="checkbox" id="shiftToggle"><span class="slider"></span></label>
-    <span>Night</span>
-  </div>
-</header>
+<div id="setupView" class="setup-container">
+  <h2 style="margin-bottom:4px;">Select Allocated Beds</h2>
+  <p style="font-size:0.9rem; color:var(--text-sub); margin-bottom:16px;">Tap to select patients for this shift.</p>
+  <div id="bedGrid" class="bed-grid"></div>
+  <button class="btn btn-primary" style="background:var(--teal);" onclick="startShift()">Start Shift</button>
+</div>
 
-<div class="bed-tabs" id="bedTabs"></div>
-<div class="sub-nav" id="subNav"></div>
-<div class="container" id="patientContent"></div>
+<div id="mainView" class="hidden">
+  <div class="sticky-nav">
+    <header>
+      <h1>Care Digipad</h1>
+      <div class="shift-toggle">
+        <span>Day</span>
+        <label class="switch"><input type="checkbox" id="shiftToggle" onchange="toggleNight(this.checked)"><span class="slider"></span></label>
+        <span>Night</span>
+      </div>
+    </header>
+    <div class="scroll-row" id="bedTabs" style="background:var(--card);"></div>
+    <div class="scroll-row" id="subNav"></div>
+  </div>
+  <div class="container" id="contentArea"></div>
+  <div class="footer">
+    <button class="btn btn-danger" onclick="clearShift()">Clear Shift & Wipe Data</button>
+  </div>
+</div>
 
 <script>
-const beds = [
-  'Bay 1 Bed 1', 'Bay 1 Bed 2', 
-  'Bay 2 Bed 1', 'Bay 2 Bed 2', 'Bay 2 Bed 3', 'Bay 2 Bed 4', 
-  'Bay 3 Bed 1', 'Bay 3 Bed 2', 'Bay 3 Bed 3', 'Bay 3 Bed 4', 
-  'Bay 4 Bed 1', 'Bay 4 Bed 2', 'Bay 4 Bed 3', 'Bay 4 Bed 4', 
-  'Bay 5 Bed 1', 'Bay 5 Bed 2', 'Bay 5 Bed 3', 'Bay 5 Bed 4', 
-  'Side Room 1', 'Side Room 2', 'Side Room 3', 'Side Room 4', 'Side Room 5', 'Side Room 6', 'Side Room 7'
+const allBeds = [
+  'Bay 1 Bed 1','Bay 1 Bed 2', 'Bay 2 Bed 1','Bay 2 Bed 2','Bay 2 Bed 3','Bay 2 Bed 4',
+  'Bay 3 Bed 1','Bay 3 Bed 2','Bay 3 Bed 3','Bay 3 Bed 4', 'Bay 4 Bed 1','Bay 4 Bed 2','Bay 4 Bed 3','Bay 4 Bed 4',
+  'Bay 5 Bed 1','Bay 5 Bed 2','Bay 5 Bed 3','Bay 5 Bed 4', 'Side Room 1','Side Room 2','Side Room 3','Side Room 4',
+  'Side Room 5','Side Room 6','Side Room 7'
 ];
-let activeBedIndex = 0;
-let isNightShift = false;
+const sections = [
+  {id:'news2', lbl:'NEWS2'}, {id:'bm', lbl:'Glucose'}, {id:'bp', lbl:'L/S BP'}, 
+  {id:'fluid', lbl:'Fluids'}, {id:'bowel', lbl:'Bowels'}, {id:'amy', lbl:'Skin'}, 
+  {id:'food', lbl:'Food'}, {id:'turn', lbl:'Turning'}, {id:'events', lbl:'Events'}, {id:'summary', lbl:'Summary'}
+];
 
-document.getElementById('shiftToggle').addEventListener('change', (e) => {
-  isNightShift = e.target.checked;
-  document.body.setAttribute('data-theme', isNightShift ? 'night' : 'day');
-  updateTimeSlots();
-});
+let alloc = JSON.parse(localStorage.getItem('cd_alloc')) || [];
+let db = JSON.parse(localStorage.getItem('cd_db')) || {};
+let curBed = alloc[0] || '';
+let curSec = 'news2';
+let isNight = false;
 
-function updateTimeSlots() {
-  const dayFluids = ['07:00', '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00'];
-  const nightFluids = ['19:00', '20:00', '21:00', '22:00', '23:00', '00:00', '01:00', '02:00', '03:00', '04:00', '05:00', '06:00', '07:00'];
-  const dayTurns = ['08:00', '10:00', '12:00', '14:00', '16:00', '18:00'];
-  const nightTurns = ['20:00', '22:00', '00:00', '02:00', '04:00', '06:00'];
+function initSetup() {
+  const grid = document.getElementById('bedGrid');
+  grid.innerHTML = allBeds.map(b => `<div class="bed-pill ${alloc.includes(b)?'selected':''}" onclick="this.classList.toggle('selected')">${b}</div>`).join('');
+  if (alloc.length > 0) startShift(true);
+}
+
+function startShift(auto = false) {
+  if (!auto) {
+    const selected = Array.from(document.querySelectorAll('.bed-pill.selected')).map(el => el.textContent);
+    if (selected.length === 0) return alert('Select at least one bed.');
+    alloc = selected;
+    localStorage.setItem('cd_alloc', JSON.stringify(alloc));
+  }
   
-  const activeFluids = isNightShift ? nightFluids : dayFluids;
-  const activeTurns = isNightShift ? nightTurns : dayTurns;
-
-  document.querySelectorAll('.fluid-time').forEach((slot, i) => { if(activeFluids[i % 13]) slot.textContent = activeFluids[i % 13]; });
-  document.querySelectorAll('.turn-time').forEach((slot, i) => { if(activeTurns[i % 6]) slot.textContent = activeTurns[i % 6]; });
-}
-
-function init() {
-  renderPatientViews();
-  renderTabs();
-  renderSubNav();
-}
-
-function renderTabs() {
-  const container = document.getElementById('bedTabs');
-  container.innerHTML = '';
-  beds.forEach((bed, index) => {
-    const btn = document.createElement('button');
-    btn.className = `bed-tab ${index === activeBedIndex ? 'active' : ''}`;
-    btn.textContent = bed;
-    btn.onclick = () => { 
-      activeBedIndex = index; 
-      renderTabs(); 
-      showActiveBed(); 
+  alloc.forEach(b => {
+    if(!db[b]) db[b] = {
+      news2: [], bm: [], events: [], bowel: [],
+      bp: {lsys:'', ldia:'', ssys:'', sdia:''},
+      amy: {sac:'', groin:'', heels:'', elbows:'', dressLoc:'', dressDate:'', noDate:false},
+      food: {b:'', l:'', d:''}, turn: Array(6).fill(''), fluid: Array(13).fill().map(()=>({i:'', o:''}))
     };
-    container.appendChild(btn);
   });
-}
-
-function renderSubNav() {
-  const navs = [
-    { id: 'news', label: 'NEWS2' },
-    { id: 'bm', label: 'Glucose' },
-    { id: 'fluids', label: 'Fluids' },
-    { id: 'bowels', label: 'Bowels' },
-    { id: 'skin', label: 'Skin' },
-    { id: 'food', label: 'Food' },
-    { id: 'turn', label: 'Turning' },
-    { id: 'events', label: 'Events' }
-  ];
-  const container = document.getElementById('subNav');
-  container.innerHTML = '';
-  navs.forEach(nav => {
-    const btn = document.createElement('button');
-    btn.textContent = nav.label;
-    btn.onclick = () => {
-      const el = document.getElementById(`${nav.id}Section_${activeBedIndex}`);
-      const yOffset = -120;
-      const y = el.getBoundingClientRect().top + window.pageYOffset + yOffset;
-      window.scrollTo({ top: y, behavior: 'smooth' });
-    };
-    container.appendChild(btn);
-  });
-}
-
-function renderPatientViews() {
-  const container = document.getElementById('patientContent');
-  container.innerHTML = '';
+  saveDB();
   
-  beds.forEach((bed, index) => {
-    const bedDiv = document.createElement('div');
-    bedDiv.id = `bed_${index}`;
-    bedDiv.style.display = index === activeBedIndex ? 'block' : 'none';
-    
-    bedDiv.innerHTML = `
-      <div id="newsSection_${index}" class="card amber">
-        <h2>NEWS2 Observations <button class="clear-btn" onclick="clearContainer('newsList_${index}')">Clear</button></h2>
-        <div id="newsList_${index}"></div>
-        <button class="action-btn" onclick="addLogEntry('newsList_${index}', 'NEWS2 Check')">+ Add NEWS2</button>
-      </div>
+  curBed = alloc[0];
+  document.getElementById('setupView').classList.add('hidden');
+  document.getElementById('mainView').classList.remove('hidden');
+  renderUI();
+}
 
-      <div id="bmSection_${index}" class="card slate">
-        <h2>Blood Glucose (BM) <button class="clear-btn" onclick="clearContainer('bmList_${index}')">Clear</button></h2>
-        <div id="bmList_${index}"></div>
-        <button class="action-btn" onclick="addLogEntry('bmList_${index}', 'BM Check')">+ Add BM Check</button>
-      </div>
+function saveDB() { localStorage.setItem('cd_db', JSON.stringify(db)); }
+function toggleNight(val) { isNight = val; document.body.setAttribute('data-theme', isNight ? 'night' : 'day'); renderUI(); }
+function setBed(b) { curBed = b; renderUI(); }
+function setSec(s) { curSec = s; renderUI(); }
 
-      <div id="fluidsSection_${index}" class="card teal">
-        <h2>Fluids <button class="clear-btn" onclick="clearInputs('fluidsSection_${index}')">Clear</button></h2>
-        ${Array(13).fill(0).map(() => `
-          <div style="display:flex; gap:8px; margin-bottom:8px; align-items:center;">
-            <span class="fluid-time" style="width:45px; font-weight:600; font-size:0.9rem;"></span>
-            <input type="number" placeholder="In (ml)" style="margin:0;">
-            <input type="number" placeholder="Out (ml)" style="margin:0;">
-          </div>
-        `).join('')}
-      </div>
+function renderUI() {
+  document.getElementById('bedTabs').innerHTML = alloc.map(b => `<button class="tab-btn ${b===curBed?'active-bed':''}" onclick="setBed('${b}')">${b}</button>`).join('');
+  document.getElementById('subNav').innerHTML = sections.map(s => `<button class="tab-btn ${s.id===curSec?'active-sec':''}" onclick="setSec('${s.id}')">${s.lbl}</button>`).join('');
+  renderContent();
+}
 
-      <div id="bowelsSection_${index}" class="card amber">
-        <h2>Bowel Movements <button class="clear-btn" onclick="clearContainer('bowelsList_${index}')">Clear</button></h2>
-        <div id="bowelsList_${index}"></div>
-        <button class="action-btn" onclick="addLogEntry('bowelsList_${index}', 'Bowel Record')">+ Add Bowel Record</button>
-      </div>
+function renderContent() {
+  const area = document.getElementById('contentArea');
+  const d = db[curBed];
+  let h = '';
 
-      <div id="skinSection_${index}" class="card teal">
-        <h2>Skin & Dressings <button class="clear-btn" onclick="clearInputs('skinSection_${index}')">Clear</button></h2>
-        <button class="secondary action-btn" style="margin-top:0; margin-bottom:12px;" onclick="markAllFine('skinSection_${index}')">Mark All Fine</button>
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
-          <div><label style="font-size:0.9rem;">Sacrum</label><select class="skin-select"><option></option><option>Fine</option><option>Red</option><option>Broken</option></select></div>
-          <div><label style="font-size:0.9rem;">Groin</label><select class="skin-select"><option></option><option>Fine</option><option>Red</option><option>Broken</option></select></div>
-          <div><label style="font-size:0.9rem;">Heels</label><select class="skin-select"><option></option><option>Fine</option><option>Red</option><option>Broken</option></select></div>
-          <div><label style="font-size:0.9rem;">Elbows</label><select class="skin-select"><option></option><option>Fine</option><option>Red</option><option>Broken</option></select></div>
+  if (curSec === 'news2') {
+    h += `<button class="btn btn-primary" style="margin-bottom:16px;" onclick="addArr('news2')">+ Add NEWS2</button>`;
+    d.news2.forEach((r, i) => {
+      const sc = calcN2(r);
+      const bg = sc >= 7 ? 'bg-red' : (sc >= 5 ? 'bg-amber' : (sc > 0 ? 'bg-amber' : 'bg-green'));
+      h += `<div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+          <span class="badge ${bg}">Score: ${sc}</span>
+          <button class="btn btn-danger btn-sm" onclick="rmArr('news2', ${i})">X</button>
         </div>
-        <hr style="border:0; border-top:1px solid var(--border); margin:16px 0;">
-        <h3 style="margin:0 0 12px 0; font-size:1rem;">Dressings</h3>
-        <div id="dressingsList_${index}"></div>
-        <button class="secondary action-btn" onclick="addDressing('dressingsList_${index}')">+ Add Dressing</button>
-      </div>
-
-      <div id="foodSection_${index}" class="card slate">
-        <h2>Food Intake <button class="clear-btn" onclick="clearInputs('foodSection_${index}')">Clear</button></h2>
-        ${['Breakfast', 'Lunch', 'Dinner'].map(meal => `
-          <label style="font-size:0.9rem;">${meal}</label>
-          <select><option></option><option>100%</option><option>75%</option><option>50%</option><option>25%</option><option>0%</option><option>Refused</option><option>NBM</option></select>
-        `).join('')}
-      </div>
-
-      <div id="turnSection_${index}" class="card teal">
-        <h2>Turning Chart <button class="clear-btn" onclick="clearInputs('turnSection_${index}')">Clear</button></h2>
-        <div style="display:grid; grid-template-columns: auto 1fr; gap:8px; align-items:center;">
-        ${Array(6).fill(0).map(() => `
-          <span class="turn-time" style="font-weight:600; font-size:0.9rem;"></span>
-          <input type="text" placeholder="Position checked" style="margin:0;">
-        `).join('')}
+        <div class="row">
+          <div><label>Time</label><input type="time" value="${r.time||''}" onchange="updArr('news2',${i},'time',this.value)"></div>
+          <div><label>RR</label><input type="number" value="${r.rr||''}" onchange="updArr('news2',${i},'rr',this.value)"></div>
+          <div><label>SpO2%</label><input type="number" value="${r.spo2||''}" onchange="updArr('news2',${i},'spo2',this.value)"></div>
         </div>
+        <div class="row">
+          <div><label>Air/O2</label><select onchange="updArr('news2',${i},'o2',this.value)"><option>Air</option><option ${r.o2==='O2'?'selected':''}>O2</option></select></div>
+          <div><label>BP (Sys/Dia)</label><div class="bp-pair"><input type="number" value="${r.sys||''}" onchange="updArr('news2',${i},'sys',this.value)"><span>/</span><input type="number" value="${r.dia||''}" onchange="updArr('news2',${i},'dia',this.value)"></div></div>
+        </div>
+        <div class="row">
+          <div><label>HR</label><input type="number" value="${r.hr||''}" onchange="updArr('news2',${i},'hr',this.value)"></div>
+          <div><label>ACVPU</label><select onchange="updArr('news2',${i},'acvpu',this.value)"><option>Alert</option><option ${r.acvpu==='CVPU'?'selected':''}>CVPU</option></select></div>
+          <div><label>Temp</label><input type="number" step="0.1" value="${r.t||''}" onchange="updArr('news2',${i},'t',this.value)"></div>
+        </div>
+      </div>`;
+    });
+  }
+
+  if (curSec === 'bm') {
+    h += `<button class="btn btn-primary" style="margin-bottom:16px;" onclick="addArr('bm')">+ Add Glucose</button>`;
+    d.bm.forEach((r, i) => {
+      const v = parseFloat(r.val);
+      let bg = 'bg-green', txt = 'Pending';
+      if(v) { bg = v<4?'bg-red':(v>11?'bg-red':'bg-green'); txt = v<4?'HYPO':(v>11?'HIGH':'TARGET'); }
+      h += `<div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+          <span class="badge ${bg}">${txt}</span>
+          <button class="btn btn-danger btn-sm" onclick="rmArr('bm', ${i})">X</button>
+        </div>
+        <div class="row">
+          <div><label>Time</label><input type="time" value="${r.time||''}" onchange="updArr('bm',${i},'time',this.value)"></div>
+          <div><label>Meal</label><select onchange="updArr('bm',${i},'meal',this.value)">${opts(['','Pre-Breakfast','Post-Breakfast','Pre-Lunch','Post-Lunch','Pre-Dinner','Post-Dinner','Night'], r.meal)}</select></div>
+          <div><label>mmol/L</label><input type="number" step="0.1" value="${r.val||''}" onchange="updArr('bm',${i},'val',this.value)"></div>
+        </div>
+      </div>`;
+    });
+  }
+
+  if (curSec === 'bp') {
+    const l = parseFloat(d.bp.lsys)||0, s = parseFloat(d.bp.ssys)||0, drop = l - s;
+    const bg = (!l||!s) ? 'bg-green' : (drop>=20 ? 'bg-red' : 'bg-green');
+    const txt = (!l||!s) ? 'Normal' : (drop>=20 ? `Drop (-${drop})` : `Normal (${drop})`);
+    h += `<div class="card">
+      <span class="badge ${bg}" style="margin-bottom:12px;">${txt}</span>
+      <div class="row">
+        <div><label>Lying BP (Sys/Dia)</label><div class="bp-pair"><input type="number" value="${d.bp.lsys}" onchange="updObj('bp','lsys',this.value)"><span>/</span><input type="number" value="${d.bp.ldia}" onchange="updObj('bp','ldia',this.value)"></div></div>
       </div>
-
-      <div id="eventsSection_${index}" class="card slate">
-        <h2>Ad-Hoc Events <button class="clear-btn" onclick="clearContainer('eventsList_${index}')">Clear</button></h2>
-        <div id="eventsList_${index}"></div>
-        <button class="action-btn" onclick="addLogEntry('eventsList_${index}', 'Event')">+ Add Event</button>
+      <div class="row">
+        <div><label>Standing BP (Sys/Dia)</label><div class="bp-pair"><input type="number" value="${d.bp.ssys}" onchange="updObj('bp','ssys',this.value)"><span>/</span><input type="number" value="${d.bp.sdia}" onchange="updObj('bp','sdia',this.value)"></div></div>
       </div>
-    `;
-    container.appendChild(bedDiv);
-  });
-  
-  updateTimeSlots();
-}
+    </div>`;
+  }
 
-function showActiveBed() {
-  beds.forEach((_, index) => {
-    document.getElementById(`bed_${index}`).style.display = index === activeBedIndex ? 'block' : 'none';
-  });
-}
+  if (curSec === 'fluid') {
+    const times = isNight ? ['19:00','20:00','21:00','22:00','23:00','00:00','01:00','02:00','03:00','04:00','05:00','06:00','07:00'] : ['07:00','08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00'];
+    let inT=0, outT=0; d.fluid.forEach(f=>{ inT+=parseFloat(f.i)||0; outT+=parseFloat(f.o)||0; });
+    h += `<div class="card" style="display:flex; justify-content:space-between; font-weight:600; padding:12px;"><span>In: ${inT}</span><span>Out: ${outT}</span><span>Net: ${inT-outT}</span></div><div class="card">`;
+    times.forEach((t, i) => {
+      h += `<div class="row" style="align-items:center; margin-bottom:6px;">
+        <span style="width:45px; font-weight:600; font-size:0.9rem;">${t}</span>
+        <input type="number" placeholder="In" value="${d.fluid[i].i}" onchange="updArrObj('fluid',${i},'i',this.value)">
+        <input type="number" placeholder="Out" value="${d.fluid[i].o}" onchange="updArrObj('fluid',${i},'o',this.value)">
+      </div>`;
+    });
+    h += `</div>`;
+  }
 
-function clearContainer(id) { document.getElementById(id).innerHTML = ''; }
+  if (curSec === 'bowel') {
+    h += `<button class="btn btn-primary" style="margin-bottom:16px;" onclick="addArr('bowel')">+ Add Bowel Record</button>`;
+    d.bowel.forEach((r, i) => {
+      h += `<div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+          <b>Entry ${i+1}</b><button class="btn btn-danger btn-sm" onclick="rmArr('bowel', ${i})">X</button>
+        </div>
+        <div class="row">
+          <div><label>Time</label><input type="time" value="${r.time||''}" onchange="updArr('bowel',${i},'time',this.value)"></div>
+          <div><label>Amount</label><select onchange="updArr('bowel',${i},'amt',this.value)">${opts(['','Small','Medium','Large','Smear'], r.amt)}</select></div>
+        </div>
+        <div class="row">
+          <div><label>Bristol Type</label><select onchange="updArr('bowel',${i},'type',this.value)">${opts(['','Type 1','Type 2','Type 3','Type 4','Type 5','Type 6','Type 7','BNO'], r.type)}</select></div>
+        </div>
+      </div>`;
+    });
+  }
 
-function clearInputs(id) {
-  const c = document.getElementById(id);
-  c.querySelectorAll('input').forEach(i => i.value = '');
-  c.querySelectorAll('select').forEach(s => s.value = '');
-}
-
-function markAllFine(id) { 
-  const c = document.getElementById(id);
-  c.querySelectorAll('.skin-select').forEach(s => s.value = 'Fine'); 
-}
-
-function addLogEntry(id, type) {
-  const c = document.getElementById(id);
-  const now = new Date();
-  const time = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
-  const div = document.createElement('div');
-  div.className = 'log-entry';
-  div.innerHTML = `
-    <span style="font-weight:600; font-size:0.9rem; min-width:45px;">${time}</span>
-    <input type="text" placeholder="${type} Details" style="flex-grow:1;">
-    <button class="delete" onclick="this.parentElement.remove()">X</button>
-  `;
-  c.appendChild(div);
-}
-
-function addDressing(id) {
-  const c = document.getElementById(id);
-  const div = document.createElement('div');
-  div.style.marginBottom = '12px';
-  div.innerHTML = `
-    <input type="text" placeholder="Location (e.g. Sacrum)">
-    <div style="display:flex; gap:8px; margin-bottom:4px;">
-      <input type="date" onchange="calcDue(this)" style="margin:0; flex-grow:1;">
-      <button class="secondary" onclick="setNoDate(this)" style="margin:0; width:auto; padding:0 12px; border-radius:6px;">No Date</button>
+  if (curSec === 'amy') {
+    h += `<div class="card"><button class="btn btn-primary" style="margin-bottom:16px; background:var(--teal);" onclick="markSkinFine()">Mark All Fine</button>
+    <div class="row">
+      <div><label>Sacrum</label><select class="skin-sel" onchange="updObj('amy','sac',this.value)">${opts(['','Fine','Red','Broken'], d.amy.sac)}</select></div>
+      <div><label>Groin</label><select class="skin-sel" onchange="updObj('amy','groin',this.value)">${opts(['','Fine','Red','Broken'], d.amy.groin)}</select></div>
     </div>
-    <div style="font-size:0.85rem; color:var(--text-sub);">Next Due: <span>-</span></div>
-  `;
-  c.appendChild(div);
-}
+    <div class="row">
+      <div><label>Heels</label><select class="skin-sel" onchange="updObj('amy','heels',this.value)">${opts(['','Fine','Red','Broken'], d.amy.heels)}</select></div>
+      <div><label>Elbows</label><select class="skin-sel" onchange="updObj('amy','elbows',this.value)">${opts(['','Fine','Red','Broken'], d.amy.elbows)}</select></div>
+    </div>
+    <hr style="border:0; border-top:1px solid var(--border); margin:16px 0;">
+    <h3 style="font-size:1rem; margin-bottom:12px;">Dressings</h3>
+    <div class="row">
+      <div><label>Location</label><input type="text" value="${d.amy.dressLoc}" onchange="updObj('amy','dressLoc',this.value)"></div>
+    </div>
+    <div class="row" style="align-items:center;">
+      <div><label>Written Date</label><input type="date" value="${d.amy.dressDate}" onchange="updObj('amy','dressDate',this.value); updObj('amy','noDate',false)"></div>
+      <div style="flex:0 0 auto;"><button class="btn btn-sm ${d.amy.noDate?'btn-danger':''}" style="border:1px solid var(--border);" onclick="setNoDate()">No Date</button></div>
+    </div>
+    <div style="font-size:0.85rem; color:var(--text-sub);">Next Due: <b>${calcDue(d.amy.dressDate)}</b></div>
+    </div>`;
+  }
 
-function calcDue(input) {
-  const span = input.parentElement.nextElementSibling.querySelector('span');
-  if (!input.value) return span.textContent = '-';
-  const d = new Date(input.value);
-  d.setDate(d.getDate() + 3);
-  const day = String(d.getDate()).padStart(2, '0');
-  const month = String(d.getMonth() + 1).padStart(2, '0');
-  span.textContent = `${day}/${month}/${d.getFullYear()}`;
-}
+  if (curSec === 'food') {
+    const fOps = ['','100%','75%','50%','25%','0%','Refused','NBM'];
+    h += `<div class="card">
+      <div class="row"><div><label>Breakfast</label><select onchange="updObj('food','b',this.value)">${opts(fOps, d.food.b)}</select></div></div>
+      <div class="row"><div><label>Lunch</label><select onchange="updObj('food','l',this.value)">${opts(fOps, d.food.l)}</select></div></div>
+      <div class="row"><div><label>Dinner</label><select onchange="updObj('food','d',this.value)">${opts(fOps, d.food.d)}</select></div></div>
+    </div>`;
+  }
 
-function setNoDate(btn) {
-  const input = btn.previousElementSibling;
-  const today = new Date();
-  input.value = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
-  calcDue(input);
-}
+  if (curSec === 'turn') {
+    const tTimes = isNight ? ['20:00','22:00','00:00','02:00','04:00','06:00'] : ['08:00','10:00','12:00','14:00','16:00','18:00'];
+    h += `<div class="card">`;
+    tTimes.forEach((t, i) => {
+      h += `<div class="row" style="align-items:center; margin-bottom:8px;">
+        <span style="width:45px; font-weight:600; font-size:0.9rem;">${t}</span>
+        <input type="text" placeholder="Position" value="${d.turn[i]}" onchange="updArrRaw('turn',${i},this.value)">
+      </div>`;
+    });
+    h += `</div>`;
+  }
 
-init();
-</script>
-</body>
-</html>
+  if (curSec === 'events') {
+    h += `<button class="btn btn-primary" style="margin-bottom:16px;" onclick="addArr('events')">+ Add Event</button>`;
+    d.events.forEach((r, i) => {
+      h += `<div class="card row" style="align-items:center;">
+        <input type="time" style="width:100px; flex:0 0 auto;" value="${r.time||''}" onchange="updArr('events',${i},'time',this.value)">
+        <input type="text" placeholder="Details" value="${r.val||''}" onchange="updArr('events',${i},'val',this.value)">
+        <button class="btn btn-danger btn-sm" style="flex:0 0 auto;" onclick="rmArr('events', ${i})">X</button>
+      </div>`;
+    });
+  }
+
+  if (curSec === 'summary') {
+    h += `<div class="card">`;
+    
+    // NEWS
+    h += `<div class="summary-sec"><b>NEWS2:</b> `;
+    if(d.news2.length===0) h+=`No entries.`;
+    else {
+      const l = d.news2[d.news2.length-1]; const sc = calcN2(l);
+      if(sc >= 5) h+=`<b style="color:var(--red)">Score ${sc} @ ${l.time}</b>`;
+      else h+=`Score ${sc} @ ${l.time}`;
+    }
+    h += `</div>`;
+
+    // BM
+    h += `<div class="summary-sec"><b>Glucose:</b> `;
+    if(d.bm.length===0) h+=`No entries.`;
+    else {
+      const bml = d.bm[d.bm.length-1]; const bmv = parseFloat(bml.val);
+      if(bmv<4 || bmv>11) h+=`<b style="color:var(--red)">${bmv} mmol/L @ ${bml.time}</b>`;
+      else h+=`${bmv} mmol/L @ ${bml.time}`;
+    }
+    h += `</div>`;
+
+    // Fluids
+    let iT=0, oT=0; d.fluid.forEach(f=>{ iT+=parseFloat(f.i)||0; oT+=parseFloat(f.o)||0; });
+    const net = iT-oT;
+    h += `<div class="summary-sec"><b>Fluids:</b> In ${iT}ml, Out ${oT}ml. Net: `;
+    if(net <= -500) 
