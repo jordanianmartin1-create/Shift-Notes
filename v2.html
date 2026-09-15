@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Thorndon Ward ICA Log</title>
+  <title>Thorndon Ward ICA Log - v9.0</title>
   <style>
     :root {
       --primary: #005eb8;
@@ -25,12 +25,16 @@
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     body { background: var(--bg); color: var(--text); padding-bottom: 70px; }
+    
     header { background: var(--primary); color: #fff; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
     header h1 { font-size: 1.05rem; font-weight: 700; }
     header .sub { font-size: 0.72rem; opacity: 0.85; }
-    .badge { font-size: 0.7rem; font-weight: 600; padding: 4px 10px; border-radius: 20px; background: rgba(255,255,255,0.2); }
-    
-    /* Top Scrollable Tab Navigation */
+    .ver-badge { font-size: 0.7rem; font-weight: 700; padding: 3px 8px; border-radius: 12px; background: rgba(255,255,255,0.25); }
+
+    /* Hidden State Checkboxes stored at top of body */
+    .state-ck { position: absolute; left: -9999px; opacity: 0; pointer-events: none; }
+
+    /* Sticky Tab Navigation */
     nav#tabBar {
       display: flex;
       gap: 6px;
@@ -55,31 +59,58 @@
       font-weight: 600;
       flex-shrink: 0;
       cursor: pointer;
+      display: inline-block;
+      text-decoration: none;
     }
     .tab-btn.active {
       background: var(--primary) !important;
       color: #fff !important;
       border-color: var(--primary) !important;
     }
-    
+
+    /* PURE CSS TAB VISIBILITY: Hidden by default */
+    .b-tab { display: none; }
+
+    /* Pure CSS triggers: when checkbox is checked, the matching tab button turns visible instantly */
+    #ck_b1b1:checked ~ nav #tab_b1b1 { display: inline-block; }
+    #ck_b1b2:checked ~ nav #tab_b1b2 { display: inline-block; }
+    #ck_b1b3:checked ~ nav #tab_b1b3 { display: inline-block; }
+    #ck_b1b4:checked ~ nav #tab_b1b4 { display: inline-block; }
+
+    #ck_b2b1:checked ~ nav #tab_b2b1 { display: inline-block; }
+    #ck_b2b2:checked ~ nav #tab_b2b2 { display: inline-block; }
+    #ck_b2b3:checked ~ nav #tab_b2b3 { display: inline-block; }
+    #ck_b2b4:checked ~ nav #tab_b2b4 { display: inline-block; }
+
+    #ck_b3b1:checked ~ nav #tab_b3b1 { display: inline-block; }
+    #ck_b3b2:checked ~ nav #tab_b3b2 { display: inline-block; }
+    #ck_b3b3:checked ~ nav #tab_b3b3 { display: inline-block; }
+    #ck_b3b4:checked ~ nav #tab_b3b4 { display: inline-block; }
+
+    #ck_b4b1:checked ~ nav #tab_b4b1 { display: inline-block; }
+    #ck_b4b2:checked ~ nav #tab_b4b2 { display: inline-block; }
+    #ck_b4b3:checked ~ nav #tab_b4b3 { display: inline-block; }
+    #ck_b4b4:checked ~ nav #tab_b4b4 { display: inline-block; }
+
+    #ck_b5b1:checked ~ nav #tab_b5b1 { display: inline-block; }
+    #ck_b5b2:checked ~ nav #tab_b5b2 { display: inline-block; }
+    #ck_b5b3:checked ~ nav #tab_b5b3 { display: inline-block; }
+    #ck_b5b4:checked ~ nav #tab_b5b4 { display: inline-block; }
+
+    #ck_sr1:checked ~ nav #tab_sr1 { display: inline-block; }
+    #ck_sr2:checked ~ nav #tab_sr2 { display: inline-block; }
+    #ck_sr3:checked ~ nav #tab_sr3 { display: inline-block; }
+    #ck_sr4:checked ~ nav #tab_sr4 { display: inline-block; }
+    #ck_sr5:checked ~ nav #tab_sr5 { display: inline-block; }
+    #ck_sr6:checked ~ nav #tab_sr6 { display: inline-block; }
+    #ck_sr7:checked ~ nav #tab_sr7 { display: inline-block; }
+
     main { padding: 12px; max-width: 800px; margin: 0 auto; }
     .view { display: none; }
     .view.active { display: block; }
-    
-    /* Bed Checkbox Cards */
+
+    /* Ward Allocation Grid */
     .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .bed-item { position: relative; width: 100%; }
-    .bed-item input[type="checkbox"] {
-      position: absolute;
-      opacity: 0;
-      width: 100%;
-      height: 100%;
-      top: 0;
-      left: 0;
-      margin: 0;
-      cursor: pointer;
-      z-index: 2;
-    }
     .bed-label {
       display: block;
       background: #ffffff;
@@ -91,14 +122,70 @@
       font-weight: 600;
       color: var(--text);
       user-select: none;
+      cursor: pointer;
     }
-    .bed-item input[type="checkbox"]:checked + .bed-label {
+
+    /* Checkbox highlights the bed in grid */
+    #ck_b1b1:checked ~ main #lbl_b1b1,
+    #ck_b1b2:checked ~ main #lbl_b1b2,
+    #ck_b1b3:checked ~ main #lbl_b1b3,
+    #ck_b1b4:checked ~ main #lbl_b1b4,
+    #ck_b2b1:checked ~ main #lbl_b2b1,
+    #ck_b2b2:checked ~ main #lbl_b2b2,
+    #ck_b2b3:checked ~ main #lbl_b2b3,
+    #ck_b2b4:checked ~ main #lbl_b2b4,
+    #ck_b3b1:checked ~ main #lbl_b3b1,
+    #ck_b3b2:checked ~ main #lbl_b3b2,
+    #ck_b3b3:checked ~ main #lbl_b3b3,
+    #ck_b3b4:checked ~ main #lbl_b3b4,
+    #ck_b4b1:checked ~ main #lbl_b4b1,
+    #ck_b4b2:checked ~ main #lbl_b4b2,
+    #ck_b4b3:checked ~ main #lbl_b4b3,
+    #ck_b4b4:checked ~ main #lbl_b4b4,
+    #ck_b5b1:checked ~ main #lbl_b5b1,
+    #ck_b5b2:checked ~ main #lbl_b5b2,
+    #ck_b5b3:checked ~ main #lbl_b5b3,
+    #ck_b5b4:checked ~ main #lbl_b5b4,
+    #ck_sr1:checked ~ main #lbl_sr1,
+    #ck_sr2:checked ~ main #lbl_sr2,
+    #ck_sr3:checked ~ main #lbl_sr3,
+    #ck_sr4:checked ~ main #lbl_sr4,
+    #ck_sr5:checked ~ main #lbl_sr5,
+    #ck_sr6:checked ~ main #lbl_sr6,
+    #ck_sr7:checked ~ main #lbl_sr7 {
       background: var(--primary) !important;
       color: #ffffff !important;
       border-color: var(--primary-dark) !important;
       box-shadow: 0 2px 6px rgba(0, 94, 184, 0.3);
     }
-    .bed-item input[type="checkbox"]:checked + .bed-label::after {
+
+    #ck_b1b1:checked ~ main #lbl_b1b1::after,
+    #ck_b1b2:checked ~ main #lbl_b1b2::after,
+    #ck_b1b3:checked ~ main #lbl_b1b3::after,
+    #ck_b1b4:checked ~ main #lbl_b1b4::after,
+    #ck_b2b1:checked ~ main #lbl_b2b1::after,
+    #ck_b2b2:checked ~ main #lbl_b2b2::after,
+    #ck_b2b3:checked ~ main #lbl_b2b3::after,
+    #ck_b2b4:checked ~ main #lbl_b2b4::after,
+    #ck_b3b1:checked ~ main #lbl_b3b1::after,
+    #ck_b3b2:checked ~ main #lbl_b3b2::after,
+    #ck_b3b3:checked ~ main #lbl_b3b3::after,
+    #ck_b3b4:checked ~ main #lbl_b3b4::after,
+    #ck_b4b1:checked ~ main #lbl_b4b1::after,
+    #ck_b4b2:checked ~ main #lbl_b4b2::after,
+    #ck_b4b3:checked ~ main #lbl_b4b3::after,
+    #ck_b4b4:checked ~ main #lbl_b4b4::after,
+    #ck_b5b1:checked ~ main #lbl_b5b1::after,
+    #ck_b5b2:checked ~ main #lbl_b5b2::after,
+    #ck_b5b3:checked ~ main #lbl_b5b3::after,
+    #ck_b5b4:checked ~ main #lbl_b5b4::after,
+    #ck_sr1:checked ~ main #lbl_sr1::after,
+    #ck_sr2:checked ~ main #lbl_sr2::after,
+    #ck_sr3:checked ~ main #lbl_sr3::after,
+    #ck_sr4:checked ~ main #lbl_sr4::after,
+    #ck_sr5:checked ~ main #lbl_sr5::after,
+    #ck_sr6:checked ~ main #lbl_sr6::after,
+    #ck_sr7:checked ~ main #lbl_sr7::after {
       content: " ✓";
       font-weight: 700;
     }
@@ -108,7 +195,7 @@
     .row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
     .col { flex: 1 1 calc(50% - 8px); display: flex; flex-direction: column; min-width: 120px; }
     .col.full { flex: 1 1 100%; }
-    label { font-size: 0.72rem; font-weight: 600; color: var(--sub); margin-bottom: 3px; text-transform: uppercase; }
+    label.field-lbl { font-size: 0.72rem; font-weight: 600; color: var(--sub); margin-bottom: 3px; text-transform: uppercase; }
     input[type="text"], select, textarea { padding: 8px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.85rem; background: #fff; width: 100%; }
     textarea { min-height: 60px; line-height: 1.3; }
     .chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0; }
@@ -129,66 +216,134 @@
 </head>
 <body>
 
+  <!-- Top-Level State Checkboxes (Pure CSS Engine) -->
+  <input type="checkbox" class="state-ck" id="ck_b1b1" value="Bay 1 Bed 1">
+  <input type="checkbox" class="state-ck" id="ck_b1b2" value="Bay 1 Bed 2">
+  <input type="checkbox" class="state-ck" id="ck_b1b3" value="Bay 1 Bed 3">
+  <input type="checkbox" class="state-ck" id="ck_b1b4" value="Bay 1 Bed 4">
+
+  <input type="checkbox" class="state-ck" id="ck_b2b1" value="Bay 2 Bed 1">
+  <input type="checkbox" class="state-ck" id="ck_b2b2" value="Bay 2 Bed 2">
+  <input type="checkbox" class="state-ck" id="ck_b2b3" value="Bay 2 Bed 3">
+  <input type="checkbox" class="state-ck" id="ck_b2b4" value="Bay 2 Bed 4">
+
+  <input type="checkbox" class="state-ck" id="ck_b3b1" value="Bay 3 Bed 1">
+  <input type="checkbox" class="state-ck" id="ck_b3b2" value="Bay 3 Bed 2">
+  <input type="checkbox" class="state-ck" id="ck_b3b3" value="Bay 3 Bed 3">
+  <input type="checkbox" class="state-ck" id="ck_b3b4" value="Bay 3 Bed 4">
+
+  <input type="checkbox" class="state-ck" id="ck_b4b1" value="Bay 4 Bed 1">
+  <input type="checkbox" class="state-ck" id="ck_b4b2" value="Bay 4 Bed 2">
+  <input type="checkbox" class="state-ck" id="ck_b4b3" value="Bay 4 Bed 3">
+  <input type="checkbox" class="state-ck" id="ck_b4b4" value="Bay 4 Bed 4">
+
+  <input type="checkbox" class="state-ck" id="ck_b5b1" value="Bay 5 Bed 1">
+  <input type="checkbox" class="state-ck" id="ck_b5b2" value="Bay 5 Bed 2">
+  <input type="checkbox" class="state-ck" id="ck_b5b3" value="Bay 5 Bed 3">
+  <input type="checkbox" class="state-ck" id="ck_b5b4" value="Bay 5 Bed 4">
+
+  <input type="checkbox" class="state-ck" id="ck_sr1" value="Side Room 1">
+  <input type="checkbox" class="state-ck" id="ck_sr2" value="Side Room 2">
+  <input type="checkbox" class="state-ck" id="ck_sr3" value="Side Room 3">
+  <input type="checkbox" class="state-ck" id="ck_sr4" value="Side Room 4">
+  <input type="checkbox" class="state-ck" id="ck_sr5" value="Side Room 5">
+  <input type="checkbox" class="state-ck" id="ck_sr6" value="Side Room 6">
+  <input type="checkbox" class="state-ck" id="ck_sr7" value="Side Room 7">
+
   <header>
     <div>
       <h1>Thorndon Ward ICA Log</h1>
       <div class="sub">Offline Shift Notepad • SystmOne Staging</div>
     </div>
-    <span class="badge" id="saveBadge">Saved</span>
+    <span class="ver-badge">v9.0 Active</span>
   </header>
 
-  <!-- Sticky Top Navigation Bar -->
+  <!-- Navigation Tab Bar -->
   <nav id="tabBar">
-    <button type="button" class="tab-btn active" id="btn_tab_ward" onclick="openView('ward')">Ward Map</button>
-    <div id="patientTabSlot" style="display:contents;"></div>
-    <button type="button" class="tab-btn" id="btn_tab_summary" onclick="openView('summary')">Summary</button>
+    <button type="button" class="tab-btn active" id="tab_btn_ward" onclick="showScreen('ward')">Ward Map</button>
+
+    <!-- Pre-rendered Bed Tabs -->
+    <button type="button" class="tab-btn b-tab" id="tab_b1b1" onclick="showScreen('Bay 1 Bed 1')">Bay 1 Bed 1</button>
+    <button type="button" class="tab-btn b-tab" id="tab_b1b2" onclick="showScreen('Bay 1 Bed 2')">Bay 1 Bed 2</button>
+    <button type="button" class="tab-btn b-tab" id="tab_b1b3" onclick="showScreen('Bay 1 Bed 3')">Bay 1 Bed 3</button>
+    <button type="button" class="tab-btn b-tab" id="tab_b1b4" onclick="showScreen('Bay 1 Bed 4')">Bay 1 Bed 4</button>
+
+    <button type="button" class="tab-btn b-tab" id="tab_b2b1" onclick="showScreen('Bay 2 Bed 1')">Bay 2 Bed 1</button>
+    <button type="button" class="tab-btn b-tab" id="tab_b2b2" onclick="showScreen('Bay 2 Bed 2')">Bay 2 Bed 2</button>
+    <button type="button" class="tab-btn b-tab" id="tab_b2b3" onclick="showScreen('Bay 2 Bed 3')">Bay 2 Bed 3</button>
+    <button type="button" class="tab-btn b-tab" id="tab_b2b4" onclick="showScreen('Bay 2 Bed 4')">Bay 2 Bed 4</button>
+
+    <button type="button" class="tab-btn b-tab" id="tab_b3b1" onclick="showScreen('Bay 3 Bed 1')">Bay 3 Bed 1</button>
+    <button type="button" class="tab-btn b-tab" id="tab_b3b2" onclick="showScreen('Bay 3 Bed 2')">Bay 3 Bed 2</button>
+    <button type="button" class="tab-btn b-tab" id="tab_b3b3" onclick="showScreen('Bay 3 Bed 3')">Bay 3 Bed 3</button>
+    <button type="button" class="tab-btn b-tab" id="tab_b3b4" onclick="showScreen('Bay 3 Bed 4')">Bay 3 Bed 4</button>
+
+    <button type="button" class="tab-btn b-tab" id="tab_b4b1" onclick="showScreen('Bay 4 Bed 1')">Bay 4 Bed 1</button>
+    <button type="button" class="tab-btn b-tab" id="tab_b4b2" onclick="showScreen('Bay 4 Bed 2')">Bay 4 Bed 2</button>
+    <button type="button" class="tab-btn b-tab" id="tab_b4b3" onclick="showScreen('Bay 4 Bed 3')">Bay 4 Bed 3</button>
+    <button type="button" class="tab-btn b-tab" id="tab_b4b4" onclick="showScreen('Bay 4 Bed 4')">Bay 4 Bed 4</button>
+
+    <button type="button" class="tab-btn b-tab" id="tab_b5b1" onclick="showScreen('Bay 5 Bed 1')">Bay 5 Bed 1</button>
+    <button type="button" class="tab-btn b-tab" id="tab_b5b2" onclick="showScreen('Bay 5 Bed 2')">Bay 5 Bed 2</button>
+    <button type="button" class="tab-btn b-tab" id="tab_b5b3" onclick="showScreen('Bay 5 Bed 3')">Bay 5 Bed 3</button>
+    <button type="button" class="tab-btn b-tab" id="tab_b5b4" onclick="showScreen('Bay 5 Bed 4')">Bay 5 Bed 4</button>
+
+    <button type="button" class="tab-btn b-tab" id="tab_sr1" onclick="showScreen('Side Room 1')">Side Room 1</button>
+    <button type="button" class="tab-btn b-tab" id="tab_sr2" onclick="showScreen('Side Room 2')">Side Room 2</button>
+    <button type="button" class="tab-btn b-tab" id="tab_sr3" onclick="showScreen('Side Room 3')">Side Room 3</button>
+    <button type="button" class="tab-btn b-tab" id="tab_sr4" onclick="showScreen('Side Room 4')">Side Room 4</button>
+    <button type="button" class="tab-btn b-tab" id="tab_sr5" onclick="showScreen('Side Room 5')">Side Room 5</button>
+    <button type="button" class="tab-btn b-tab" id="tab_sr6" onclick="showScreen('Side Room 6')">Side Room 6</button>
+    <button type="button" class="tab-btn b-tab" id="tab_sr7" onclick="showScreen('Side Room 7')">Side Room 7</button>
+
+    <button type="button" class="tab-btn" id="tab_btn_summary" onclick="showScreen('summary')">Summary</button>
   </nav>
 
   <main>
-    <!-- Ward Allocation Grid (Bays 1-5 + Side Rooms 1-7) -->
+    <!-- Ward Allocation Screen -->
     <div id="viewWard" class="view active">
       <div class="card">
-        <h3>Ward Allocation</h3>
+        <h3>Ward Allocation (27 Beds)</h3>
         <p style="font-size:0.8rem; color:var(--sub); margin-bottom:12px;">Tap beds to select or deselect. Active beds will pin as tabs above.</p>
         <div class="grid">
           <!-- Bay 1 -->
-          <div class="bed-item"><input type="checkbox" id="ck_b1b1" value="Bay 1 Bed 1" onclick="tapBed(this)"><label class="bed-label" for="ck_b1b1">Bay 1 Bed 1</label></div>
-          <div class="bed-item"><input type="checkbox" id="ck_b1b2" value="Bay 1 Bed 2" onclick="tapBed(this)"><label class="bed-label" for="ck_b1b2">Bay 1 Bed 2</label></div>
-          <div class="bed-item"><input type="checkbox" id="ck_b1b3" value="Bay 1 Bed 3" onclick="tapBed(this)"><label class="bed-label" for="ck_b1b3">Bay 1 Bed 3</label></div>
-          <div class="bed-item"><input type="checkbox" id="ck_b1b4" value="Bay 1 Bed 4" onclick="tapBed(this)"><label class="bed-label" for="ck_b1b4">Bay 1 Bed 4</label></div>
+          <div><label class="bed-label" id="lbl_b1b1" for="ck_b1b1">Bay 1 Bed 1</label></div>
+          <div><label class="bed-label" id="lbl_b1b2" for="ck_b1b2">Bay 1 Bed 2</label></div>
+          <div><label class="bed-label" id="lbl_b1b3" for="ck_b1b3">Bay 1 Bed 3</label></div>
+          <div><label class="bed-label" id="lbl_b1b4" for="ck_b1b4">Bay 1 Bed 4</label></div>
           <!-- Bay 2 -->
-          <div class="bed-item"><input type="checkbox" id="ck_b2b1" value="Bay 2 Bed 1" onclick="tapBed(this)"><label class="bed-label" for="ck_b2b1">Bay 2 Bed 1</label></div>
-          <div class="bed-item"><input type="checkbox" id="ck_b2b2" value="Bay 2 Bed 2" onclick="tapBed(this)"><label class="bed-label" for="ck_b2b2">Bay 2 Bed 2</label></div>
-          <div class="bed-item"><input type="checkbox" id="ck_b2b3" value="Bay 2 Bed 3" onclick="tapBed(this)"><label class="bed-label" for="ck_b2b3">Bay 2 Bed 3</label></div>
-          <div class="bed-item"><input type="checkbox" id="ck_b2b4" value="Bay 2 Bed 4" onclick="tapBed(this)"><label class="bed-label" for="ck_b2b4">Bay 2 Bed 4</label></div>
+          <div><label class="bed-label" id="lbl_b2b1" for="ck_b2b1">Bay 2 Bed 1</label></div>
+          <div><label class="bed-label" id="lbl_b2b2" for="ck_b2b2">Bay 2 Bed 2</label></div>
+          <div><label class="bed-label" id="lbl_b2b3" for="ck_b2b3">Bay 2 Bed 3</label></div>
+          <div><label class="bed-label" id="lbl_b2b4" for="ck_b2b4">Bay 2 Bed 4</label></div>
           <!-- Bay 3 -->
-          <div class="bed-item"><input type="checkbox" id="ck_b3b1" value="Bay 3 Bed 1" onclick="tapBed(this)"><label class="bed-label" for="ck_b3b1">Bay 3 Bed 1</label></div>
-          <div class="bed-item"><input type="checkbox" id="ck_b3b2" value="Bay 3 Bed 2" onclick="tapBed(this)"><label class="bed-label" for="ck_b3b2">Bay 3 Bed 2</label></div>
-          <div class="bed-item"><input type="checkbox" id="ck_b3b3" value="Bay 3 Bed 3" onclick="tapBed(this)"><label class="bed-label" for="ck_b3b3">Bay 3 Bed 3</label></div>
-          <div class="bed-item"><input type="checkbox" id="ck_b3b4" value="Bay 3 Bed 4" onclick="tapBed(this)"><label class="bed-label" for="ck_b3b4">Bay 3 Bed 4</label></div>
+          <div><label class="bed-label" id="lbl_b3b1" for="ck_b3b1">Bay 3 Bed 1</label></div>
+          <div><label class="bed-label" id="lbl_b3b2" for="ck_b3b2">Bay 3 Bed 2</label></div>
+          <div><label class="bed-label" id="lbl_b3b3" for="ck_b3b3">Bay 3 Bed 3</label></div>
+          <div><label class="bed-label" id="lbl_b3b4" for="ck_b3b4">Bay 3 Bed 4</label></div>
           <!-- Bay 4 -->
-          <div class="bed-item"><input type="checkbox" id="ck_b4b1" value="Bay 4 Bed 1" onclick="tapBed(this)"><label class="bed-label" for="ck_b4b1">Bay 4 Bed 1</label></div>
-          <div class="bed-item"><input type="checkbox" id="ck_b4b2" value="Bay 4 Bed 2" onclick="tapBed(this)"><label class="bed-label" for="ck_b4b2">Bay 4 Bed 2</label></div>
-          <div class="bed-item"><input type="checkbox" id="ck_b4b3" value="Bay 4 Bed 3" onclick="tapBed(this)"><label class="bed-label" for="ck_b4b3">Bay 4 Bed 3</label></div>
-          <div class="bed-item"><input type="checkbox" id="ck_b4b4" value="Bay 4 Bed 4" onclick="tapBed(this)"><label class="bed-label" for="ck_b4b4">Bay 4 Bed 4</label></div>
+          <div><label class="bed-label" id="lbl_b4b1" for="ck_b4b1">Bay 4 Bed 1</label></div>
+          <div><label class="bed-label" id="lbl_b4b2" for="ck_b4b2">Bay 4 Bed 2</label></div>
+          <div><label class="bed-label" id="lbl_b4b3" for="ck_b4b3">Bay 4 Bed 3</label></div>
+          <div><label class="bed-label" id="lbl_b4b4" for="ck_b4b4">Bay 4 Bed 4</label></div>
           <!-- Bay 5 -->
-          <div class="bed-item"><input type="checkbox" id="ck_b5b1" value="Bay 5 Bed 1" onclick="tapBed(this)"><label class="bed-label" for="ck_b5b1">Bay 5 Bed 1</label></div>
-          <div class="bed-item"><input type="checkbox" id="ck_b5b2" value="Bay 5 Bed 2" onclick="tapBed(this)"><label class="bed-label" for="ck_b5b2">Bay 5 Bed 2</label></div>
-          <div class="bed-item"><input type="checkbox" id="ck_b5b3" value="Bay 5 Bed 3" onclick="tapBed(this)"><label class="bed-label" for="ck_b5b3">Bay 5 Bed 3</label></div>
-          <div class="bed-item"><input type="checkbox" id="ck_b5b4" value="Bay 5 Bed 4" onclick="tapBed(this)"><label class="bed-label" for="ck_b5b4">Bay 5 Bed 4</label></div>
+          <div><label class="bed-label" id="lbl_b5b1" for="ck_b5b1">Bay 5 Bed 1</label></div>
+          <div><label class="bed-label" id="lbl_b5b2" for="ck_b5b2">Bay 5 Bed 2</label></div>
+          <div><label class="bed-label" id="lbl_b5b3" for="ck_b5b3">Bay 5 Bed 3</label></div>
+          <div><label class="bed-label" id="lbl_b5b4" for="ck_b5b4">Bay 5 Bed 4</label></div>
           <!-- Side Rooms 1 to 7 -->
-          <div class="bed-item"><input type="checkbox" id="ck_sr1" value="Side Room 1" onclick="tapBed(this)"><label class="bed-label" for="ck_sr1">Side Room 1</label></div>
-          <div class="bed-item"><input type="checkbox" id="ck_sr2" value="Side Room 2" onclick="tapBed(this)"><label class="bed-label" for="ck_sr2">Side Room 2</label></div>
-          <div class="bed-item"><input type="checkbox" id="ck_sr3" value="Side Room 3" onclick="tapBed(this)"><label class="bed-label" for="ck_sr3">Side Room 3</label></div>
-          <div class="bed-item"><input type="checkbox" id="ck_sr4" value="Side Room 4" onclick="tapBed(this)"><label class="bed-label" for="ck_sr4">Side Room 4</label></div>
-          <div class="bed-item"><input type="checkbox" id="ck_sr5" value="Side Room 5" onclick="tapBed(this)"><label class="bed-label" for="ck_sr5">Side Room 5</label></div>
-          <div class="bed-item"><input type="checkbox" id="ck_sr6" value="Side Room 6" onclick="tapBed(this)"><label class="bed-label" for="ck_sr6">Side Room 6</label></div>
-          <div class="bed-item"><input type="checkbox" id="ck_sr7" value="Side Room 7" onclick="tapBed(this)"><label class="bed-label" for="ck_sr7">Side Room 7</label></div>
+          <div><label class="bed-label" id="lbl_sr1" for="ck_sr1">Side Room 1</label></div>
+          <div><label class="bed-label" id="lbl_sr2" for="ck_sr2">Side Room 2</label></div>
+          <div><label class="bed-label" id="lbl_sr3" for="ck_sr3">Side Room 3</label></div>
+          <div><label class="bed-label" id="lbl_sr4" for="ck_sr4">Side Room 4</label></div>
+          <div><label class="bed-label" id="lbl_sr5" for="ck_sr5">Side Room 5</label></div>
+          <div><label class="bed-label" id="lbl_sr6" for="ck_sr6">Side Room 6</label></div>
+          <div><label class="bed-label" id="lbl_sr7" for="ck_sr7">Side Room 7</label></div>
         </div>
       </div>
     </div>
 
-    <!-- Observation Entry Form -->
+    <!-- Observation Entry Form Screen -->
     <div id="viewForm" class="view">
       <div class="card">
         <h3>
@@ -196,164 +351,16 @@
           <span class="score-badge" id="newsScoreBadge">NEWS2: 0</span>
         </h3>
         <div class="row">
-          <div class="col"><label>Resp Rate (/min)</label><input type="text" inputmode="numeric" pattern="[0-9]*" id="f_rr"></div>
-          <div class="col"><label>SpO2 (%)</label><input type="text" inputmode="numeric" pattern="[0-9]*" id="f_sats"></div>
+          <div class="col"><label class="field-lbl">Resp Rate (/min)</label><input type="text" inputmode="numeric" pattern="[0-9]*" id="f_rr"></div>
+          <div class="col"><label class="field-lbl">SpO2 (%)</label><input type="text" inputmode="numeric" pattern="[0-9]*" id="f_sats"></div>
           <div class="col">
-            <label>Oxygen</label>
+            <label class="field-lbl">Oxygen</label>
             <select id="f_o2">
               <option value="Air">Air</option>
               <option value="Oxygen">Oxygen</option>
             </select>
           </div>
-          <div class="col"><label>Heart Rate (bpm)</label><input type="text" inputmode="numeric" pattern="[0-9]*" id="f_hr"></div>
-          <div class="col"><label>Systolic BP</label><input type="text" inputmode="numeric" pattern="[0-9]*" id="f_bpSys" placeholder="120"></div>
-          <div class="col"><label>Diastolic BP</label><input type="text" inputmode="numeric" pattern="[0-9]*" id="f_bpDia" placeholder="80"></div>
-          <div class="col full"><label>Temp (°C)</label><input type="text" inputmode="decimal" id="f_temp" placeholder="36.8"></div>
-        </div>
-      </div>
-
-      <div class="card">
-        <h3>Metabolic & Orthostatic</h3>
-        <div class="row">
-          <div class="col"><label>BM Glucose (mmol/L)</label><input type="text" inputmode="decimal" id="f_bm"></div>
-          <div class="col"><label>Weight (kg)</label><input type="text" inputmode="decimal" id="f_weight"></div>
-          <div class="col"><label>Lying Systolic</label><input type="text" inputmode="numeric" pattern="[0-9]*" id="f_lyingSys" placeholder="120"></div>
-          <div class="col"><label>Lying Diastolic</label><input type="text" inputmode="numeric" pattern="[0-9]*" id="f_lyingDia" placeholder="80"></div>
-          <div class="col"><label>Standing Systolic</label><input type="text" inputmode="numeric" pattern="[0-9]*" id="f_standingSys" placeholder="115"></div>
-          <div class="col"><label>Standing Diastolic</label><input type="text" inputmode="numeric" pattern="[0-9]*" id="f_standingDia" placeholder="75"></div>
-        </div>
-      </div>
-
-      <div class="card">
-        <h3>Bowel Movement (Bristol Scale)</h3>
-        <div class="row">
-          <div class="col">
-            <label>Bowels Opened?</label>
-            <select id="f_bowelOpen">
-              <option value="No">No</option>
-              <option value="Yes">Yes</option>
-            </select>
-          </div>
-          <div class="col">
-            <label>Bristol Type</label>
-            <select id="f_stoolType">
-              <option value="None">None</option>
-              <option value="Type 1 (Hard lumps)">Type 1 (Hard lumps)</option>
-              <option value="Type 2 (Lumpy sausage)">Type 2 (Lumpy sausage)</option>
-              <option value="Type 3 (Cracked sausage)">Type 3 (Cracked sausage)</option>
-              <option value="Type 4 (Smooth)">Type 4 (Smooth)</option>
-              <option value="Type 5 (Soft blobs)">Type 5 (Soft blobs)</option>
-              <option value="Type 6 (Mushy)">Type 6 (Mushy)</option>
-              <option value="Type 7 (Liquid)">Type 7 (Liquid)</option>
-            </select>
-          </div>
-          <div class="col full"><label>Amount / Consistency Notes</label><input type="text" id="f_bowelNotes" placeholder="e.g. Medium, Type 4"></div>
-        </div>
-      </div>
-
-      <div class="card">
-        <h3>Amy's Round (Skin / Pressure Areas)</h3>
-        <div class="row">
-          <div class="col">
-            <label>Sacrum</label>
-            <select id="f_sacrum">
-              <option value="Intact">Intact</option>
-              <option value="Red">Red</option>
-              <option value="Broken/Sore">Broken/Sore</option>
-              <option value="Dressing">Dressing</option>
-            </select>
-            <input type="text" id="f_sacrumNotes" placeholder="Details" style="margin-top:3px;">
-          </div>
-          <div class="col">
-            <label>Left Heel</label>
-            <select id="f_lHeel">
-              <option value="Intact">Intact</option>
-              <option value="Red">Red</option>
-              <option value="Broken/Sore">Broken/Sore</option>
-              <option value="Dressing">Dressing</option>
-            </select>
-            <input type="text" id="f_lHeelNotes" placeholder="Details" style="margin-top:3px;">
-          </div>
-          <div class="col">
-            <label>Right Heel</label>
-            <select id="f_rHeel">
-              <option value="Intact">Intact</option>
-              <option value="Red">Red</option>
-              <option value="Broken/Sore">Broken/Sore</option>
-              <option value="Dressing">Dressing</option>
-            </select>
-            <input type="text" id="f_rHeelNotes" placeholder="Details" style="margin-top:3px;">
-          </div>
-          <div class="col">
-            <label>Other / Buttocks / Groin</label>
-            <select id="f_other">
-              <option value="Intact">Intact</option>
-              <option value="Red">Red</option>
-              <option value="Broken/Sore">Broken/Sore</option>
-              <option value="Dressing">Dressing</option>
-            </select>
-            <input type="text" id="f_otherNotes" placeholder="Details" style="margin-top:3px;">
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <h3>Turning & Repositioning</h3>
-        <div class="chips">
-          <button type="button" class="chip" onclick="addRepo('Left Tilt')">Left Tilt</button>
-          <button type="button" class="chip" onclick="addRepo('Right Tilt')">Right Tilt</button>
-          <button type="button" class="chip" onclick="addRepo('Back')">Back</button>
-          <button type="button" class="chip" onclick="addRepo('Chair')">Chair</button>
-          <button type="button" class="chip" onclick="addRepo('Mobilised')">Mobilised</button>
-        </div>
-        <textarea readonly id="f_repositioningLogs"></textarea>
-      </div>
-
-      <div class="card">
-        <h3>Fluid Balance</h3>
-        <div class="total-banner">
-          <span>In: <b id="dispIntakeTotal">0</b>ml</span>
-          <span>Out: <b id="dispOutputTotal">0</b>ml</span>
-          <span>Net: <b id="dispNetTotal">0</b>ml</span>
-        </div>
-        <label>Quick Intake:</label>
-        <div class="chips">
-          <button type="button" class="chip" onclick="addFluid('in', 100, 'Water')">+100ml Water</button>
-          <button type="button" class="chip" onclick="addFluid('in', 150, 'Tea')">+150ml Tea</button>
-          <button type="button" class="chip" onclick="addFluid('in', 200, 'Fortisip')">+200ml Fortisip</button>
-          <button type="button" class="chip" onclick="addFluid('in', 500, 'IV')">+500ml IV</button>
-        </div>
-        <textarea readonly id="f_intakeLogs"></textarea>
-
-        <label style="margin-top:8px;">Quick Output:</label>
-        <div class="chips">
-          <button type="button" class="chip" onclick="addFluid('out', 200, 'Urinal')">+200ml Urine</button>
-          <button type="button" class="chip" onclick="addFluid('out', 400, 'Urinal')">+400ml Urine</button>
-          <button type="button" class="chip" onclick="addFluid('out', 0, 'Catheter Emptied')">Catheter Emptied</button>
-          <button type="button" class="chip" onclick="addFluid('out', 0, 'Pad Wet')">Pad Wet</button>
-        </div>
-        <textarea readonly id="f_outputLogs"></textarea>
-      </div>
-
-      <div class="card">
-        <h3>Food & Meals</h3>
-        <div class="row">
-          <div class="col">
-            <label>Breakfast</label>
-            <select id="f_dietB">
-              <option value="-">-</option>
-              <option value="All">All</option>
-              <option value="3/4">3/4</option>
-              <option value="1/2">1/2</option>
-              <option value="1/4">1/4</option>
-              <option value="None">None</option>
-              <option value="Refused">Refused</option>
-              <option value="NBM">NBM</option>
-            </select>
-          </div>
-          <div class="col">
-            <label>Lunch</label>
-            <select id="f_dietL">
-              <option value="-">-</option>
-              <option value="All">All</option>
-              <option value="3/4">3/
+          <div class="col"><label class="field-lbl">Heart Rate (bpm)</label><input type="text" inputmode="numeric" pattern="[0-9]*" id="f_hr"></div>
+          <div class="col"><label class="field-lbl">Systolic BP</label><input type="text" inputmode="numeric" pattern="[0-9]*" id="f_bpSys" placeholder="120"></div>
+          <div class="col"><label class="field-lbl">Diastolic BP</label><input type="text" inputmode="numeric" pattern="[0-9]*" id="f_bpDia" placeholder="80"></div>
+          <div class="col full"><label clas
