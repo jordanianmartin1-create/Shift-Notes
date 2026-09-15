@@ -245,32 +245,58 @@ function refreshFluid() {
       let n2txt = 'No entries', bmtxt = 'No entries', ftxt = 'Net: 0ml', skintxt = 'None recorded';
       
       if (d.news2.length > 0) {
-        const l = d.news2[d.news2.length-1]; const sc = calcN2(l);
-        n2txt = sc >= 5 ? `<b style="color:var(--red)">Score ${sc} @ ${l.time}</b>` : `Score ${sc} @ ${l.time}`;
-        if(sc >= 5) hasAlerts = true;
+        n2txt = d.news2.map(l => {
+          const sc = calcN2(l);
+          if (sc >= 5) hasAlerts = true;
+          let txt = `${l.time||'--:--'} - Score ${sc} (RR ${l.rr||'-'}, SpO2 ${l.spo2||'-'}%, ${l.o2||'Air'}, BP ${l.sys||'-'}/${l.dia||'-'}, HR ${l.hr||'-'}, ${l.acvpu||'Alert'}, Temp ${l.t||'-'}°C)`;
+          return sc >= 5 ? `<b style="color:var(--red)">${txt}</b>` : txt;
+        }).join('<br>');
       }
       
       if (d.bm.length > 0) {
-        const l = d.bm[d.bm.length-1]; const v = parseFloat(l.val);
-        bmtxt = (v<4 || v>11) ? `<b style="color:var(--red)">${v} mmol/L @ ${l.time}</b>` : `${v} mmol/L @ ${l.time}`;
-        if(v<4 || v>11) hasAlerts = true;
+        bmtxt = d.bm.map(l => {
+          const v = parseFloat(l.val);
+          if (v < 4 || v > 11) hasAlerts = true;
+          let txt = `${l.time||'--:--'} - Glucose: ${l.val||'-'} mmol/L (${l.meal||'Unspecified'})`;
+          return (v < 4 || v > 11) ? `<b style="color:var(--red)">${txt}</b>` : txt;
+        }).join('<br>');
       }
       
       let iT=0, oT=0; d.fluid.forEach(f=>{ iT+=parseFloat(f.i)||0; oT+=parseFloat(f.o)||0; });
       const net = iT-oT;
-      ftxt = net <= -500 ? `<b style="color:var(--red)">Net: ${net}ml</b>` : `Net: ${net}ml`;
-      if(net <= -500) hasAlerts = true;
+      ftxt = `In: ${iT}ml | Out: ${oT}ml | Net: ${net}ml`;
+      if (net <= -500) {
+        hasAlerts = true;
+        ftxt = `<b style="color:var(--red)">${ftxt}</b>`;
+      }
+      
+      let dietTxt = `Breakfast: ${d.food.b||'-'} | Lunch: ${d.food.l||'-'} | Dinner: ${d.food.d||'-'}`;
+      let bowelTxt = d.bowel.map(r => `${r.time||'--:--'} - ${r.amt||'-'} (${r.type||'-'})`).join('<br>') || 'No entries';
+      
+      let skinParts = [];
+      if (d.amy.sac) skinParts.push(`Sacrum (${d.amy.sac})`);
+      if (d.amy.groin) skinParts.push(`Groin (${d.amy.groin})`);
+      if (d.amy.heels) skinParts.push(`Heels (${d.amy.heels})`);
+      if (d.amy.elbows) skinParts.push(`Elbows (${d.amy.elbows})`);
+      let skinSummary = skinParts.length > 0 ? skinParts.join(', ') : 'Not checked';
+      
+      let turnCnt = d.turn.filter(t => t !== '').length;
       
       if (d.dressings && d.dressings.length > 0) {
         skintxt = d.dressings.map(dr => `${dr.val || 'Unnamed'} (Due: <b>${calcDue(dr.date)}</b>)`).join('<br>');
       }
 
+      let eventTxt = d.events.map(r => `${r.time||'--:--'} - ${r.val||''}`).join('<br>') || 'No entries';
+      let admitTxt = d.admit.map(r => `- ${r.val||''}`).join('<br>') || 'No entries';
+
       h += `<div class="card" ${hasAlerts ? 'style="border-left:4px solid var(--red);"' : 'style="border-left:4px solid var(--green);"'} >
         <h2 style="color:var(--navy); margin-bottom:12px; font-size:1.2rem;">${b}</h2>
-        <div class="summary-sec"><b>NEWS2:</b> ${n2txt}</div>
-        <div class="summary-sec"><b>Glucose:</b> ${bmtxt}</div>
-        <div class="summary-sec"><b>Fluids:</b> ${ftxt}</div>
-        <div class="summary-sec"><b>Dressings:</b><br>${skintxt}</div>
+        <div class="summary-sec"><b>Observations:</b><br>${n2txt}<br><br>${bmtxt}</div>
+        <div class="summary-sec"><b>Fluid Balance:</b><br>${ftxt}</div>
+        <div class="summary-sec"><b>Diet & Bowels:</b><br>${dietTxt}<br>Bowels:<br>${bowelTxt}</div>
+        <div class="summary-sec"><b>Skin & Repositioning:</b><br>Checks: ${skinSummary}<br>Turns logged: ${turnCnt}<br><br>Dressings:<br>${skintxt}</div>
+        <div class="summary-sec"><b>Narrative Notes:</b><br>${eventTxt}</div>
+        <div class="summary-sec"><b>Admissions Property:</b><br>${admitTxt}</div>
       </div>`;
     });
     area.innerHTML = h || '<p style="text-align:center; padding:20px; color:var(--text-sub);">No active patients.</p>';
@@ -470,6 +496,12 @@ function tNow() { const d = new Date(); return String(d.getHours()).padStart(2,'
 
 function addArr(k) { db[curBed][k].push({time: tNow(), val: ''}); saveDB(); renderContent(); }
 function rmArr(k, i) { db[curBed][k].splice(i, 1); saveDB(); renderContent(); }
+
+function markSkinFine() { 
+  db[curBed].amy.sac = 'Fine'; db[curBed].amy.groin = 'Fine'; 
+  db[curBed].amy.heels = 'Fine'; db[curBed].amy.elbows = 'Fine'; 
+  saveDB(); renderContent(); 
+}
 
 function setNoDateArr(i) {
   const d = new Date();
