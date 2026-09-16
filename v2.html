@@ -2,642 +2,606 @@
 <html lang="en-GB">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#1F4E79">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Thorndon Ward ICA Log</title>
+<title>Care Digipad</title>
 <style>
-:root{--navy:#1F4E79;--steel:#2F5597;--bg:#F4F6F8;--card:#fff;--red:#C00000;--green:#006100;--amber:#9C6500}
-*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
-body{background:var(--bg);color:#1E293B;padding-bottom:85px}
-#sysError{display:none;background:var(--red);color:#fff;padding:16px;font-size:13px;font-weight:700;text-align:center;word-wrap:break-word}
-header{background:var(--navy);color:#fff;padding:12px 16px;position:sticky;top:0;z-index:100;display:flex;justify-content:space-between;align-items:center}
-header h1{font-size:15px;font-weight:700}
-.shift-tag{font-size:11px;background:rgba(255,255,255,.2);padding:3px 8px;border-radius:12px}
-nav{background:var(--steel);display:flex;overflow-x:auto;scrollbar-width:none}
-nav::-webkit-scrollbar{display:none}
-nav button{flex:0 0 auto;background:none;border:none;color:rgba(255,255,255,.8);padding:12px 14px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap}
-nav button.active{color:#fff;border-bottom:3px solid #fff;background:rgba(255,255,255,.15)}
-.content{padding:12px}
-.card{background:var(--card);border-radius:8px;padding:12px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
-.card-title{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
-label{display:block;font-size:11px;font-weight:600;color:#64748B;margin:8px 0 3px}
-input,select{width:100%;padding:8px;border:1px solid #CBD5E1;border-radius:6px;font-size:13px;background:#fff}
-.row{display:flex;gap:8px}
-.row>div{flex:1}
-.bp-pair{display:flex;align-items:center;gap:4px}
-.bp-pair span{font-weight:bold;color:#64748B;font-size:14px}
-.bp-pair input{text-align:center}
-.btn{display:inline-block;padding:10px 16px;border-radius:6px;font-size:14px;font-weight:600;border:none;cursor:pointer;width:100%}
-.btn-del{background:#FEE2E2;color:var(--red)}
-.btn-primary{background:var(--navy);color:#fff;font-size:12px;padding:8px 12px}
-.footer{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #E2E8F0;padding:12px 16px;display:flex;justify-content:center;z-index:100}
-.badge{display:inline-block;padding:3px 8px;border-radius:4px;font-size:11px;font-weight:700}
-.b-green{background:#DCFCE7;color:#166534}
-.b-amber{background:#FEF3C7;color:#92400E}
-.b-red{background:#FEE2E2;color:#991B1B}
-.bed-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:10px}
-.bed-pill{padding:12px 6px;border:1px solid #CBD5E1;border-radius:6px;background:#fff;font-size:12px;font-weight:600;text-align:center;cursor:pointer;color:#1E293B;width:100%}
-.bed-pill.active-bed{background:#2F5597!important;color:#fff!important;border-color:#1F4E79!important}
-.summary-sec{margin-bottom:8px;padding-bottom:6px;border-bottom:1px dashed #CBD5E1;font-size:12px;line-height:1.5}
-.summary-sec b{color:var(--steel)}
-.chip-scroll{display:flex;overflow-x:auto;gap:8px;padding:4px 0 16px;scrollbar-width:none}
-.chip-scroll::-webkit-scrollbar{display:none}
-.chip{flex:0 0 auto;padding:6px 14px;border-radius:16px;border:1px solid #CBD5E1;background:#fff;font-size:12px;font-weight:600;color:#64748B;cursor:pointer}
-.chip.active-chip{background:var(--navy);color:#fff;border-color:var(--navy)}
+  :root {
+    --bg: #f4f6f8; --card: #ffffff; --text: #1e293b; --text-sub: #64748b;
+    --border: #cbd5e1; --teal: #0d9488; --amber: #d97706; --slate: #475569;
+    --red: #dc2626; --green: #16a34a; --tab-bg: #e2e8f0; --navy: #1f4e79;
+  }
+  [data-theme="night"] {
+    --bg: #000000; --card: #121212; --text: #e2e8f0; --text-sub: #94a3b8;
+    --border: #334155; --teal: #14b8a6; --amber: #f59e0b; --slate: #94a3b8;
+    --red: #ef4444; --green: #22c55e; --tab-bg: #1e293b; --navy: #0f172a;
+  }
+  
+  * { box-sizing: border-box; font-family: -apple-system, sans-serif; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); padding-bottom: 70px; }
+  .hidden { display: none !important; }
+  
+  #dimmer { position: fixed; inset: 0; background: rgba(0,0,0,0); pointer-events: none; z-index: 9999; }
+  [data-theme="night"] #dimmer { background: rgba(0,0,0,0.35); }
+
+  .setup-container { padding: 20px; }
+  .bed-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+  .bed-pill { padding: 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--card); color: var(--text); font-weight: 600; text-align: center; cursor: pointer; }
+  .bed-pill.selected { background: var(--teal); color: #fff; border-color: var(--teal); }
+
+  .sticky-nav { position: sticky; top: 0; z-index: 100; background: var(--bg); border-bottom: 1px solid var(--border); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+  header { background: var(--navy); color: #fff; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; }
+  header h1 { font-size: 1.1rem; }
+  .scroll-row { display: flex; overflow-x: auto; padding: 10px 16px; gap: 8px; scrollbar-width: none; }
+  .scroll-row::-webkit-scrollbar { display: none; }
+  
+  .tab-btn { padding: 8px 14px; border-radius: 20px; font-weight: 600; border: 1px solid var(--border); background: var(--card); color: var(--text); font-size: 0.9rem; white-space: nowrap; cursor: pointer; }
+  .tab-btn.active-bed { background: var(--teal); color: #fff; border-color: var(--teal); }
+  .tab-btn.active-sec { background: var(--slate); color: #fff; border-color: var(--slate); }
+  .tab-btn.active-summary { background: var(--amber); color: #fff; border-color: var(--amber); }
+
+  .container { padding: 16px; }
+  .card { background: var(--card); padding: 16px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 16px; }
+  h2 { font-size: 1.1rem; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; color: var(--text); }
+  
+  .row { display: flex; gap: 8px; margin-bottom: 10px; align-items: flex-end; }
+  .row > div { flex: 1; }
+  label { display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-sub); margin-bottom: 4px; }
+  input, select, textarea { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; background: var(--card); color: var(--text); font-size: 0.95rem; }
+  .bp-pair { display: flex; align-items: center; gap: 4px; }
+  .bp-pair span { font-weight: bold; color: var(--text-sub); }
+  
+  .btn { width: 100%; padding: 12px; border-radius: 6px; font-weight: 600; border: none; cursor: pointer; font-size: 1rem; }
+  .btn-primary { background: var(--slate); color: #fff; margin-top: 8px; }
+  .btn-subtle { background: transparent; color: var(--text-sub); border: 1px solid var(--border); font-size: 0.9rem; padding: 8px; }
+  .btn-sm { width: auto; padding: 6px 12px; font-size: 0.85rem; }
+  
+  .badge { padding: 4px 8px; border-radius: 4px; font-size: 0.85rem; font-weight: 700; display: inline-block; }
+  .bg-green { background: #dcfce7; color: #166534; }
+  .bg-amber { background: #fef3c7; color: #92400e; }
+  .bg-red { background: #fee2e2; color: #991b1b; }
+  [data-theme="night"] .bg-green { background: #064e3b; color: #34d399; }
+  [data-theme="night"] .bg-amber { background: #78350f; color: #fbbf24; }
+  [data-theme="night"] .bg-red { background: #7f1d1d; color: #f87171; }
+
+  .summary-sec { border-bottom: 1px dashed var(--border); padding-bottom: 12px; margin-bottom: 12px; font-size: 0.95rem; line-height: 1.5; }
+  .summary-sec:last-child { border-bottom: none; }
+  
+  .footer { position: fixed; bottom: 0; left: 0; right: 0; background: var(--card); border-top: 1px solid var(--border); padding: 10px 16px; z-index: 100; text-align: center; }
+  
+  .switch { position: relative; display: inline-block; width: 40px; height: 22px; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(255,255,255,0.3); border-radius: 24px; transition: .4s; }
+  .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px; background-color: white; border-radius: 50%; transition: .4s; }
+  input:checked + .slider { background-color: var(--teal); }
+  input:checked + .slider:before { transform: translateX(18px); }
+  .shift-toggle { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; font-weight: 500; }
 </style>
 </head>
 <body>
+<div id="dimmer"></div>
 
-<div id="sysError"></div>
+<div id="setupView" class="setup-container">
+  <h2 style="margin-bottom:4px;">Allocation Manager</h2>
+  <p style="font-size:0.9rem; color:var(--text-sub); margin-bottom:16px;">Tap to add or remove patients for this shift.</p>
+  <div id="bedGrid" class="bed-grid"></div>
+  <button class="btn btn-primary" style="background:var(--teal);" onclick="startShift()">Start / Update Shift</button>
+</div>
 
-<script>
-window.onerror = function(msg, url, line) {
-  var errDiv = document.getElementById('sysError');
-  if (errDiv) {
-    errDiv.style.display = 'block';
-    errDiv.innerHTML = "FATAL ERROR: " + msg + "<br>Line: " + line;
-  }
-};
-</script>
-
-<header>
-  <div><h1>Thorndon Ward ICA Log</h1><div style="font-size:10px;opacity:.85;">Offline Shift Notepad &bull; SystmOne Staging</div></div>
-  <span class="shift-tag" id="status">Auto-Saved</span>
-</header>
-<nav id="navBar"></nav>
-<div class="content" id="tabContent">
-  <div class="card" style="text-align:center; padding:24px;">
-    <h3 style="color:var(--navy); margin-bottom:12px;">App is Loading...</h3>
-    <p style="font-size:12px; color:#64748B; margin-bottom:16px;">If this screen does not disappear, your browser has cached an old version or encountered a critical data conflict.</p>
-    <button class="btn btn-del" onclick="localStorage.clear(); window.location.reload(true);">Force App Reset</button>
+<div id="mainView" class="hidden">
+  <div class="sticky-nav">
+    <header>
+      <div style="display:flex; align-items:center; gap:10px;">
+        <h1>Care Digipad</h1>
+        <button class="btn-sm" style="background:var(--teal); color:#fff; border:none; border-radius:4px; padding:4px 8px; font-weight:bold; cursor:pointer;" onclick="editBeds()">Edit Beds</button>
+      </div>
+      <div class="shift-toggle">
+        <span>Day</span>
+        <label class="switch"><input type="checkbox" id="shiftToggle" onchange="toggleNight(this.checked)"><span class="slider"></span></label>
+        <span>Night</span>
+      </div>
+    </header>
+    <div class="scroll-row" id="bedTabs" style="background:var(--card);"></div>
+    <div class="scroll-row" id="subNav"></div>
+  </div>
+  <div class="container" id="contentArea"></div>
+  <div class="footer">
+    <button class="btn btn-subtle" onclick="clearShift()">End Shift / Clear Data</button>
   </div>
 </div>
-<div class="footer">
-  <button type="button" class="btn btn-del" onclick="clearShift()">Clear Shift</button>
-</div>
 
 <script>
-var BEDS = [
-  "Bay 1 Bed 1", "Bay 1 Bed 2", "Bay 2 Bed 1", "Bay 2 Bed 2", 
-  "Bay 2 Bed 3", "Bay 2 Bed 4", "Bay 3 Bed 1", "Bay 3 Bed 2", 
-  "Bay 3 Bed 3", "Bay 3 Bed 4", "Bay 4 Bed 1", "Bay 4 Bed 2", 
-  "Bay 4 Bed 3", "Bay 4 Bed 4", "Bay 5 Bed 1", "Bay 5 Bed 2", 
-  "Bay 5 Bed 3", "Bay 5 Bed 4", "Side Room 1", "Side Room 2", 
-  "Side Room 3", "Side Room 4", "Side Room 5", "Side Room 6", 
-  "Side Room 7"
+const allBeds = [
+  'Bay 1 Bed 1','Bay 1 Bed 2', 'Bay 2 Bed 1','Bay 2 Bed 2','Bay 2 Bed 3','Bay 2 Bed 4',
+  'Bay 3 Bed 1','Bay 3 Bed 2','Bay 3 Bed 3','Bay 3 Bed 4', 'Bay 4 Bed 1','Bay 4 Bed 2','Bay 4 Bed 3','Bay 4 Bed 4',
+  'Bay 5 Bed 1','Bay 5 Bed 2','Bay 5 Bed 3','Bay 5 Bed 4', 'Side Room 1','Side Room 2','Side Room 3','Side Room 4',
+  'Side Room 5','Side Room 6','Side Room 7'
+];
+const sections = [
+  {id:'news2', lbl:'NEWS2'}, {id:'bm', lbl:'Glucose'}, {id:'bp', lbl:'L/S BP'}, 
+  {id:'fluid', lbl:'Fluids'}, {id:'bowel', lbl:'Bowels'}, {id:'amy', lbl:'Skin'}, 
+  {id:'food', lbl:'Food'}, {id:'turn', lbl:'Turning'}, {id:'events', lbl:'Events'}, 
+  {id:'admit', lbl:'Admissions'}
 ];
 
-var SECTIONS = [
-  {id:"amy", lbl:"Amy's Round"}, {id:"news2", lbl:"NEWS2"}, 
-  {id:"fluid", lbl:"Fluids"}, {id:"food", lbl:"Food"}, 
-  {id:"bowel", lbl:"Bowels"}, {id:"turn", lbl:"Turning"}, 
-  {id:"bp", lbl:"L/S BP"}, {id:"bm", lbl:"Glucose"}, 
-  {id:"must", lbl:"Weight"}
-];
+let alloc = [];
+let db = {};
+let showSummary = false;
 
-var HOURS = [
-  "07-08", "08-09", "09-10", "10-11", "11-12", "12-13", 
-  "13-14", "14-15", "15-16", "16-17", "17-18", "18-19"
-];
+try {
+  const savedAlloc = localStorage.getItem('cd_alloc');
+  if (savedAlloc) alloc = JSON.parse(savedAlloc);
+  if (!Array.isArray(alloc)) alloc = [];
+  
+  const savedDb = localStorage.getItem('cd_db');
+  if (savedDb) db = JSON.parse(savedDb);
+  if (typeof db !== 'object' || db === null) db = {};
+} catch(e) {
+  alloc = [];
+  db = {};
+}
 
-var curTab = "home";
-var allocated = [];
-var records = {};
+let curBed = alloc[0] || '';
+let curSec = 'news2';
+let isNight = false;
+let touchStartX = 0;
+let touchStartY = 0;
+let touchEndX = 0;
+let touchEndY = 0;
 
-function loadDB(){
-  try{
-    var a = localStorage.getItem("tw_db_a");
-    var r = localStorage.getItem("tw_db_r");
-    if(a) allocated = JSON.parse(a);
-    if(r) records = JSON.parse(r);
-  }catch(e){
-    allocated = [];
-    records = {};
+document.addEventListener('touchstart', e => {
+  touchStartX = e.changedTouches[0].screenX;
+  touchStartY = e.changedTouches[0].screenY;
+}, {passive: true});
+
+document.addEventListener('touchend', e => {
+  touchEndX = e.changedTouches[0].screenX;
+  touchEndY = e.changedTouches[0].screenY;
+  handleSwipe();
+}, {passive: true});
+
+function initSetup() {
+  const grid = document.getElementById('bedGrid');
+  grid.innerHTML = allBeds.map(b => `<div class="bed-pill ${alloc.includes(b)?'selected':''}" onclick="this.classList.toggle('selected')">${b}</div>`).join('');
+  if (alloc.length > 0) startShift(true);
+}
+
+function editBeds() {
+  document.getElementById('mainView').classList.add('hidden');
+  document.getElementById('setupView').classList.remove('hidden');
+  const grid = document.getElementById('bedGrid');
+  grid.innerHTML = allBeds.map(b => `<div class="bed-pill ${alloc.includes(b)?'selected':''}" onclick="this.classList.toggle('selected')">${b}</div>`).join('');
+}
+
+function startShift(auto = false) {
+  if (!auto) {
+    const selected = Array.from(document.querySelectorAll('.bed-pill.selected')).map(el => el.textContent);
+    if (selected.length === 0) return alert('Select at least one bed.');
+    alloc = selected;
+    localStorage.setItem('cd_alloc', JSON.stringify(alloc));
   }
-  if(!Array.isArray(allocated)) allocated = [];
-  if(!records || typeof records !== "object" || Array.isArray(records)) records = {};
-}
-
-function saveDB(){
-  try{
-    localStorage.setItem("tw_db_a", JSON.stringify(allocated));
-    localStorage.setItem("tw_db_r", JSON.stringify(records));
-  }catch(e){}
-  var s = document.getElementById("status");
-  if(s){
-    s.innerText = "Saved";
-    setTimeout(function(){ s.innerText = "Auto-Saved"; }, 800);
-  }
-}
-
-function ensureBed(b){
-  if(!records[b] || typeof records[b] !== 'object') records[b] = {};
-  var r = records[b];
-  if(!r.vis) r.vis = {amy:true, news2:true, fluid:true, food:true, bowel:true, turn:true, bp:true, bm:true, must:true};
-  if(!r.amy) r.amy = {sacrum:"", groin:"", heels:"", elbows:"", other:"", dress:"", band:"Yes", turn:"No", food:"Yes"};
-  if(!r.news2) r.news2 = {time:"", rr:"", spo2:"", o2:"Air", sys:"", dia:"", hr:"", acvpu:"Alert", t:""};
-  if(!r.fluid || !Array.isArray(r.fluid.h)) r.fluid = {h: Array(12).fill(null).map(function(){ return {i:"", o:""}; })};
-  if(!r.food) r.food = {b:"", l:"", d:"", note:""};
-  if(!r.bowel) r.bowel = {time:"", amt:"", type:""};
-  if(!r.turn) r.turn = {t1:"", t2:"", t3:"", t4:"", t5:"", t6:""};
-  if(!r.bp) r.bp = {lsys:"", ldia:"", ssys:"", sdia:""};
-  if(!r.bm) r.bm = {meal:"", val:""};
-  if(typeof r.bm.meal === 'undefined') r.bm.meal = "";
-  if(!r.must) r.must = {wt:""};
-}
-
-function switchTab(t){
-  curTab = t;
-  renderApp();
-}
-
-function toggleAlloc(b){
-  var i = allocated.indexOf(b);
-  if(i > -1){ 
-    allocated.splice(i, 1);
-    if(curTab === b) curTab = "home"; 
-  } else {
-    allocated.push(b);
-    ensureBed(b);
-  }
+  
+  alloc.forEach(b => {
+    if(!db[b] || typeof db[b] !== 'object') db[b] = {};
+    if(!db[b].news2) db[b].news2 = [];
+    if(!db[b].bm) db[b].bm = [];
+    if(!db[b].events) db[b].events = [];
+    if(!db[b].admit) db[b].admit = [];
+    if(!db[b].bowel) db[b].bowel = [];
+    if(!db[b].dressings) db[b].dressings = [];
+    if(!db[b].bp) db[b].bp = {lsys:'', ldia:'', ssys:'', sdia:''};
+    if(!db[b].amy) db[b].amy = {sac:'', groin:'', heels:'', elbows:''};
+    if(!db[b].food) db[b].food = {b:'', l:'', d:''};
+    if(!db[b].turn) db[b].turn = Array(6).fill('');
+    if(!db[b].fluid) db[b].fluid = Array(13).fill(null).map(()=>({i:'', o:''}));
+  });
   saveDB();
-  renderApp();
+  
+  if (!alloc.includes(curBed)) curBed = alloc[0];
+  document.getElementById('setupView').classList.add('hidden');
+  document.getElementById('mainView').classList.remove('hidden');
+  renderUI();
 }
 
-function toggleVis(b, secId){
-  ensureBed(b);
-  records[b].vis[secId] = !records[b].vis[secId];
+function saveDB() { localStorage.setItem('cd_db', JSON.stringify(db)); }
+function toggleNight(val) { isNight = val; document.body.setAttribute('data-theme', isNight ? 'night' : 'day'); renderUI(); }
+function setBed(b) { curBed = b; showSummary = false; renderUI(); }
+function setSec(s) { curSec = s; showSummary = false; renderUI(); }
+function toggleSummary() { showSummary = true; renderUI(); }
+
+function renderUI() {
+  let tabsHtml = `<button class="tab-btn ${showSummary ? 'active-summary' : ''}" onclick="toggleSummary()">Handover Summary</button>`;
+  tabsHtml += alloc.map(b => `<button class="tab-btn ${b===curBed && !showSummary ?'active-bed':''}" onclick="setBed('${b}')">${b}</button>`).join('');
+  document.getElementById('bedTabs').innerHTML = tabsHtml;
+  
+  document.getElementById('subNav').innerHTML = showSummary ? '' : sections.map(s => `<button class="tab-btn ${s.id===curSec?'active-sec':''}" onclick="setSec('${s.id}')">${s.lbl}</button>`).join('');
+  renderContent();
+}
+
+function updateField(bed, sec, idx, prop, val) {
+  if (idx !== null && prop !== null) db[bed][sec][idx][prop] = val;
+  else if (idx !== null) db[bed][sec][idx] = val;
+  else if (prop !== null) db[bed][sec][prop] = val;
+  else db[bed][sec] = val;
   saveDB();
-  renderApp();
 }
 
-function setVal(b, sec, k, v){
-  ensureBed(b);
-  records[b][sec][k] = v;
-  saveDB();
-  if(sec === "news2") calcNEWS2(b);
-  if(sec === "bp") calcBP(b);
-  if(sec === "bm") calcBM(b);
+function refreshN2(idx) {
+  const r = db[curBed].news2[idx];
+  const sc = calcN2(r);
+  const bg = sc >= 7 ? 'bg-red' : (sc >= 5 ? 'bg-amber' : (sc > 0 ? 'bg-amber' : 'bg-green'));
+  const badge = document.getElementById(`n2-badge-${idx}`);
+  if (badge) { badge.className = `badge ${bg}`; badge.textContent = `Score: ${sc}`; }
 }
 
-function setNow(b, sec, k){
-  var d = new Date();
-  var t = ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2);
-  setVal(b, sec, k, t);
-  renderApp();
+function refreshBM(idx) {
+  const r = db[curBed].bm[idx];
+  const v = parseFloat(r.val);
+  let bg = 'bg-green', txt = 'Pending';
+  if(v) { bg = v<4?'bg-red':(v>11?'bg-red':'bg-green'); txt = v<4?'HYPO':(v>11?'HIGH':'TARGET'); }
+  const badge = document.getElementById(`bm-badge-${idx}`);
+  if (badge) { badge.className = `badge ${bg}`; badge.textContent = txt; }
 }
 
-function getNEWS2(r){
-  var sc = 0, reasons = [];
-  var rr = +r.rr, sp = +r.spo2, sys = +r.sys, hr = +r.hr, t = +r.t;
-  
-  if(r.rr !== ""){
-    if(rr <= 8 || rr >= 25){ sc+=3; reasons.push("RR "+rr+" [+3]"); }
-    else if(rr >= 21){ sc+=2; reasons.push("RR "+rr+" [+2]"); }
-    else if(rr <= 11){ sc+=1; reasons.push("RR "+rr+" [+1]"); }
-  }
-  
-  if(r.spo2 !== ""){
-    if(sp <= 91){ sc+=3; reasons.push("SpO2 "+sp+"% [+3]"); }
-    else if(sp <= 93){ sc+=2; reasons.push("SpO2 "+sp+"% [+2]"); }
-    else if(sp <= 95){ sc+=1; reasons.push("SpO2 "+sp+"% [+1]"); }
-  }
-  
-  if(r.o2 === "O2"){ sc+=2; reasons.push("O2 [+2]"); }
-  
-  if(!isNaN(sys) && r.sys !== ""){
-    var bpLabel = sys + (r.dia ? '/' + r.dia : '');
-    if(sys <= 90 || sys >= 220){ sc+=3; reasons.push("BP "+bpLabel+" [+3]"); }
-    else if(sys <= 100){ sc+=2; reasons.push("BP "+bpLabel+" [+2]"); }
-    else if(sys <= 110){ sc+=1; reasons.push("BP "+bpLabel+" [+1]"); }
-  }
-  
-  if(r.hr !== ""){
-    if(hr <= 40 || hr >= 131){ sc+=3; reasons.push("HR "+hr+" [+3]"); }
-    else if(hr >= 111){ sc+=2; reasons.push("HR "+hr+" [+2]"); }
-    else if(hr <= 50 || hr >= 91){ sc+=1; reasons.push("HR "+hr+" [+1]"); }
-  }
-  
-  if(r.acvpu && r.acvpu !== "Alert"){ sc+=3; reasons.push(r.acvpu+" [+3]"); }
-  
-  if(r.t !== ""){
-    if(t <= 35){ sc+=3; reasons.push("T "+t+"°C [+3]"); }
-    else if(t >= 39.1){ sc+=2; reasons.push("T "+t+"°C [+2]"); }
-    else if((t >= 35.1 && t <= 36) || (t >= 38.1 && t <= 39)){ sc+=1; reasons.push("T "+t+"°C [+1]"); }
-  }
-  
-  return {sc: sc, reasons: reasons};
+function refreshBP() {
+  const d = db[curBed].bp;
+  const l = parseFloat(d.lsys)||0, s = parseFloat(d.ssys)||0, drop = l - s;
+  const bg = (!l||!s) ? 'bg-green' : (drop>=20 ? 'bg-red' : 'bg-green');
+  const txt = (!l||!s) ? 'Normal' : (drop>=20 ? `Drop (-${drop})` : `Normal (${drop})`);
+  const badge = document.getElementById(`bp-badge`);
+  if (badge) { badge.className = `badge ${bg}`; badge.textContent = txt; }
 }
 
-function calcNEWS2(b){
-  var el = document.getElementById("bdg-n-" + b.replace(/\s+/g,""));
-  if(!el) return;
-  var r = (records[b] && records[b].news2) ? records[b].news2 : {};
-  var n = getNEWS2(r);
-  el.className = "badge " + (n.sc >= 7 ? "b-red" : (n.sc >= 5 ? "b-amber" : "b-green"));
-  el.innerText = "Score: " + n.sc;
+function refreshFluid() {
+  let inT=0, outT=0; db[curBed].fluid.forEach(f=>{ inT+=parseFloat(f.i)||0; outT+=parseFloat(f.o)||0; });
+  const el = document.getElementById('fluid-totals');
+  if (el) el.innerHTML = `<span>In: ${inT}</span><span>Out: ${outT}</span><span>Net: ${inT-outT}</span>`;
 }
 
-function calcBP(b){
-  var el = document.getElementById("bdg-p-" + b.replace(/\s+/g,""));
-  if(!el) return;
-  var r = (records[b] && records[b].bp) ? records[b].bp : {};
-  var l = +r.lsys || 0, s = +r.ssys || 0;
-  if(!l || !s){
-    el.className = "badge b-green";
-    el.innerText = "Normal";
-    return;
-  }
-  var d = l - s;
-  el.className = "badge " + (d >= 20 ? "b-red" : "b-green");
-  el.innerText = d >= 20 ? "Drop (-" + d + ")" : "Normal (" + d + ")";
-}
-
-function calcBM(b){
-  var el = document.getElementById("bdg-m-" + b.replace(/\s+/g,""));
-  if(!el) return;
-  var r = (records[b] && records[b].bm) ? records[b].bm : null;
-  var v = r ? +r.val : NaN;
-  if(isNaN(v) || !r || r.val === ""){
-    el.className = "badge b-green";
-    el.innerText = "Pending";
-    return;
-  }
-  el.className = "badge " + (v < 4 ? "b-red" : (v <= 7 ? "b-green" : (v <= 11 ? "b-amber" : "b-red")));
-  el.innerText = v < 4 ? "HYPO" : (v > 11 ? "HIGH" : "TARGET");
-}
-
-  function opt(arr, sel){
-  var html = "";
-  for(var i = 0; i < arr.length; i++){
-    var x = arr[i];
-    var isSel = (x === sel) ? "selected" : "";
-    html += "<option " + isSel + ">" + x + "</option>";
-  }
-  return html;
-}
-
-function inp(b, sec, k, lbl, val, type, ph, mode){
-  var t = type || "text";
-  var p = ph || "";
-  var m = mode ? 'inputmode="' + mode + '"' : '';
-  var v = val || '';
-  var onInp = 'setVal(\'' + b + '\',\'' + sec + '\',\'' + k + '\',this.value)';
-  return '<div><label>' + lbl + '</label><input type="' + t + '" ' + m + ' placeholder="' + p + '" value="' + v + '" oninput="' + onInp + '"></div>';
-}
-
-function inpTime(b, sec, k, lbl, val){
-  var onInp = 'setVal(\'' + b + '\',\'' + sec + '\',\'' + k + '\',this.value)';
-  var onNow = 'setNow(\'' + b + '\',\'' + sec + '\',\'' + k + '\')';
-  var h = '<div><label>' + lbl + '</label><div style="display:flex;gap:4px;">';
-  h += '<input type="time" value="' + val + '" oninput="' + onInp + '">';
-  h += '<button type="button" class="btn-primary" style="border:none;border-radius:6px;width:auto;cursor:pointer;" onclick="' + onNow + '">Now</button>';
-  h += '</div></div>';
-  return h;
-}
-
-function sel(b, sec, k, lbl, val, arr){
-  var onChg = 'setVal(\'' + b + '\',\'' + sec + '\',\'' + k + '\',this.value)';
-  return '<div><label>' + lbl + '</label><select onchange="' + onChg + '">' + opt(arr, val) + '</select></div>';
-}
-
-function renderSectionContent(b, sb, rec, secId){
-  if (!rec || !rec[secId]) return '';
-  var h = "";
+  function renderContent() {
+  const area = document.getElementById('contentArea');
   
-  if(secId === "amy"){
-    var skinOpts = ['', 'Fine', 'Red', 'Sore', 'Broken', 'Blister', 'Dressing intact', 'Cream applied'];
-    h += '<div class="row">';
-    h += sel(b, 'amy', 'sacrum', 'Sacrum', rec.amy.sacrum, skinOpts);
-    h += sel(b, 'amy', 'groin', 'Groin', rec.amy.groin, skinOpts);
-    h += '</div><div class="row">';
-    h += sel(b, 'amy', 'heels', 'Heels', rec.amy.heels, skinOpts);
-    h += sel(b, 'amy', 'elbows', 'Elbows', rec.amy.elbows, skinOpts);
-    h += '</div>';
-    h += inp(b, 'amy', 'other', 'Other Skin Notes', rec.amy.other);
-    h += '<div class="row">';
-    h += inp(b, 'amy', 'dress', 'Dressing Due', rec.amy.dress);
-    h += sel(b, 'amy', 'band', 'Wristband', rec.amy.band, ['Yes','No','Red Band','Replaced']);
-    h += '</div><div class="row">';
-    h += sel(b, 'amy', 'turn', 'Turning', rec.amy.turn, ['No','Yes','In bed only','Self-turns','N/A']);
-    h += sel(b, 'amy', 'food', 'Food/Drink', rec.amy.food, ['Yes','No','Fluid Only','NBM']);
-    h += '</div>';
-    return h;
-  }
-  
-  if(secId === "news2"){
-    h += '<div style="margin-bottom:8px">';
-    h += '<span id="bdg-n-' + sb + '" class="badge b-green">Score: 0</span>';
-    h += '</div><div class="row">';
-    h += inpTime(b, 'news2', 'time', 'Time', rec.news2.time);
-    h += inp(b, 'news2', 'rr', 'RR', rec.news2.rr, 'text', '', 'numeric');
-    h += inp(b, 'news2', 'spo2', 'SpO2%', rec.news2.spo2, 'text', '', 'numeric');
-    h += '</div><div class="row">';
-    h += sel(b, 'news2', 'o2', 'Air/O2', rec.news2.o2, ['Air','O2']);
-    
-    var onSys = 'setVal(\'' + b + '\',\'news2\',\'sys\',this.value)';
-    var onDia = 'setVal(\'' + b + '\',\'news2\',\'dia\',this.value)';
-    
-    h += '<div><label>BP (Sys / Dia)</label><div class="bp-pair">';
-    h += '<input type="text" inputmode="numeric" placeholder="120" value="' + (rec.news2.sys || '') + '" oninput="' + onSys + '">';
-    h += '<span>/</span>';
-    h += '<input type="text" inputmode="numeric" placeholder="80" value="' + (rec.news2.dia || '') + '" oninput="' + onDia + '">';
-    h += '</div></div>';
-    
-    h += inp(b, 'news2', 'hr', 'HR', rec.news2.hr, 'text', '', 'numeric');
-    h += '</div><div class="row">';
-    h += sel(b, 'news2', 'acvpu', 'ACVPU', rec.news2.acvpu, ['Alert','CVPU']);
-    h += inp(b, 'news2', 't', 'Temp', rec.news2.t, 'text', '37.0', 'decimal');
-    h += '</div>';
-    return h;
-  }
-  
-  if(secId === "fluid"){
-    var ti = 0, to = 0;
-    if(rec.fluid.h && Array.isArray(rec.fluid.h)) {
-      rec.fluid.h.forEach(function(x){ ti += +x.i || 0; to += +x.o || 0; });
+  if (showSummary) {
+    let h = '';
+    alloc.forEach(b => {
+      const d = db[b];
+      if (!d) return;
+      let hasAlerts = false;
+      let sectionsHtml = '';
       
-      var rows = "";
-      for(var hi = 0; hi < HOURS.length; hi++){
-        var hrLabel = HOURS[hi];
-        var fi = (rec.fluid.h[hi] && rec.fluid.h[hi].i) || '';
-        var fo = (rec.fluid.h[hi] && rec.fluid.h[hi].o) || '';
-        var inFn = 'records[\'' + b + '\'].fluid.h[' + hi + '].i=this.value;saveDB()';
-        var outFn = 'records[\'' + b + '\'].fluid.h[' + hi + '].o=this.value;saveDB()';
-        
-        rows += '<div class="row" style="margin-bottom:4px">';
-        rows += '<span style="font-size:10px;width:60px;line-height:28px">' + hrLabel + '</span>';
-        rows += '<input type="text" inputmode="numeric" placeholder="In" value="' + fi + '" oninput="' + inFn + '">';
-        rows += '<input type="text" inputmode="numeric" placeholder="Out" value="' + fo + '" oninput="' + outFn + '">';
-        rows += '</div>';
+      let obsTxt = '';
+      if (d.news2.length > 0) {
+        obsTxt += d.news2.map(l => {
+          const sc = calcN2(l);
+          if (sc >= 5) hasAlerts = true;
+          let txt = `${l.time||'--:--'} - Score ${sc} (RR ${l.rr||'-'}, SpO2 ${l.spo2||'-'}%, ${l.o2||'Air'}, BP ${l.sys||'-'}/${l.dia||'-'}, HR ${l.hr||'-'}, ${l.acvpu||'Alert'}, Temp ${l.t||'-'}°C)`;
+          return sc >= 5 ? `<b style="color:var(--red)">${txt}</b>` : txt;
+        }).join('<br>');
       }
       
-      h += '<div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:12px">';
-      h += '<span>In: <b>' + ti + 'ml</b></span>';
-      h += '<span>Out: <b>' + to + 'ml</b></span>';
-      h += '<span>Net: <b>' + (ti - to) + 'ml</b></span>';
-      h += '</div>';
-      h += '<div style="max-height:160px;overflow-y:auto;border:1px solid #CBD5E1;padding:6px;border-radius:6px">';
-      h += rows;
-      h += '</div>';
-      return h;
-    }
-    return '';
-  }
-  
-  if(secId === "food"){
-    var fOpts = ['','All','3/4','1/2','1/4','Refused','NBM'];
-    h += '<div class="row">';
-    h += sel(b, 'food', 'b', 'Breakfast', rec.food.b, fOpts);
-    h += sel(b, 'food', 'l', 'Lunch', rec.food.l, fOpts);
-    h += sel(b, 'food', 'd', 'Dinner', rec.food.d, fOpts);
-    h += '</div>';
-    h += inp(b, 'food', 'note', 'Notes', rec.food.note);
-    return h;
-  }
-  
-  if(secId === "bowel"){
-    h += '<div class="row">';
-    h += inpTime(b, 'bowel', 'time', 'Time', rec.bowel.time);
-    h += sel(b, 'bowel', 'amt', 'Amount', rec.bowel.amt, ['','Small','Medium','Large','Smear']);
-    h += '</div>';
-    h += sel(b, 'bowel', 'type', 'Bristol Type', rec.bowel.type, ['','Type 1','Type 2','Type 3','Type 4 (Smooth)','Type 5','Type 6','Type 7','BNO']);
-    return h;
-  }
-  
-  if(secId === "turn"){
-    var turnOpts = ['', 'Back', 'Left', 'Right', 'Chair', 'Walking', 'Refused'];
-    h += '<div class="row">';
-    h += sel(b, 'turn', 't1', '08:00', rec.turn.t1, turnOpts);
-    h += sel(b, 'turn', 't2', '10:00', rec.turn.t2, turnOpts);
-    h += sel(b, 'turn', 't3', '12:00', rec.turn.t3, turnOpts);
-    h += '</div><div class="row">';
-    h += sel(b, 'turn', 't4', '14:00', rec.turn.t4, turnOpts);
-    h += sel(b, 'turn', 't5', '16:00', rec.turn.t5, turnOpts);
-    h += sel(b, 'turn', 't6', '18:00', rec.turn.t6, turnOpts);
-    h += '</div>';
-    return h;
-  }
-  
-  if(secId === "bp"){
-    h += '<div style="margin-bottom:6px">';
-    h += '<span id="bdg-p-' + sb + '" class="badge b-green">Normal</span>';
-    h += '</div><div class="row">';
-    
-    var onLSys = 'setVal(\'' + b + '\',\'bp\',\'lsys\',this.value)';
-    var onLDia = 'setVal(\'' + b + '\',\'bp\',\'ldia\',this.value)';
-    
-    h += '<div><label>Lying BP (Sys / Dia)</label><div class="bp-pair">';
-    h += '<input type="text" inputmode="numeric" placeholder="120" value="' + (rec.bp.lsys || '') + '" oninput="' + onLSys + '">';
-    h += '<span>/</span>';
-    h += '<input type="text" inputmode="numeric" placeholder="80" value="' + (rec.bp.ldia || '') + '" oninput="' + onLDia + '">';
-    h += '</div></div>';
-    
-    var onSSys = 'setVal(\'' + b + '\',\'bp\',\'ssys\',this.value)';
-    var onSDia = 'setVal(\'' + b + '\',\'bp\',\'sdia\',this.value)';
-    
-    h += '<div><label>Standing BP (Sys / Dia)</label><div class="bp-pair">';
-    h += '<input type="text" inputmode="numeric" placeholder="118" value="' + (rec.bp.ssys || '') + '" oninput="' + onSSys + '">';
-    h += '<span>/</span>';
-    h += '<input type="text" inputmode="numeric" placeholder="78" value="' + (rec.bp.sdia || '') + '" oninput="' + onSDia + '">';
-    h += '</div></div>';
-    
-    h += '</div>';
-    return h;
-  }
-  
-  if(secId === "bm"){
-    var bmOpts = ['', 'Before Breakfast', 'After Breakfast', 'Before Lunch', 'After Lunch', 'Before Dinner', 'After Dinner', 'Before Bed', 'Night', 'Random'];
-    h += '<div style="margin-bottom:6px">';
-    h += '<span id="bdg-m-' + sb + '" class="badge b-green">Pending</span>';
-    h += '</div><div class="row">';
-    h += sel(b, 'bm', 'meal', 'Timing', rec.bm.meal, bmOpts);
-    h += inp(b, 'bm', 'val', 'BM mmol/L', rec.bm.val, 'text', '', 'decimal');
-    h += '</div>';
-    return h;
-  }
-  
-  if(secId === "must"){
-    h += '<div class="row">';
-    h += inp(b, 'must', 'wt', 'Weight (kg)', rec.must.wt, 'text', '70.5', 'decimal');
-    h += '</div>';
-    return h;
-  }
-  
-  return '';
-}
-
-function renderApp(){
-  var nav = document.getElementById("navBar");
-  var root = document.getElementById("tabContent");
-  if(!nav || !root) return;
-
-  var navHtml = '<button type="button" class="' + (curTab === 'home' ? 'active' : '') + '" onclick="switchTab(\'home\')">Home</button>';
-  for(var i = 0; i < allocated.length; i++){
-    var allocB = allocated[i];
-    navHtml += '<button type="button" class="' + (curTab === allocB ? 'active' : '') + '" onclick="switchTab(\'' + allocB + '\')">' + allocB + '</button>';
-  }
-  navHtml += '<button type="button" class="' + (curTab === 'summary' ? 'active' : '') + '" onclick="switchTab(\'summary\')">Summary</button>';
-  nav.innerHTML = navHtml;
-
-  if(curTab === "home"){
-    var hm = '<div class="card"><div class="card-title">Select Shift Allocations</div>';
-    hm += '<div style="font-size:12px;color:#64748B;margin-bottom:8px">Tap beds below to allocate to your shift.</div>';
-    hm += '<div style="font-size:12px;font-weight:700;color:var(--navy);margin-bottom:10px">';
-    hm += 'Allocated (' + allocated.length + '): ' + (allocated.join(", ") || 'None selected');
-    hm += '</div><div class="bed-grid">';
-    
-    for(var j = 0; j < BEDS.length; j++){
-      var bedName = BEDS[j];
-      var isAct = allocated.includes(bedName) ? 'active-bed' : '';
-      hm += '<button type="button" class="bed-pill ' + isAct + '" onclick="toggleAlloc(\'' + bedName + '\')">' + bedName + '</button>';
-    }
-    
-    hm += '</div></div>';
-    root.innerHTML = hm;
-    return;
-  }
-
-  if(curTab === "summary"){
-    if(!allocated.length){
-      root.innerHTML = '<div class="card" style="text-align:center;padding:24px;color:#64748B;font-size:12px">No allocated beds.<br>Select beds in <b>Home</b> first.</div>';
-      return;
-    }
-    var sh = '<div style="margin-bottom:10px"><b style="font-size:13px;color:var(--navy)">Shift Handover Summary (' + allocated.length + ' Beds)</b></div>';
-    
-    for(var a = 0; a < allocated.length; a++){
-      var bSum = allocated[a];
-      var r = records[bSum] || {};
-      var secs = [];
-      var sp = [];
+      if (d.bm.length > 0) {
+        if (obsTxt) obsTxt += '<br><br>';
+        obsTxt += d.bm.map(l => {
+          const v = parseFloat(l.val);
+          if (v < 4 || v > 11) hasAlerts = true;
+          let txt = `${l.time||'--:--'} - Glucose: ${l.val||'-'} mmol/L (${l.meal||'Unspecified'})`;
+          return (v < 4 || v > 11) ? `<b style="color:var(--red)">${txt}</b>` : txt;
+        }).join('<br>');
+      }
       
-      if(r.amy && r.amy.sacrum) sp.push("Sacrum: " + r.amy.sacrum);
-      if(r.amy && r.amy.groin) sp.push("Groin: " + r.amy.groin);
-      if(r.amy && r.amy.heels) sp.push("Heels: " + r.amy.heels);
-      if(r.amy && r.amy.elbows) sp.push("Elbows: " + r.amy.elbows);
-      if(r.amy && r.amy.other) sp.push("Other: " + r.amy.other);
-      if(r.amy && r.amy.dress) sp.push("Dress: " + r.amy.dress);
-      if(sp.length > 0) secs.push("<b>Skin:</b> " + sp.join(' | '));
-
-      var bpFormatted = (r.news2 && r.news2.sys ? r.news2.sys + (r.news2.dia ? '/' + r.news2.dia : '') : '');
-      if(r.news2 && (r.news2.rr || r.news2.spo2 || bpFormatted || r.news2.hr || r.news2.t)){
-        var n = getNEWS2(r.news2);
-        if(n.sc === 0){
-          secs.push("<b>NEWS2:</b> 0" + (r.news2.time ? ' (' + r.news2.time + ')' : ''));
-        } else {
-          var bgClass = n.sc >= 7 ? 'b-red' : (n.sc >= 5 ? 'b-amber' : 'b-green');
-          var timeStr = r.news2.time ? ' at ' + r.news2.time : '';
-          secs.push("<b>NEWS2:</b> <span class=\"" + bgClass + " badge\">Score " + n.sc + "</span>" + timeStr + " &bull; " + n.reasons.join(', '));
+      if (obsTxt) sectionsHtml += `<div class="summary-sec"><b>Observations:</b><br>${obsTxt}</div>`;
+      
+      let iT=0, oT=0; d.fluid.forEach(f=>{ iT+=parseFloat(f.i)||0; oT+=parseFloat(f.o)||0; });
+      const net = iT-oT;
+      if (iT > 0 || oT > 0) {
+        let ftxt = `In: ${iT}ml | Out: ${oT}ml | Net: ${net}ml`;
+        if (net <= -500) {
+          hasAlerts = true;
+          ftxt = `<b style="color:var(--red)">${ftxt}</b>`;
         }
-      }
-
-      var ti = 0, to = 0;
-      var fArr = (r.fluid && r.fluid.h) ? r.fluid.h : [];
-      for(var f = 0; f < fArr.length; f++){
-        ti += +fArr[f].i || 0;
-        to += +fArr[f].o || 0;
-      }
-      if(ti > 0 || to > 0){
-        secs.push("<b>Fluids:</b> In: " + ti + "ml | Out: " + to + "ml | Net: " + (ti - to) + "ml");
-      }
-
-      var fp = [];
-      if(r.food && r.food.b) fp.push("B: " + r.food.b);
-      if(r.food && r.food.l) fp.push("L: " + r.food.l);
-      if(r.food && r.food.d) fp.push("D: " + r.food.d);
-      if(r.food && r.food.note) fp.push("Note: " + r.food.note);
-      if(fp.length > 0) secs.push("<b>Food:</b> " + fp.join(' | '));
-
-      var hasBowel = (r.bowel && r.bowel.amt) || (r.bowel && r.bowel.type) || (r.bowel && r.bowel.time);
-      if(hasBowel){
-        var bwTime = r.bowel.time ? r.bowel.time + ' - ' : '';
-        var bwAmt = r.bowel.amt || '';
-        var bwType = r.bowel.type ? '(' + r.bowel.type + ')' : '';
-        secs.push("<b>Bowels:</b> " + bwTime + bwAmt + " " + bwType);
+        sectionsHtml += `<div class="summary-sec"><b>Fluid Balance:</b><br>${ftxt}</div>`;
       }
       
-      if(r.bm && r.bm.val){
-        secs.push("<b>Blood Glucose:</b> " + r.bm.val + " mmol/L" + (r.bm.meal ? ' (' + r.bm.meal + ')' : ''));
+      let dietParts = [];
+      if (d.food.b) dietParts.push(`Breakfast: ${d.food.b}`);
+      if (d.food.l) dietParts.push(`Lunch: ${d.food.l}`);
+      if (d.food.d) dietParts.push(`Dinner: ${d.food.d}`);
+      let dietTxt = dietParts.join(' | ');
+      
+      let bowelTxt = '';
+      if (d.bowel.length > 0) {
+        bowelTxt = d.bowel.map(r => `${r.time||'--:--'} - ${r.amt||'-'} (${r.type||'-'})`).join('<br>');
       }
       
-      var lBp = (r.bp && r.bp.lsys ? r.bp.lsys + (r.bp.ldia ? '/' + r.bp.ldia : '') : '');
-      var sBp = (r.bp && r.bp.ssys ? r.bp.ssys + (r.bp.sdia ? '/' + r.bp.sdia : '') : '');
-      if(lBp || sBp){
-        secs.push("<b>L/S BP:</b> Lying: " + (lBp || '-') + " | Standing: " + (sBp || '-'));
+      if (dietTxt || bowelTxt) {
+        let dHtml = '';
+        if (dietTxt) dHtml += `${dietTxt}<br>`;
+        if (bowelTxt) dHtml += `Bowels:<br>${bowelTxt}`;
+        sectionsHtml += `<div class="summary-sec"><b>Diet & Bowels:</b><br>${dHtml}</div>`;
       }
       
-      if(r.must && r.must.wt){
-        secs.push("<b>Weight:</b> " + r.must.wt + " kg");
+      let skinParts = [];
+      if (d.amy.sac) skinParts.push(`Sacrum (${d.amy.sac})`);
+      if (d.amy.groin) skinParts.push(`Groin (${d.amy.groin})`);
+      if (d.amy.heels) skinParts.push(`Heels (${d.amy.heels})`);
+      if (d.amy.elbows) skinParts.push(`Elbows (${d.amy.elbows})`);
+      let skinSummary = skinParts.length > 0 ? `Checks: ${skinParts.join(', ')}` : '';
+      
+      const tTimes = isNight ? ['20:00','22:00','00:00','02:00','04:00','06:00'] : ['08:00','10:00','12:00','14:00','16:00','18:00'];
+      let turnDetails = d.turn.map((t, i) => t !== '' ? `${tTimes[i]} - ${t}` : null).filter(Boolean).join('<br>');
+      if (turnDetails) turnDetails = `Turns:<br>${turnDetails}`;
+      
+      let skintxt = '';
+      if (d.dressings && d.dressings.length > 0) {
+        skintxt = `Dressings:<br>` + d.dressings.map(dr => `${dr.val || 'Unnamed'} (Due: <b>${calcDue(dr.date)}</b>)`).join('<br>');
       }
 
-      sh += '<div class="card"><div class="card-title">' + bSum + '</div>';
-      
-      if(secs.length > 0){
-        for(var sIdx = 0; sIdx < secs.length; sIdx++){
-          sh += '<div class="summary-sec">' + secs[sIdx] + '</div>';
-        }
-      } else {
-        sh += '<div style="font-size:11px;color:#94A3B8;padding:4px 0">No entries recorded this shift.</div>';
+      let skinGroup = [skinSummary, turnDetails, skintxt].filter(Boolean).join('<br><br>');
+      if (skinGroup) sectionsHtml += `<div class="summary-sec"><b>Skin & Repositioning:</b><br>${skinGroup}</div>`;
+
+      if (d.events.length > 0) {
+        let eventTxt = d.events.map(r => `${r.time||'--:--'} - ${r.val||''}`).join('<br>');
+        sectionsHtml += `<div class="summary-sec"><b>Narrative Notes:</b><br>${eventTxt}</div>`;
       }
-      sh += '</div>';
-    }
-    root.innerHTML = sh;
+      
+      if (d.admit.length > 0) {
+        let admitTxt = d.admit.map(r => `- ${r.val||''}`).join('<br>');
+        sectionsHtml += `<div class="summary-sec"><b>Admissions Property:</b><br>${admitTxt}</div>`;
+      }
+
+      if (!sectionsHtml) {
+        sectionsHtml = `<p style="color:var(--text-sub); font-size:0.9rem;">No data recorded yet.</p>`;
+        hasAlerts = false;
+      }
+
+      h += `<div class="card" ${hasAlerts ? 'style="border-left:4px solid var(--red);"' : 'style="border-left:4px solid var(--green);"'} >
+        <h2 style="color:var(--navy); margin-bottom:12px; font-size:1.2rem;">${b}</h2>
+        ${sectionsHtml}
+      </div>`;
+    });
+    area.innerHTML = h || '<p style="text-align:center; padding:20px; color:var(--text-sub);">No active patients.</p>';
     return;
   }
 
-  if(allocated.includes(curTab)){
-    var viewB = curTab;
-    var sb = viewB.replace(/\s+/g,"");
-    ensureBed(viewB);
-    var rec = records[viewB];
-    if(!rec || !rec.vis) return;
+  if (!db[curBed]) return;
+  const d = db[curBed];
+  let h = '';
 
-    var pHtml = '<div style="font-size:12px;color:#64748B;margin-bottom:6px;">Toggle visible charts for ' + viewB + '</div>';
-    
-    pHtml += '<div class="chip-scroll">';
-    for(var ci = 0; ci < SECTIONS.length; ci++){
-      var sChip = SECTIONS[ci];
-      var activeCls = rec.vis[sChip.id] ? 'active-chip' : '';
-      pHtml += '<button type="button" class="chip ' + activeCls + '" onclick="toggleVis(\'' + viewB + '\', \'' + sChip.id + '\')">' + sChip.lbl + '</button>';
-    }
-    pHtml += '</div>';
+  if (curSec === 'news2') {
+    h += `<button class="btn btn-primary" style="margin-bottom:16px;" onclick="addArr('news2')">+ Add NEWS2</button>`;
+    d.news2.forEach((r, i) => {
+      const sc = calcN2(r);
+      const bg = sc >= 7 ? 'bg-red' : (sc >= 5 ? 'bg-amber' : (sc > 0 ? 'bg-amber' : 'bg-green'));
+      h += `<div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+          <span id="n2-badge-${i}" class="badge ${bg}">Score: ${sc}</span>
+          <button class="btn btn-danger btn-sm" onclick="rmArr('news2', ${i})">X</button>
+        </div>
+        <div class="row">
+          <div><label>Time</label><input type="time" value="${r.time||''}" oninput="updateField('${curBed}','news2',${i},'time',this.value)"></div>
+          <div><label>RR</label><input type="number" value="${r.rr||''}" oninput="updateField('${curBed}','news2',${i},'rr',this.value); refreshN2(${i})"></div>
+          <div><label>SpO2%</label><input type="number" value="${r.spo2||''}" oninput="updateField('${curBed}','news2',${i},'spo2',this.value); refreshN2(${i})"></div>
+        </div>
+        <div class="row">
+          <div><label>Air/O2</label><select onchange="updateField('${curBed}','news2',${i},'o2',this.value); refreshN2(${i})"><option>Air</option><option ${r.o2==='O2'?'selected':''}>O2</option></select></div>
+          <div><label>BP (Sys/Dia)</label><div class="bp-pair"><input type="number" value="${r.sys||''}" oninput="updateField('${curBed}','news2',${i},'sys',this.value); refreshN2(${i})"><span>/</span><input type="number" value="${r.dia||''}" oninput="updateField('${curBed}','news2',${i},'dia',this.value)"></div></div>
+        </div>
+        <div class="row">
+          <div><label>HR</label><input type="number" value="${r.hr||''}" oninput="updateField('${curBed}','news2',${i},'hr',this.value); refreshN2(${i})"></div>
+          <div><label>ACVPU</label><select onchange="updateField('${curBed}','news2',${i},'acvpu',this.value); refreshN2(${i})"><option>Alert</option><option ${r.acvpu==='CVPU'?'selected':''}>CVPU</option></select></div>
+          <div><label>Temp</label><input type="number" step="0.1" value="${r.t||''}" oninput="updateField('${curBed}','news2',${i},'t',this.value); refreshN2(${i})"></div>
+        </div>
+      </div>`;
+    });
+  }
 
-    for(var si = 0; si < SECTIONS.length; si++){
-      var sCard = SECTIONS[si];
-      if (rec.vis[sCard.id]) {
-        pHtml += '<div class="card"><div class="card-title">' + sCard.lbl + '</div>';
-        pHtml += renderSectionContent(viewB, sb, rec, sCard.id);
-        pHtml += '</div>';
-      }
-    }
+  if (curSec === 'bm') {
+    h += `<button class="btn btn-primary" style="margin-bottom:16px;" onclick="addArr('bm')">+ Add Glucose</button>`;
+    d.bm.forEach((r, i) => {
+      const v = parseFloat(r.val);
+      let bg = 'bg-green', txt = 'Pending';
+      if(v) { bg = v<4?'bg-red':(v>11?'bg-red':'bg-green'); txt = v<4?'HYPO':(v>11?'HIGH':'TARGET'); }
+      h += `<div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+          <span id="bm-badge-${i}" class="badge ${bg}">${txt}</span>
+          <button class="btn btn-danger btn-sm" onclick="rmArr('bm', ${i})">X</button>
+        </div>
+        <div class="row">
+          <div><label>Time</label><input type="time" value="${r.time||''}" oninput="updateField('${curBed}','bm',${i},'time',this.value)"></div>
+          <div><label>Meal</label><select onchange="updateField('${curBed}','bm',${i},'meal',this.value)">${opts(['','Pre-Breakfast','Post-Breakfast','Pre-Lunch','Post-Lunch','Pre-Dinner','Post-Dinner','Night'], r.meal)}</select></div>
+          <div><label>mmol/L</label><input type="number" step="0.1" value="${r.val||''}" oninput="updateField('${curBed}','bm',${i},'val',this.value); refreshBM(${i})"></div>
+        </div>
+      </div>`;
+    });
+  }
 
-    root.innerHTML = pHtml;
+  if (curSec === 'bp') {
+    const l = parseFloat(d.bp.lsys)||0, s = parseFloat(d.bp.ssys)||0, drop = l - s;
+    const bg = (!l||!s) ? 'bg-green' : (drop>=20 ? 'bg-red' : 'bg-green');
+    const txt = (!l||!s) ? 'Normal' : (drop>=20 ? `Drop (-${drop})` : `Normal (${drop})`);
+    h += `<div class="card">
+      <span id="bp-badge" class="badge ${bg}" style="margin-bottom:12px;">${txt}</span>
+      <div class="row">
+        <div><label>Lying BP (Sys/Dia)</label><div class="bp-pair"><input type="number" value="${d.bp.lsys}" oninput="updateField('${curBed}','bp',null,'lsys',this.value); refreshBP()"><span>/</span><input type="number" value="${d.bp.ldia}" oninput="updateField('${curBed}','bp',null,'ldia',this.value)"></div></div>
+      </div>
+      <div class="row">
+        <div><label>Standing BP (Sys/Dia)</label><div class="bp-pair"><input type="number" value="${d.bp.ssys}" oninput="updateField('${curBed}','bp',null,'ssys',this.value); refreshBP()"><span>/</span><input type="number" value="${d.bp.sdia}" oninput="updateField('${curBed}','bp',null,'sdia',this.value)"></div></div>
+      </div>
+    </div>`;
+  }
 
-    if(rec.vis.news2) calcNEWS2(viewB);
-    if(rec.vis.bp) calcBP(viewB);
-    if(rec.vis.bm) calcBM(viewB);
+  if (curSec === 'fluid') {
+    const times = isNight ? ['19:00','20:00','21:00','22:00','23:00','00:00','01:00','02:00','03:00','04:00','05:00','06:00','07:00'] : ['07:00','08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00'];
+    let inT=0, outT=0; d.fluid.forEach(f=>{ inT+=parseFloat(f.i)||0; outT+=parseFloat(f.o)||0; });
+    h += `<div id="fluid-totals" class="card" style="display:flex; justify-content:space-between; font-weight:600; padding:12px;"><span>In: ${inT}</span><span>Out: ${outT}</span><span>Net: ${inT-outT}</span></div><div class="card">`;
+    times.forEach((t, i) => {
+      h += `<div class="row" style="align-items:center; margin-bottom:6px;">
+        <span style="width:45px; font-weight:600; font-size:0.9rem;">${t}</span>
+        <input type="number" placeholder="In" value="${d.fluid[i].i}" oninput="updateField('${curBed}','fluid',${i},'i',this.value); refreshFluid()">
+        <input type="number" placeholder="Out" value="${d.fluid[i].o}" oninput="updateField('${curBed}','fluid',${i},'o',this.value); refreshFluid()">
+      </div>`;
+    });
+    h += `</div>`;
+  }
+
+  if (curSec === 'bowel') {
+    h += `<button class="btn btn-primary" style="margin-bottom:16px;" onclick="addArr('bowel')">+ Add Bowel Record</button>`;
+    d.bowel.forEach((r, i) => {
+      h += `<div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+          <b>Entry ${i+1}</b><button class="btn btn-danger btn-sm" onclick="rmArr('bowel', ${i})">X</button>
+        </div>
+        <div class="row">
+          <div><label>Time</label><input type="time" value="${r.time||''}" oninput="updateField('${curBed}','bowel',${i},'time',this.value)"></div>
+          <div><label>Amount</label><select onchange="updateField('${curBed}','bowel',${i},'amt',this.value)">${opts(['','Small','Medium','Large','Smear'], r.amt)}</select></div>
+        </div>
+        <div class="row">
+          <div><label>Bristol Type</label><select onchange="updateField('${curBed}','bowel',${i},'type',this.value)">${opts(['','Type 1','Type 2','Type 3','Type 4','Type 5','Type 6','Type 7','BNO'], r.type)}</select></div>
+        </div>
+      </div>`;
+    });
+  }
+
+  if (curSec === 'amy') {
+    h += `<div class="card"><button class="btn btn-primary" style="margin-bottom:16px; background:var(--teal);" onclick="markSkinFine()">Mark All Fine</button>
+    <div class="row">
+      <div><label>Sacrum</label><select class="skin-sel" onchange="updateField('${curBed}','amy',null,'sac',this.value)">${opts(['','Fine','Red','Broken'], d.amy.sac)}</select></div>
+      <div><label>Groin</label><select class="skin-sel" onchange="updateField('${curBed}','amy',null,'groin',this.value)">${opts(['','Fine','Red','Broken'], d.amy.groin)}</select></div>
+    </div>
+    <div class="row">
+      <div><label>Heels</label><select class="skin-sel" onchange="updateField('${curBed}','amy',null,'heels',this.value)">${opts(['','Fine','Red','Broken'], d.amy.heels)}</select></div>
+      <div><label>Elbows</label><select class="skin-sel" onchange="updateField('${curBed}','amy',null,'elbows',this.value)">${opts(['','Fine','Red','Broken'], d.amy.elbows)}</select></div>
+    </div>
+    </div>`;
+
+    h += `<button class="btn btn-primary" style="margin-bottom:16px;" onclick="addArr('dressings')">+ Add Dressing</button>`;
+    d.dressings.forEach((r, i) => {
+      h += `<div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+          <b>Dressing ${i+1}</b><button class="btn btn-danger btn-sm" onclick="rmArr('dressings', ${i})">X</button>
+        </div>
+        <div class="row">
+          <div><label>Location</label><input type="text" placeholder="e.g. Sacrum" value="${r.val||''}" oninput="updateField('${curBed}','dressings',${i},'val',this.value)"></div>
+        </div>
+        <div class="row" style="align-items:center;">
+          <div><label>Written Date</label><input type="date" value="${r.date||''}" onchange="updateField('${curBed}','dressings',${i},'date',this.value); renderContent()"></div>
+          <div style="flex:0 0 auto;"><button class="btn btn-sm" style="border:1px solid var(--border);" onclick="setNoDateArr(${i})">No Date</button></div>
+        </div>
+        <div style="font-size:0.85rem; color:var(--text-sub);">Next Due: <b>${calcDue(r.date)}</b></div>
+      </div>`;
+    });
+    if (d.dressings.length === 0) h += `<p style="color:var(--text-sub); text-align:center; padding-bottom:12px;">No dressings recorded.</p>`;
+  }
+
+  if (curSec === 'food') {
+    const fOps = ['','100%','75%','50%','25%','0%','Refused','NBM'];
+    h += `<div class="card">
+      <div class="row"><div><label>Breakfast</label><select onchange="updateField('${curBed}','food',null,'b',this.value)">${opts(fOps, d.food.b)}</select></div></div>
+      <div class="row"><div><label>Lunch</label><select onchange="updateField('${curBed}','food',null,'l',this.value)">${opts(fOps, d.food.l)}</select></div></div>
+      <div class="row"><div><label>Dinner</label><select onchange="updateField('${curBed}','food',null,'d',this.value)">${opts(fOps, d.food.d)}</select></div></div>
+    </div>`;
+  }
+
+  if (curSec === 'turn') {
+    const tTimes = isNight ? ['20:00','22:00','00:00','02:00','04:00','06:00'] : ['08:00','10:00','12:00','14:00','16:00','18:00'];
+    h += `<div class="card">`;
+    tTimes.forEach((t, i) => {
+      h += `<div class="row" style="align-items:center; margin-bottom:8px;">
+        <span style="width:45px; font-weight:600; font-size:0.9rem;">${t}</span>
+        <select onchange="updateField('${curBed}','turn',${i},null,this.value)">${opts(['', 'Back', 'Left', 'Right', 'Chair', 'Walking', 'Refused'], d.turn[i])}</select>
+      </div>`;
+    });
+    h += `</div>`;
+  }
+
+  if (curSec === 'events') {
+    h += `<button class="btn btn-primary" style="margin-bottom:16px;" onclick="addArr('events')">+ Add Event</button>`;
+    d.events.forEach((r, i) => {
+      h += `<div class="card row" style="align-items:center;">
+        <input type="time" style="width:100px; flex:0 0 auto;" value="${r.time||''}" oninput="updateField('${curBed}','events',${i},'time',this.value)">
+        <input type="text" placeholder="Details" value="${r.val||''}" oninput="updateField('${curBed}','events',${i},'val',this.value)">
+        <button class="btn btn-danger btn-sm" style="flex:0 0 auto;" onclick="rmArr('events', ${i})">X</button>
+      </div>`;
+    });
+  }
+
+  if (curSec === 'admit') {
+    h += `<button class="btn btn-primary" style="margin-bottom:16px;" onclick="addArr('admit')">+ Add Property Item</button>`;
+    d.admit.forEach((r, i) => {
+      h += `<div class="card row" style="align-items:center;">
+        <input type="text" placeholder="Item description (e.g. Dentures, Gold Ring)" value="${r.val||''}" oninput="updateField('${curBed}','admit',${i},'val',this.value)">
+        <button class="btn btn-danger btn-sm" style="flex:0 0 auto;" onclick="rmArr('admit', ${i})">X</button>
+      </div>`;
+    });
+    if (d.admit.length === 0) h += `<p style="color:var(--text-sub); text-align:center; padding:20px 0;">No property logged yet.</p>`;
+  }
+
+  area.innerHTML = h;
+}
+
+function calcN2(e) {
+  let sc = 0; const r=parseFloat(e.rr), sp=parseFloat(e.spo2), sy=parseFloat(e.sys), h=parseFloat(e.hr), t=parseFloat(e.t);
+  if(r) sc += (r<=8||r>=25)?3: (r>=21)?2: (r<=11)?1:0;
+  if(sp) sc += (sp<=91)?3: (sp<=93)?2: (sp<=95)?1:0;
+  if(e.o2==='O2') sc += 2;
+  if(sy) sc += (sy<=90||sy>=220)?3: (sy<=100)?2: (sy<=110)?1:0;
+  if(h) sc += (h<=40||h>=131)?3: (h>=111)?2: (h<=50||h>=91)?1:0;
+  if(e.acvpu && e.acvpu!=='Alert') sc += 3;
+  if(t) sc += (t<=35.0)?3: (t>=39.1)?2: (t>=35.1&&t<=36.0 || t>=38.1&&t<=39.0)?1:0;
+  return sc;
+}
+
+function opts(arr, sel) { return arr.map(a => `<option ${a===sel?'selected':''}>${a}</option>`).join(''); }
+function tNow() { const d = new Date(); return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'); }
+
+function addArr(k) { db[curBed][k].push({time: tNow(), val: ''}); saveDB(); renderContent(); }
+function rmArr(k, i) { db[curBed][k].splice(i, 1); saveDB(); renderContent(); }
+
+function markSkinFine() { 
+  db[curBed].amy.sac = 'Fine'; db[curBed].amy.groin = 'Fine'; 
+  db[curBed].amy.heels = 'Fine'; db[curBed].amy.elbows = 'Fine'; 
+  saveDB(); renderContent(); 
+}
+
+function setNoDateArr(i) {
+  const d = new Date();
+  db[curBed].dressings[i].date = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  saveDB(); renderContent();
+}
+
+function calcDue(val) {
+  if (!val) return '-';
+  const d = new Date(val); d.setDate(d.getDate() + 3);
+  return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
+}
+
+function clearShift() {
+  if (confirm("Are you sure you want to clear all data and end the shift?")) {
+    localStorage.clear(); location.reload();
   }
 }
 
-function clearShift(){
-  if(confirm("Clear shift records? Ensure handover is finished.")){
-    allocated = [];
-    records = {};
-    curTab = "home";
-    saveDB();
-    renderApp();
+function handleSwipe() {
+  if (showSummary || alloc.length <= 1) return;
+  const swipeThreshold = 50;
+  const diffX = touchEndX - touchStartX;
+  const diffY = touchEndY - touchStartY;
+  
+  if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > swipeThreshold) {
+    if (diffX < 0) cycleBed(1);
+    else cycleBed(-1);
   }
 }
 
-window.onload = function() {
-  loadDB();
-  renderApp();
-};
+function cycleBed(dir) {
+  let idx = alloc.indexOf(curBed);
+  idx += dir;
+  if (idx >= alloc.length) idx = 0;
+  if (idx < 0) idx = alloc.length - 1;
+  setBed(alloc[idx]);
+}
+
+initSetup();
 </script>
 </body>
 </html>
