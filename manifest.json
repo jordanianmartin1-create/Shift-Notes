@@ -1,6 +1,6 @@
 {
   "name": "Care Digipad",
-  "short_name": "Digipad",
+  "short_name": "Care Digipad",
   "start_url": "index.html",
   "display": "standalone",
   "background_color": "#f4f6f8",
